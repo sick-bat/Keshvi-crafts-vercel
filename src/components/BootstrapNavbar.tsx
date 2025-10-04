@@ -7,9 +7,11 @@ import CartBadge from "@/components/CartBadge";
 import "./Navbar.css";
 
 export default function BootstrapNavbar() {
-  const pathname = usePathname();
-  const isActive = (href) =>
-    href === "/" ? pathname === "/" : pathname?.startsWith(href);
+const pathname = usePathname();
+
+const isActive = (href: string): boolean =>
+  href === "/" ? pathname === "/" : pathname?.startsWith(href) ?? false;
+
 
   return (
     <nav className="keshvi-nav">
