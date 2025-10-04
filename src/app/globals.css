@@ -20,6 +20,25 @@
   .btn-outline{ @apply btn bg-white text-[#2C1810] border-[#2C1810]/25 hover:bg-neutral-50 hover:border-[#2C1810]/40 }
 }
 
+:root {
+  --cream: #f5efe6;
+  --brown: #4a3212;
+}
+
+.bg-cream {
+  background-color: var(--cream) !important;
+}
+
+.text-brown {
+  color: var(--brown) !important;
+}
+
+.nav-link:hover {
+  color: var(--brown) !important;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
 /* ---------- PLP grid (cards layout) ---------- */
 .plp-grid{
   display:grid;

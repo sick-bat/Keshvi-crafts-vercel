@@ -1,0 +1,109 @@
+:root {
+  --bg: #f5efe6;
+  --ink: #2f2a26;
+  --muted: #6a6150;
+  --cta: hwb(39 13% 64%);
+  --cta-ink: #ffffff;
+  --ring: rgba(91, 70, 32, 0.15);
+  --nav-h: 60px;
+}
+
+.hero {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: clamp(1.2rem, 3vw, 2.2rem)
+    clamp(1rem, 3.2vw, 2.2rem)
+    2.2rem;
+  min-height: calc(100svh - var(--nav-h));
+  display: grid;
+  align-items: center;
+}
+
+.hero-grid {
+  display: grid;
+  align-items: center;
+  gap: clamp(1.6rem, 3vw, 2.6rem);
+  grid-template-columns: 0.9fr 1.1fr;
+}
+
+.copy {
+  justify-self: start;
+  text-align: left;
+  max-width: 32rem;
+  padding-left: clamp(0.2rem, 1.2vw, 0.75rem);
+}
+
+.copy h1 {
+  font-family: "Cormorant Garamond", serif;
+  line-height: 1.28;
+  letter-spacing: 0.2px;
+  font-size: clamp(2.6rem, 6vw, 4.4rem);
+  margin: 0 0 0.6rem;
+}
+
+.copy .sub {
+  color: var(--muted);
+  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+  margin: 0.25rem 0 1.1rem;
+}
+
+.cta {
+  display: inline-block;
+  background: linear-gradient(180deg, #6a4a1f, #4a3212);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.9rem 1.4rem;
+  border-radius: 0.6rem;
+  border: 1px solid #3c2e14;
+  box-shadow: 0 6px 16px rgba(91, 70, 32, 0.25);
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(91, 70, 32, 0.35);
+  background: linear-gradient(180deg, #7a5322, #3a250d);
+}
+
+.photo {
+  background: url("/uploads/hero/Top_brown.png") center/cover no-repeat;
+  aspect-ratio: 3/4;
+  width: min(520px, 95%);
+  justify-self: end;
+}
+
+@media (max-width: 700px) {
+  .hero {
+    position: relative;
+    background: url("/uploads/hero/Top_brown.png") top center/cover
+      no-repeat;
+    min-height: calc(100svh - var(--nav-h));
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    color : #f5efe6;
+  }
+
+  .hero-grid {
+    display: block;
+  }
+
+  .hero h1{
+    color: #ffffff;
+  }
+
+  .copy {
+    padding: clamp(1.3rem, 4vw, 2rem);
+    padding-top: 34vh;
+    max-width: 30rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .photo {
+    display: none;
+  }
+}

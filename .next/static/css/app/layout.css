@@ -23,6 +23,25 @@
   .btn-outline{ @apply btn bg-white text-[#2C1810] border-[#2C1810]/25 hover:bg-neutral-50 hover:border-[#2C1810]/40 }
 }
 
+:root {
+  --cream: #f5efe6;
+  --brown: #4a3212;
+}
+
+.bg-cream {
+  background-color: var(--cream) !important;
+}
+
+.text-brown {
+  color: var(--brown) !important;
+}
+
+.nav-link:hover {
+  color: var(--brown) !important;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
 /* ---------- PLP grid (cards layout) ---------- */
 .plp-grid{
   display:grid;
@@ -306,6 +325,151 @@ summary::-webkit-details-marker { display:none; }
 @keyframes keyframes-svg-celebrate {
   0%{ transform:scale(0) } 50%{ opacity:1; filter:brightness(1.5) }
   100%{ transform:scale(1.4); opacity:0; display:none }
+}
+
+
+/*!***********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[12].use[3]!./src/components/Navbar.css ***!
+  \***********************************************************************************************************************************************************************************************************************************************************************/
+:root {
+  --nav-h: 60px;
+  --cream: #f5efe6;
+  --text: #2f2a26;
+}
+
+.keshvi-nav {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--nav-h);
+  -webkit-backdrop-filter: saturate(180%) blur(6px);
+          backdrop-filter: saturate(180%) blur(6px);
+  background: linear-gradient(180deg, rgba(245, 239, 230, 0.95), rgba(245, 239, 230, 0.78));
+  border-bottom: 1px solid #eadfcd;
+}
+
+.nav-inner {
+  max-width: 1280px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* === Brand === */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: #e7dcc8;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px #d7c9ae;
+}
+
+.logo img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.wordmark {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+/* === Icons === */
+.nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.icon {
+  opacity: 0.8;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.icon:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+.icon.active {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+/* === Cart Badge === */
+/* === Cart === */
+.cart {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px; /* slightly larger hit area */
+  height: 26px;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  transform: translate(50%, -50%);
+  background: #2f2a26;
+  color: #fffaf0;
+  font-size: 0.65rem;
+  padding: 0.15rem 0.35rem;
+  border-radius: 999px;
+  font-weight: 700;
+  line-height: 1;
+  min-width: 14px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+/* === Mobile Adjustments === */
+@media (max-width: 700px) {
+  .wordmark {
+    font-size: 1rem;
+  }
+
+  .logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .logo img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .nav-icons {
+    gap: 1rem;
+  }
+
+  .cart {
+    width: 24px;
+    height: 24px;
+  }
+  .cart-badge {
+    top: -5px;
+    right: -5px;
+    font-size: 0.6rem;
+    min-width: 13px;
+  }
 }
 
 

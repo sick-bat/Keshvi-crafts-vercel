@@ -1,73 +1,82 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import CartBadge from "@/components/CartBadge";
+import "./Navbar.css";
 
 export default function BootstrapNavbar() {
   const pathname = usePathname();
-  const isActive = (href: string) =>
+  const isActive = (href) =>
     href === "/" ? pathname === "/" : pathname?.startsWith(href);
 
   return (
-    <nav className="navbar navbar-expand-md navbar-light bg-white sticky-top border-bottom">
-      <div className="container">
-        <Link className="navbar-brand fw-bold" href="/">
-          Keshvi Crafts
+    <nav className="keshvi-nav">
+      <div className="nav-inner">
+        {/* === Left side: Brand === */}
+        <Link href="/" className="brand" aria-label="Keshvi Crafts — Home">
+          <span className="logo">
+            <Image src="/uploads/hero/logo.png" alt="Keshvi Crafts Logo" width={28} height={28} />
+          </span>
+          <span className="wordmark">Keshvi Crafts</span>
         </Link>
 
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#mainNav"
-          aria-controls="mainNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon" />
-        </button>
+        {/* === Right side: Icons === */}
+        <div className="nav-icons">
+          <Link href="/" title="Home">
+            <Image
+              src="/uploads/hero/home.png"
+              alt="Home"
+              width={22}
+              height={22}
+              className={`icon ${isActive("/") ? "active" : ""}`}
+            />
+          </Link>
 
-        <div className="collapse navbar-collapse" id="mainNav">
-          <ul className="navbar-nav ms-auto mb-2 mb-md-0">
-            <li className="nav-item">
-              <Link className={`nav-link ${isActive("/") ? "active" : ""}`} href="/">
-                Home
-              </Link>
-            </li>
+          <Link href="/profile" title="Profile">
+            <Image
+              src="/uploads/hero/profile.png"
+              alt="Profile"
+              width={22}
+              height={22}
+              className={`icon ${isActive("/profile") ? "active" : ""}`}
+            />
+          </Link>
 
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${isActive("/collections") ? "active" : ""}`}
-                href="/collections"
-              >
-                Collections
-              </Link>
-            </li>
+          <Link href="/collections" title="Collections">
+            <Image
+              src="/uploads/hero/collections.png"
+              alt="Collections"
+              width={22}
+              height={22}
+              className={`icon ${isActive("/collections") ? "active" : ""}`}
+            />
+          </Link>
 
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${isActive("/wishlist") ? "active" : ""}`}
-                href="/wishlist"
-              >
-                Wishlist
-              </Link>
-            </li>
+          <Link href="/wishlist" title="Wishlist">
+            <Image
+              src="/uploads/hero/wishlist.png"
+              alt="Wishlist"
+              width={22}
+              height={22}
+              className={`icon ${isActive("/wishlist") ? "active" : ""}`}
+            />
+          </Link>
 
-            <li className="nav-item">
-              <Link
-                className={`nav-link d-flex align-items-center ${
-                  isActive("/cart") ? "active" : ""
-                }`}
-                href="/cart"
-              >
-                Cart
-                <span className="ms-1 badge rounded-pill bg-dark">
-                  <CartBadge />
-                </span>
-              </Link>
-            </li>
-          </ul>
+          {/* === Cart with badge === */}
+          <Link href="/cart" title="Cart" className="cart">
+            <Image
+              src="/uploads/hero/cart.png"
+              alt="Cart"
+              width={22}
+              height={22}
+              className={`icon ${isActive("/cart") ? "active" : ""}`}
+            />
+            <span className="cart-badge">
+              <CartBadge />
+            </span>
+          </Link>
         </div>
       </div>
     </nav>
