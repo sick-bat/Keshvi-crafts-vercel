@@ -56,26 +56,66 @@
   letter-spacing: 0.2px;
 }
 
-/* === Icons === */
+/* === Navigation Items (Icon + Label) === */
 .nav-icons {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: 1.5rem;
 }
 
-.icon {
-  opacity: 0.8;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--text);
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-.icon:hover {
+.nav-item:hover {
+  background: rgba(47, 42, 38, 0.05);
+  color: var(--text);
+}
+
+.nav-item.active {
+  color: var(--text);
+  background: rgba(47, 42, 38, 0.08);
+}
+
+.nav-icon {
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.nav-item:hover .nav-icon,
+.nav-item.active .nav-icon {
   opacity: 1;
-  transform: translateY(-2px);
 }
 
-.icon.active {
-  opacity: 1;
-  transform: scale(1.05);
+.nav-label {
+  white-space: nowrap;
+}
+
+/* Hide labels on mobile, show icons only */
+@media (max-width: 700px) {
+  .nav-label {
+    display: none;
+  }
+  
+  .nav-item {
+    padding: 0.5rem;
+    gap: 0;
+  }
+  
+  .nav-icons {
+    gap: 1rem;
+  }
 }
 
 /* === Cart Badge === */

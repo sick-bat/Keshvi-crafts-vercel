@@ -24,57 +24,51 @@ const isActive = (href: string): boolean =>
           <span className="wordmark">Keshvi Crafts</span>
         </Link>
 
-        {/* === Right side: Icons === */}
+        {/* === Right side: Navigation with icons + labels === */}
         <div className="nav-icons">
-          <Link href="/" title="Home">
+          <Link href="/" className={`nav-item ${isActive("/") ? "active" : ""}`} title="Home">
             <Image
               src="/uploads/hero/home.png"
               alt="Home"
-              width={22}
-              height={22}
-              className={`icon ${isActive("/") ? "active" : ""}`}
+              width={20}
+              height={20}
+              className="nav-icon"
             />
+            <span className="nav-label">Home</span>
           </Link>
 
-          <Link href="/profile" title="Profile">
-            <Image
-              src="/uploads/hero/profile.png"
-              alt="Profile"
-              width={22}
-              height={22}
-              className={`icon ${isActive("/profile") ? "active" : ""}`}
-            />
-          </Link>
-
-          <Link href="/collections" title="Collections">
+          <Link href="/collections" className={`nav-item ${isActive("/collections") ? "active" : ""}`} title="Collections">
             <Image
               src="/uploads/hero/collections.png"
               alt="Collections"
-              width={22}
-              height={22}
-              className={`icon ${isActive("/collections") ? "active" : ""}`}
+              width={20}
+              height={20}
+              className="nav-icon"
             />
+            <span className="nav-label">Collections</span>
           </Link>
 
-          <Link href="/wishlist" title="Wishlist">
+          <Link href="/wishlist" className={`nav-item ${isActive("/wishlist") ? "active" : ""}`} title="Wishlist">
             <Image
               src="/uploads/hero/wishlist.png"
               alt="Wishlist"
-              width={22}
-              height={22}
-              className={`icon ${isActive("/wishlist") ? "active" : ""}`}
+              width={20}
+              height={20}
+              className="nav-icon"
             />
+            <span className="nav-label">Wishlist</span>
           </Link>
 
           {/* === Cart with badge === */}
-          <Link href="/cart" title="Cart" className="cart">
+          <Link href="/cart" className={`nav-item cart ${isActive("/cart") ? "active" : ""}`} title="Cart">
             <Image
               src="/uploads/hero/cart.png"
               alt="Cart"
-              width={22}
-              height={22}
-              className={`icon ${isActive("/cart") ? "active" : ""}`}
+              width={20}
+              height={20}
+              className="nav-icon"
             />
+            <span className="nav-label">Cart</span>
             <span className="cart-badge">
               <CartBadge />
             </span>

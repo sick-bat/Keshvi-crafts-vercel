@@ -1,81 +1,172 @@
 // app/collections/page.tsx
 "use client";
 
-import { getCollections, removeFromCollection, addToCart } from "@/lib/bags";
-import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import products from "@/data/products.json";
+import ProductCard from "@/components/ProductCard";
+import BottomSheet from "@/components/BottomSheet";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+
+type SortOption = "newest" | "price-low" | "price-high" | "popular";
 
 export default function CollectionsPage() {
-  const [data, setData] = useState(getCollections());
-  const [active, setActive] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const categoryFilter = searchParams.get("category");
+  
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [category, setCategory] = useState<string | null>(categoryFilter);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const refresh = () => setData(getCollections());
+  // Filter out variants - only show parent products
+  const live = (products as any[]).filter(
+    (p: any) => (p.status ?? "live") !== "hidden" && !p.variants // Hide products that are variants
+  );
 
-  useEffect(() => {
-    const h = () => refresh();
-    window.addEventListener("bag:changed", h);
-    window.addEventListener("storage", h);
-    return () => {
-      window.removeEventListener("bag:changed", h);
-      window.removeEventListener("storage", h);
-    };
-  }, []);
+  // Get unique categories
+  const categories = Array.from(
+    new Set(live.map((p: any) => p.category).filter(Boolean))
+  ) as string[];
 
-  const names = Object.keys(data);
-  const currentName = active ?? names[0] ?? null;
-  const items = useMemo(() => (currentName ? data[currentName] ?? [] : []), [data, currentName]);
+  // Filter by category
+  const filtered = useMemo(() => {
+    let result = live;
+    if (category) {
+      result = result.filter((p: any) => p.category === category);
+    }
+    return result;
+  }, [live, category]);
+
+  // Sort products
+  const sorted = useMemo(() => {
+    const sorted = [...filtered];
+    switch (sortBy) {
+      case "price-low":
+        return sorted.sort((a, b) => a.price - b.price);
+      case "price-high":
+        return sorted.sort((a, b) => b.price - a.price);
+      case "popular":
+        return sorted.sort((a, b) => {
+          const aPopular = a.badge === "Bestseller" ? 1 : 0;
+          const bPopular = b.badge === "Bestseller" ? 1 : 0;
+          return bPopular - aPopular;
+        });
+      case "newest":
+      default:
+        return sorted.sort((a, b) => {
+          const aNew = a.badge === "New" ? 1 : 0;
+          const bNew = b.badge === "New" ? 1 : 0;
+          return bNew - aNew;
+        });
+    }
+  }, [filtered, sortBy]);
+
+  const handleApplyFilters = () => {
+    setFiltersOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    setCategory(null);
+    setFiltersOpen(false);
+  };
 
   return (
-    <div className="container py-4">
-      <h1>Collections</h1>
+    <div className="container collections-page">
+      {/* Header */}
+      <div className="collections-header">
+        <h1 className="collections-title">
+          {category ? `${category} Collection` : "All Collections"}
+        </h1>
+      </div>
 
-      {names.length === 0 ? (
-        <p className="mt-3">No collections yet. Use “+ Collection” on any product.</p>
+      {/* Top Control Bar */}
+      <div className="collections-control-bar">
+        <div className="collections-result-count">
+          {sorted.length} {sorted.length === 1 ? "item" : "items"}
+        </div>
+        <div className="collections-controls-right">
+          <button
+            className="collections-filter-btn"
+            onClick={() => setFiltersOpen(true)}
+            aria-label="Open filters"
+          >
+            Filter
+          </button>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortOption)}
+            className="collections-sort-select"
+            aria-label="Sort products"
+          >
+            <option value="newest">Newest</option>
+            <option value="popular">Most Popular</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Products Grid - 2 columns on mobile */}
+      {sorted.length === 0 ? (
+        <div className="collections-empty">
+          <p className="collections-empty-text">No products found</p>
+          <button
+            className="collections-empty-btn"
+            onClick={handleResetFilters}
+          >
+            Clear filters
+          </button>
+        </div>
       ) : (
-        <>
-          <div className="flex gap-2 mt-3 flex-wrap">
-            {names.map((n) => (
-              <button
-                key={n}
-                className={`chip ${n === currentName ? "bg-neutral-100" : ""}`}
-                onClick={() => setActive(n)}
-              >
-                {n} <span className="meta" style={{marginLeft:6}}>({data[n].length})</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="plp-grid mt-4">
-            {items.map((it) => (
-              <article key={it.slug} className="card p-3">
-                <Link href={`/products/${it.slug}`} className="block">
-                  <div style={{position:"relative", width:"100%", aspectRatio:"4/5"}}>
-                    <Image src={it.image} alt={it.title} fill className="object-cover rounded" />
-                  </div>
-                </Link>
-                <div className="mt-3 flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">{it.title}</div>
-                    <div className="meta">₹{it.price}</div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="btn-luxe" onClick={() => addToCart(it, 1)}>Add to Cart</button>
-                    {currentName && (
-                      <button
-                        className="btn-outline"
-                        onClick={() => removeFromCollection(currentName, it.slug)}
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </>
+        <div className="plp-grid-mobile">
+          {sorted.map((p: any) => (
+            <ProductCard key={p.slug} p={p} />
+          ))}
+        </div>
       )}
+
+      {/* Mobile Filters Bottom Sheet */}
+      <BottomSheet
+        isOpen={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        title="Filters"
+      >
+        <div className="bottom-sheet-filters">
+          <div className="filter-group">
+            <label className="filter-group-label">Category</label>
+            <div className="filter-options">
+              <button
+                className={`filter-option ${!category ? "active" : ""}`}
+                onClick={() => setCategory(null)}
+              >
+                All
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  className={`filter-option ${category === cat ? "active" : ""}`}
+                  onClick={() => setCategory(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="bottom-sheet-actions">
+            <button
+              className="bottom-sheet-btn-secondary"
+              onClick={handleResetFilters}
+            >
+              Reset
+            </button>
+            <button
+              className="bottom-sheet-btn-primary"
+              onClick={handleApplyFilters}
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

@@ -1,3 +1,13 @@
+export type ProductVariant = {
+  name: string;
+  slug: string;
+  price: number;
+  images: string[];
+  stock?: number;
+  dimensions?: string;
+  handcraftedHours?: string;
+};
+
 export type Product = {
   slug: string;
   title: string;
@@ -12,4 +22,5 @@ export type Product = {
   handcraftedHours?: string;
   checkoutUrl?: string;
   status?: "live" | "hidden";
+  variants?: ProductVariant[];
 };

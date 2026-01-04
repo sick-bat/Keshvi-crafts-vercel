@@ -1,6 +1,9 @@
 import "./globals.css";
 import Script from "next/script";
 import BootstrapNavbar from "@/components/BootstrapNavbar";
+import TrustBar from "@/components/TrustBar";
+import Footer from "@/components/Footer";
+import Toast from "@/components/Toast";
 
 export const metadata = {
   metadataBase: new URL("https://keshvicrafts.com"),
@@ -19,10 +22,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="bg-cream text-dark">
+        <TrustBar />
         <BootstrapNavbar />
 
         {/* Remove .container here so hero can be full width */}
         {children}
+
+        <Footer />
+
+        <Toast />
 
         {/* Bootstrap JS */}
         <Script

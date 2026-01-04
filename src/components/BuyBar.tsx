@@ -1,6 +1,6 @@
-
 "use client";
 import React from "react";
+import { useRouter } from "next/navigation";
 
 export default function BuyBar({
   slug, title, price, image, checkoutUrl, disabled = false
@@ -8,6 +8,8 @@ export default function BuyBar({
   slug: string; title: string; price: number; image?: string;
   checkoutUrl?: string; disabled?: boolean;
 }) {
+  const router = useRouter();
+
   function addToCart() {
     const key = "cart";
     const arr = JSON.parse(localStorage.getItem(key) || "[]");
@@ -16,17 +18,46 @@ export default function BuyBar({
     else arr.push({ slug, title, price, image, qty: 1 });
     localStorage.setItem(key, JSON.stringify(arr));
     window.dispatchEvent(new CustomEvent("cart-updated"));
-    alert("Added to cart");
+    window.dispatchEvent(new CustomEvent("bag:changed"));
+    // Show subtle feedback instead of alert
+    const btn = document.querySelector(`[data-cart-btn="${slug}"]`) as HTMLElement;
+    if (btn) {
+      const originalText = btn.textContent;
+      btn.textContent = "Added!";
+      setTimeout(() => {
+        if (btn) btn.textContent = originalText;
+      }, 1000);
+    }
+  }
+
+  function buyNow() {
+    addToCart();
+    setTimeout(() => {
+      router.push("/checkout");
+    }, 300);
   }
 
   return (
-    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-      <button className="btn" onClick={addToCart} disabled={disabled}>Add to Cart</button>
-      {checkoutUrl && (
-        <a className="btn primary" href={checkoutUrl} target="_blank" rel="noopener noreferrer">
+    <div className="buy-bar">
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: "0.8rem" }}>
+        <button 
+          className="btn-luxe btn-primary" 
+          onClick={buyNow} 
+          disabled={disabled}
+          style={{ flex: "1 1 auto", minWidth: "140px" }}
+        >
           Buy Now
-        </a>
-      )}
+        </button>
+        <button 
+          className="btn-outline" 
+          onClick={addToCart} 
+          disabled={disabled}
+          data-cart-btn={slug}
+          style={{ flex: "1 1 auto", minWidth: "140px" }}
+        >
+          Add to Cart
+        </button>
+      </div>
     </div>
   );
 }
