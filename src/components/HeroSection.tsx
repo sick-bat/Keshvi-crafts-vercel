@@ -15,9 +15,9 @@ export default function HeroSection() {
             <br />
             with Care
           </h1>
-          <p className="sub">Wrap them in warmth that lasts</p>
-          <Link href="/products/Stripes_top" className="cta">
-            Shop Now
+          <p className="sub">Handmade crochet gifts & home decor, made to order across India</p>
+          <Link href="/collections" className="cta">
+            Browse Collections
           </Link>
         </div>
 

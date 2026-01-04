@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./utilities.css";
 import Script from "next/script";
 import BootstrapNavbar from "@/components/BootstrapNavbar";
 import TrustBar from "@/components/TrustBar";

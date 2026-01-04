@@ -77,18 +77,36 @@
 @media (max-width: 700px) {
   .hero {
     position: relative;
-    background: url("/uploads/hero/Top_brown.png") top center/cover
-      no-repeat;
-    min-height: calc(100svh - var(--nav-h));
+    /* Clean background fallback + image */
+    background: url("/uploads/hero/Top_brown.png") top center/cover no-repeat;
+    min-height: 85svh; /* Slightly reduced to show some content below fold */
     padding: 0;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     color : #f5efe6;
+    overflow: hidden;
+  }
+  
+  /* Gradient Overlay for Text Readability */
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, 
+      rgba(0,0,0,0) 0%, 
+      rgba(0,0,0,0) 40%, 
+      rgba(0,0,0,0.4) 60%,
+      rgba(0,0,0,0.8) 100%
+    );
+    z-index: 1;
   }
 
   .hero-grid {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    z-index: 2; /* Place content above gradient */
   }
 
   .hero h1{
@@ -96,11 +114,18 @@
   }
 
   .copy {
-    padding: clamp(1.3rem, 4vw, 2rem);
-    padding-top: 34vh;
-    max-width: 30rem;
-    margin-inline: auto;
-    text-align: center;
+    padding: 2rem 1.5rem 3.5rem; /* More bottom padding for mobile thumb reach */
+    padding-top: 0;
+    max-width: 100%;
+    margin-inline: 0;
+    text-align: left; /* Better for reading on overlays */
+    margin-top: auto; /* Push to bottom */
+    width: 100%;
+  }
+  
+  .copy h1 {
+     font-size: 3.2rem;
+     line-height: 1.1;
   }
 
   .photo {

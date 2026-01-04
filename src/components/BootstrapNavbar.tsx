@@ -7,10 +7,10 @@ import CartBadge from "@/components/CartBadge";
 import "./Navbar.css";
 
 export default function BootstrapNavbar() {
-const pathname = usePathname();
+  const pathname = usePathname();
 
-const isActive = (href: string): boolean =>
-  href === "/" ? pathname === "/" : pathname?.startsWith(href) ?? false;
+  const isActive = (href: string): boolean =>
+    href === "/" ? pathname === "/" : pathname?.startsWith(href) ?? false;
 
 
   return (
@@ -61,17 +61,19 @@ const isActive = (href: string): boolean =>
 
           {/* === Cart with badge === */}
           <Link href="/cart" className={`nav-item cart ${isActive("/cart") ? "active" : ""}`} title="Cart">
-            <Image
-              src="/uploads/hero/cart.png"
-              alt="Cart"
-              width={20}
-              height={20}
-              className="nav-icon"
-            />
+            <div className="cart-wrapper">
+              <Image
+                src="/uploads/hero/cart.png"
+                alt="Cart"
+                width={20}
+                height={20}
+                className="nav-icon"
+              />
+              <span className="cart-badge">
+                <CartBadge />
+              </span>
+            </div>
             <span className="nav-label">Cart</span>
-            <span className="cart-badge">
-              <CartBadge />
-            </span>
           </Link>
         </div>
       </div>

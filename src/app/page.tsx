@@ -38,11 +38,35 @@ export default function Home() {
             Why Handmade?
           </h2>
           <p className="text-lg leading-relaxed" style={{ color: "var(--muted)" }}>
-            Every piece at Keshvi Crafts is lovingly handcrafted with attention to detail. 
-            We believe in creating thoughtful, one-of-a-kind items that bring warmth and personality 
-            to your home. Made to order, each product is crafted especially for you, ensuring quality 
-            and care in every stitch.
+            Handmade isn’t just about how something is made — it’s about the care behind it.
+            Every piece at Keshvi Crafts is created slowly, thoughtfully, and with intention.
+            Unlike mass-produced items, handmade crochet carries warmth, individuality, and soul.
           </p>
+          <div className="mt-8 text-left max-w-2xl mx-auto space-y-6">
+            <div className="flex gap-4 items-start">
+              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#fae8d4] text-[#C2410C] flex items-center justify-center font-bold">1</span>
+              <div>
+                <strong className="block text-[#2f2a26] text-lg mb-1">Made to order, not mass produced</strong>
+                <p className="text-[#6a6150] leading-relaxed">Each item is started only after you place an order, reducing waste and ensuring it&apos;s made just for you.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-4 items-start">
+              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#fae8d4] text-[#C2410C] flex items-center justify-center font-bold">2</span>
+              <div>
+                <strong className="block text-[#2f2a26] text-lg mb-1">Crafted with care & attention</strong>
+                <p className="text-[#6a6150] leading-relaxed">Our artisans spend hours perfecting every stitch, ensuring quality that machines simply can&apos;t match.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-4 items-start">
+              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#fae8d4] text-[#C2410C] flex items-center justify-center font-bold">3</span>
+              <div>
+                <strong className="block text-[#2f2a26] text-lg mb-1">Truly unique to you</strong>
+                <p className="text-[#6a6150] leading-relaxed">No two handmade pieces are exactly alike. Your item carries individuality, warmth, and soul.</p>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Best Sellers Section */}
@@ -70,8 +94,8 @@ export default function Home() {
             <h2 className="text-3xl font-semibold mb-6" style={{ fontFamily: "Cormorant Garamond, serif" }}>
               Shop by Collection
             </h2>
-            <div className="flex flex-wrap gap-4 mb-8">
-              {categories.map((cat) => {
+            <div className="flex flex-wrap gap-3 mb-8">
+              {categories.slice(0, 4).map((cat) => {
                 const categoryProducts = live.filter((p: any) => p.category === cat);
                 return (
                   <Link
@@ -84,6 +108,9 @@ export default function Home() {
                   </Link>
                 );
               })}
+              <Link href="/collections" className="collection-chip bg-stone-100 border-dashed text-stone-600">
+                View All Collections →
+              </Link>
             </div>
           </section>
         )}

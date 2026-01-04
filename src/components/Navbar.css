@@ -102,49 +102,71 @@
   white-space: nowrap;
 }
 
-/* Hide labels on mobile, show icons only */
-@media (max-width: 700px) {
-  .nav-label {
-    display: none;
-  }
-  
-  .nav-item {
-    padding: 0.5rem;
-    gap: 0;
-  }
-  
-  .nav-icons {
-    gap: 1rem;
-  }
-}
-
 /* === Cart Badge === */
-/* === Cart === */
-.cart {
+.cart-wrapper {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px; /* slightly larger hit area */
-  height: 26px;
 }
 
 .cart-badge {
   position: absolute;
-  top: -6px;
-  right: -6px;
-  transform: translate(50%, -50%);
-  background: #2f2a26;
-  color: #fffaf0;
-  font-size: 0.65rem;
-  padding: 0.15rem 0.35rem;
+  top: -8px;
+  right: -8px;
+  background: #ce380e;
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.35rem;
   border-radius: 999px;
   font-weight: 700;
   line-height: 1;
-  min-width: 14px;
+  min-width: 16px;
   text-align: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  border: 1px solid #FAF7F2;
 }
+
+/* === Mobile Navigation (Bottom Bar or Top Bar? User said Header) === */
+/* The user asked for "Header should feel identical across all pages" and "Always show text labels under icons on mobile" */
+/* We will keep it as a top header but optimize space */
+
+@media (max-width: 700px) {
+  .nav-inner {
+    padding: 0 1rem;
+  }
+
+  /* Show labels under icons */
+  .nav-label {
+    display: block;
+    font-size: 10px;
+    line-height: 1;
+    margin-top: 2px;
+    font-weight: 600;
+  }
+
+  .nav-item {
+    padding: 0.4rem 0.2rem;
+    gap: 2px;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 6px;
+    min-width: 44px;
+    /* Hit target */
+  }
+
+  /* Icon alignment */
+  .nav-item .nav-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .nav-icons {
+    gap: 0.5rem;
+    /* Tighter spacing */
+  }
+}
+
 /* === Mobile Adjustments === */
 @media (max-width: 700px) {
   .wordmark {
@@ -169,6 +191,7 @@
     width: 24px;
     height: 24px;
   }
+
   .cart-badge {
     top: -5px;
     right: -5px;
@@ -176,4 +199,3 @@
     min-width: 13px;
   }
 }
-
