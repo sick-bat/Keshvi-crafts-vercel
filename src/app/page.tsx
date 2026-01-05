@@ -31,9 +31,10 @@ export default function Home() {
       {/* Hero Section */}
       <HeroSection />
 
-      <div className="container py-10">
+      <div className="container py-40 mt-10">
         {/* About / Why Handmade Section */}
         <section className="mb-12 text-center max-w-3xl mx-auto">
+          <br></br>
           <h2 className="text-3xl font-semibold mb-4" style={{ fontFamily: "Cormorant Garamond, serif" }}>
             Why Handmade?
           </h2>

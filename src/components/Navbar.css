@@ -12,6 +12,8 @@
   backdrop-filter: saturate(180%) blur(6px);
   background: linear-gradient(180deg, rgba(245, 239, 230, 0.95), rgba(245, 239, 230, 0.78));
   border-bottom: 1px solid #eadfcd;
+  /* Allow logo overlap */
+  overflow: visible;
 }
 
 .nav-inner {
@@ -22,6 +24,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  overflow: visible;
+  /* CRITICAL for logo overlap */
 }
 
 /* === Brand === */
@@ -33,20 +37,14 @@
   color: var(--text);
 }
 
-.logo {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  background: #e7dcc8;
-  border-radius: 10px;
-  box-shadow: inset 0 0 0 1px #d7c9ae;
-}
-
-.logo img {
-  width: 26px;
-  height: 26px;
+/* Logo direct image */
+.logo-img {
+  width: 90px;
+  height: 90px;
   object-fit: contain;
+  /* Ensure it stays on top */
+  position: relative;
+  z-index: 25;
 }
 
 .wordmark {
@@ -108,12 +106,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
+  /* Ensuring wrapper is large enough */
+  width: 28px;
+  height: 28px;
 }
 
 .cart-badge {
   position: absolute;
   top: -8px;
-  right: -8px;
+  right: -10px;
   background: #ce380e;
   color: #fff;
   font-size: 0.7rem;
@@ -124,7 +126,8 @@
   min-width: 16px;
   text-align: center;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  border: 1px solid #FAF7F2;
+  border: 2px solid #FAF7F2;
+  z-index: 10;
 }
 
 /* === Mobile Navigation (Bottom Bar or Top Bar? User said Header) === */
@@ -142,7 +145,47 @@
     font-size: 10px;
     line-height: 1;
     margin-top: 2px;
+    margin-top: 2px;
     font-weight: 600;
+  }
+
+  /* Hide HOME link text and icon on mobile */
+  .nav-item[title="Home"] {
+    display: none;
+  }
+
+  /* Nav Inner Relative for absolute logo */
+  .nav-inner {
+    position: relative;
+    justify-content: flex-end;
+    /* Default push to right, we'll pull left back */
+  }
+
+  /* Absolute Center Logo */
+  .brand {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    z-index: 30;
+    /* Higher than icons */
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .nav-icons {
+    width: 100%;
+    justify-content: space-between;
+    /* We need to split items left and right. Collections on Left. Others Right. */
+    display: flex;
+  }
+
+  /* Force Collections to be on the far left */
+  /* We can't easily split standard flex containers without extra markup unless we use specific margins */
+  .nav-item[title="Collections"] {
+    margin-right: auto;
+    /* Pushes everything else to the right */
   }
 
   .nav-item {
@@ -173,14 +216,12 @@
     font-size: 1rem;
   }
 
-  .logo {
-    width: 36px;
-    height: 36px;
-  }
-
-  .logo img {
-    width: 24px;
-    height: 24px;
+  /* Mobile Logo large but smaller than desktop */
+  .logo-img {
+    width: 65px;
+    height: 65px !important;
+    /* Force override inline styles if needed */
+    margin-top: 15px !important;
   }
 
   .nav-icons {
@@ -194,8 +235,19 @@
 
   .cart-badge {
     top: -5px;
-    right: -5px;
+    /* Closer to top edge */
+    right: -8px;
+    /* Closer to right edge */
     font-size: 0.6rem;
-    min-width: 13px;
+    min-width: 14px;
+    height: 14px;
+    /* Fixed height for circle/oval */
+    padding: 0 3px;
+    /* Smaller padding */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #fff;
+    /* Thinner border */
   }
 }

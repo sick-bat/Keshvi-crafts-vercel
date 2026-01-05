@@ -18,10 +18,21 @@ export default function BootstrapNavbar() {
       <div className="nav-inner">
         {/* === Left side: Brand === */}
         <Link href="/" className="brand" aria-label="Keshvi Crafts — Home">
-          <span className="logo">
-            <Image src="/uploads/hero/logo.png" alt="Keshvi Crafts Logo" width={28} height={28} />
-          </span>
-          <span className="wordmark">Keshvi Crafts</span>
+          <Image
+            src="/uploads/hero/logo.png"
+            alt="Keshvi Crafts Logo"
+            width={100}
+            height={100}
+            className="logo-img"
+            style={{
+              objectFit: "contain",
+              width: "90px", // Reduced slightly via CSS to keep sharp but large
+              height: "90px",
+              marginTop: "30px", // Pushes logo down to overlap
+              filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.1))" // Add depth for overlap
+            }}
+          />
+          {/* wordmark removed as requested */}
         </Link>
 
         {/* === Right side: Navigation with icons + labels === */}

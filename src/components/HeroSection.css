@@ -11,9 +11,7 @@
 .hero {
   max-width: 1280px;
   margin-inline: auto;
-  padding: clamp(1.2rem, 3vw, 2.2rem)
-    clamp(1rem, 3.2vw, 2.2rem)
-    2.2rem;
+  padding: clamp(1.2rem, 3vw, 2.2rem) clamp(1rem, 3.2vw, 2.2rem) 2.2rem;
   min-height: calc(100svh - var(--nav-h));
   display: grid;
   align-items: center;
@@ -45,6 +43,14 @@
   color: var(--muted);
   font-size: clamp(1.05rem, 2.2vw, 1.25rem);
   margin: 0.25rem 0 1.1rem;
+}
+
+@media (max-width: 700px) {
+  .copy .sub {
+    color: #f5efe6;
+    /* Light color for dark overlay */
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
 }
 
 .cta {
@@ -79,26 +85,26 @@
     position: relative;
     /* Clean background fallback + image */
     background: url("/uploads/hero/Top_brown.png") top center/cover no-repeat;
-    min-height: 85svh; /* Slightly reduced to show some content below fold */
+    min-height: 85svh;
+    /* Slightly reduced to show some content below fold */
     padding: 0;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    color : #f5efe6;
+    color: #f5efe6;
     overflow: hidden;
   }
-  
+
   /* Gradient Overlay for Text Readability */
   .hero::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, 
-      rgba(0,0,0,0) 0%, 
-      rgba(0,0,0,0) 40%, 
-      rgba(0,0,0,0.4) 60%,
-      rgba(0,0,0,0.8) 100%
-    );
+    background: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0) 40%,
+        rgba(0, 0, 0, 0.4) 60%,
+        rgba(0, 0, 0, 0.8) 100%);
     z-index: 1;
   }
 
@@ -106,26 +112,30 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    z-index: 2; /* Place content above gradient */
+    z-index: 2;
+    /* Place content above gradient */
   }
 
-  .hero h1{
+  .hero h1 {
     color: #ffffff;
   }
 
   .copy {
-    padding: 2rem 1.5rem 3.5rem; /* More bottom padding for mobile thumb reach */
+    padding: 2rem 1.5rem 3.5rem;
+    /* More bottom padding for mobile thumb reach */
     padding-top: 0;
     max-width: 100%;
     margin-inline: 0;
-    text-align: left; /* Better for reading on overlays */
-    margin-top: auto; /* Push to bottom */
+    text-align: left;
+    /* Better for reading on overlays */
+    margin-top: auto;
+    /* Push to bottom */
     width: 100%;
   }
-  
+
   .copy h1 {
-     font-size: 3.2rem;
-     line-height: 1.1;
+    font-size: 3.2rem;
+    line-height: 1.1;
   }
 
   .photo {

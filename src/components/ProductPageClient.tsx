@@ -8,11 +8,11 @@ import ProductCard from "@/components/ProductCard";
 import Link from "next/link";
 import type { Product, ProductVariant } from "@/types";
 
-export default function ProductPageClient({ 
-  product, 
-  relatedProducts 
-}: { 
-  product: Product; 
+export default function ProductPageClient({
+  product,
+  relatedProducts
+}: {
+  product: Product;
   relatedProducts: Product[];
 }) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
@@ -29,14 +29,14 @@ export default function ProductPageClient({
 
   return (
     <>
-      <div className="product-page-grid" style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "2rem", alignItems: "start", marginBottom: "3rem" }}>
+      <div className="product-page-grid">
         <Gallery images={currentImages} alt={product.title} />
         <div>
           {/* Badge */}
           {product.badge && (
-            <span className="product-badge" style={{ 
-              display: "inline-block", 
-              padding: "0.3rem 0.8rem", 
+            <span className="product-badge" style={{
+              display: "inline-block",
+              padding: "0.3rem 0.8rem",
               background: product.badge === "Bestseller" ? "#2C1810" : "#BCA37F",
               color: "#fff",
               borderRadius: "6px",
@@ -49,7 +49,7 @@ export default function ProductPageClient({
           )}
 
           <h1 style={{ marginTop: 0, fontSize: "2rem", lineHeight: 1.3 }}>{product.title}</h1>
-          
+
           {/* Price */}
           <div style={{ fontSize: "1.5rem", fontWeight: 700, margin: "1rem 0", color: "var(--brand)" }}>
             ₹{currentPrice}
@@ -66,10 +66,10 @@ export default function ProductPageClient({
           </p>
 
           {/* Made to Order Notice */}
-          <div style={{ 
-            padding: "1rem", 
-            background: "rgba(188, 163, 127, 0.1)", 
-            borderRadius: "8px", 
+          <div style={{
+            padding: "1rem",
+            background: "rgba(188, 163, 127, 0.1)",
+            borderRadius: "8px",
             marginBottom: "1.5rem",
             border: "1px solid rgba(188, 163, 127, 0.2)"
           }}>
@@ -99,13 +99,14 @@ export default function ProductPageClient({
               image={currentImages[0]}
               checkoutUrl={product.checkoutUrl}
               disabled={!inStock}
+              productSlug={product.slug}
             />
           </div>
 
           {/* Trust Reassurance */}
-          <div style={{ 
-            padding: "0.8rem", 
-            background: "rgba(47, 42, 38, 0.05)", 
+          <div style={{
+            padding: "0.8rem",
+            background: "rgba(47, 42, 38, 0.05)",
             borderRadius: "8px",
             fontSize: "0.85rem",
             textAlign: "center"

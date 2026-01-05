@@ -5,6 +5,7 @@ import { getCart, updateQty, removeFromCart, clearCart } from "@/lib/bags";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import products from "@/data/products.json"; // Import products for lookup
 
 export default function CartPage() {
   const [items, setItems] = useState(getCart());
@@ -78,9 +79,25 @@ export default function CartPage() {
                       <div>
                         <div className="flex justify-between items-start">
                           <h3 className="font-bold text-[#2f2a26] text-lg leading-tight mb-1">
-                            <Link href={`/products/${it.slug.split('-')[0]}`} className="hover:underline">
-                              {title}
-                            </Link>
+                            {/* ROBUST LINK FIX: Find matching product by prefix/title */
+                              (() => {
+                                const pSlug = (it as any).productSlug;
+                                const found = (() => {
+                                  if (pSlug) return pSlug;
+                                  const prefix = (products as any[]).find(p => it.slug.startsWith(p.slug));
+                                  if (prefix) return prefix.slug;
+                                  const titleMatch = (products as any[]).find(p => p.title === it.title || p.title === it.slug);
+                                  if (titleMatch) return titleMatch.slug;
+                                  return it.slug.toLowerCase().replace(/\s+/g, '-');
+                                })();
+
+                                return (
+                                  <Link href={`/products/${found}`} className="hover:underline">
+                                    {title}
+                                  </Link>
+                                );
+                              })()
+                            }
                           </h3>
                           <div className="font-bold text-[#C2410C]">₹{it.price * it.qty}</div>
                         </div>
@@ -165,10 +182,10 @@ export default function CartPage() {
                 </div>
 
                 {/* Secure Checkout Button */}
-                <button className="w-full btn-luxe py-3.5 text-base shadow-lg shadow-[#C2410C]/20 hover:shadow-[#C2410C]/30 flex flex-col items-center justify-center gap-0.5">
+                <Link href="/checkout" className="w-full btn-luxe py-3.5 text-base shadow-lg shadow-[#C2410C]/20 hover:shadow-[#C2410C]/30 flex flex-col items-center justify-center gap-0.5 text-center decoration-0">
                   <span>Proceed to Secure Checkout</span>
                   <span className="text-[10px] opacity-80 font-normal">Secure payments via Razorpay</span>
-                </button>
+                </Link>
 
                 {/* Trust Icons Strip */}
                 <div className="mt-4 pt-4 border-t border-[#f3f4f6] grid grid-cols-2 gap-2 text-[10px] text-[#6b7280] text-center">
@@ -218,9 +235,9 @@ export default function CartPage() {
               <div className="text-xs text-[#6b7280] mb-0.5">Total</div>
               <div className="font-bold text-lg text-[#C2410C]">₹{total}</div>
             </div>
-            <button className="flex-[2] btn-luxe py-3 text-sm shadow-md">
+            <Link href="/checkout" className="flex-[2] btn-luxe py-3 text-sm shadow-md flex items-center justify-center">
               Checkout
-            </button>
+            </Link>
           </div>
         </div>
       )}

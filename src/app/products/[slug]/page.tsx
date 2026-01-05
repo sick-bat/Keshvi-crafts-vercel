@@ -26,7 +26,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
     .slice(0, 4);
 
   return (
-    <main className="container" style={{ padding: "2rem 0" }}>
+    <main className="container" style={{ paddingBottom: "4rem", paddingTop: "2rem" }}>
       <Link href="/" className="meta" style={{ display: "inline-block", marginBottom: 16, textDecoration: "none" }}>
         ← Back to all products
       </Link>
