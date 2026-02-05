@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import products from "@/data/products.json";
 import Link from "next/link";
 import Image from "next/image";
+import { calculateShipping } from "@/lib/shipping";
+import { showToast } from "@/components/Toast";
+import { useRouter } from "next/navigation";
+import type { Product } from "@/types";
 
 type Item = { slug: string; title: string; price: number; image?: string; qty?: number; productSlug?: string };
 type P = any;
@@ -23,24 +27,39 @@ export default function CheckoutPage() {
     city: "",
     pincode: ""
   });
+  const router = useRouter();
 
   useEffect(() => {
     try {
-      const existing = JSON.parse(localStorage.getItem("cart") || "[]");
+      const existing = JSON.parse(localStorage.getItem("cart") || "[]") as Item[];
+      // CHECKOUT GUARD
+      if (!existing || existing.length === 0) {
+        showToast("Your cart is empty.");
+        router.replace("/products");
+        return;
+      }
+
       setItems(existing);
 
       // Load saved details if any
       const savedDetails = JSON.parse(localStorage.getItem("customer_details") || "{}");
       if (savedDetails.name) setFormData(savedDetails);
-      else {
-        // If no details and items exist, stay on details.
-        // If no items, we handle below.
-      }
     }
-    catch { setItems([]); }
-  }, []);
+    catch {
+      setItems([]);
+      router.replace("/products");
+    }
+  }, [router]);
 
   const total = items.reduce((s, i) => s + (i.price * (i.qty || 1)), 0);
+
+  // Shipping Calc
+  const enrichedItems = items.map(it => {
+    const p = productBySlug[it.productSlug || it.slug.split('-')[0]];
+    return { ...it, shippingCharge: p?.shippingCharge };
+  });
+  const shipping = calculateShipping(enrichedItems, total);
+  const grandTotal = total + shipping;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -54,17 +73,20 @@ export default function CheckoutPage() {
   };
 
   if (!items.length) {
+    // Should have redirected, but show fallback
     return (
       <main className="container py-10 text-center">
         <h1 className="text-3xl font-serif mb-4">Checkout</h1>
-        <p className="text-stone-600 mb-6">Your cart is empty.</p>
-        <Link href="/collections" className="btn-luxe inline-block">Browse Collections</Link>
+        <p className="text-stone-600 mb-6">Redirecting...</p>
       </main>
     );
   }
 
   return (
     <main className="container py-10 max-w-2xl mx-auto">
+      {/* NO INDEX */}
+      <meta name="robots" content="noindex" />
+
       <h1 className="text-3xl font-serif font-bold text-[#2f2a26] mb-2 text-center">
         {step === "details" ? "Shipping Details" : "Complete Payment"}
       </h1>
@@ -188,9 +210,15 @@ export default function CheckoutPage() {
                     <span className="font-medium">₹{it.price * (it.qty || 1)}</span>
                   </div>
                 ))}
+
+                <div className="flex justify-between text-sm text-stone-500">
+                  <span>Shipping</span>
+                  <span className="font-medium">{shipping === 0 ? "Free" : `₹${shipping}`}</span>
+                </div>
+
                 <div className="pt-2 mt-2 border-t border-stone-200 flex justify-between font-bold text-[#C2410C] text-lg">
                   <span>Total</span>
-                  <span>₹{total}</span>
+                  <span>₹{grandTotal}</span>
                 </div>
               </div>
             </div>

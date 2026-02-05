@@ -2,6 +2,7 @@ import products from "@/data/products.json";
 import ProductCard from "@/components/ProductCard";
 import HeroSection from "@/components/HeroSection";
 import Link from "next/link";
+import { Product } from "@/types";
 
 export const metadata = {
   title: "Handmade Collections — Keshvi Crafts",
@@ -9,22 +10,43 @@ export const metadata = {
 };
 
 export default function Home() {
-  const live = (products as any[]).filter(
-    (p: any) => (p.status ?? "live") !== "hidden"
+  const live = (products as Product[]).filter(
+    (p) => (p.status ?? "live") !== "hidden"
   );
 
-  // Get best sellers (products with "Bestseller" badge, max 4)
-  const bestSellers = live
-    .filter((p: any) => p.badge === "Bestseller")
+  // 1. Priority Sorting (DESC priority, ASC price)
+  // Treat missing priority as -Infinity (lowest)
+  const sortedProducts = [...live].sort((a, b) => {
+    const pA = a.priority ?? -9999;
+    const pB = b.priority ?? -9999;
+    if (pA !== pB) return pB - pA;
+    return a.price - b.price;
+  });
+
+  // 2. Collections Logic
+  const normalize = (s: string) => s.toLowerCase().trim();
+
+  // Valentine's
+  const valentineProducts = sortedProducts.filter(p =>
+    p.tags?.some(t => normalize(t) === "valentine")
+  );
+
+  // Best Sellers (Explicit badge)
+  const bestSellers = sortedProducts
+    .filter((p) => p.badges?.includes("Bestseller") || p.badge === "Bestseller")
     .slice(0, 4);
 
-  // Get unique categories for "Shop by Collection"
+  // Price Collections (using minPrice for custom orders)
+  const under499 = sortedProducts.filter(p => (p.minPrice || p.price) < 499).slice(0, 4);
+  const under699 = sortedProducts.filter(p => (p.minPrice || p.price) < 699).slice(0, 4);
+
+  // Categories (Unique)
   const categories = Array.from(
-    new Set(live.map((p: any) => p.category).filter(Boolean))
+    new Set(sortedProducts.map((p) => p.category).filter(Boolean))
   ) as string[];
 
-  // Show only 6-8 products on homepage (not all)
-  const featuredProducts = live.slice(0, 8);
+  // Featured (Top 8 from sorted)
+  const featuredProducts = sortedProducts.slice(0, 8);
 
   return (
     <main>
@@ -32,6 +54,26 @@ export default function Home() {
       <HeroSection />
 
       <div className="container py-40 mt-10">
+
+        {/* Valentine's Collection (Campaign) */}
+        {valentineProducts.length > 0 && (
+          <section className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-semibold text-[#be123c] flex items-center gap-2" style={{ fontFamily: "Cormorant Garamond, serif" }}>
+                <span>💘</span> Valentine&apos;s Special
+              </h2>
+              <Link href="/collections?tag=valentine" className="meta hover:underline text-[#be123c]">
+                View All →
+              </Link>
+            </div>
+            <div className="plp-grid-mobile">
+              {valentineProducts.slice(0, 4).map((p) => (
+                <ProductCard key={p.slug} p={p} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* About / Why Handmade Section */}
         <section className="mb-12 text-center max-w-3xl mx-auto">
           <br></br>
@@ -82,7 +124,7 @@ export default function Home() {
               </Link>
             </div>
             <div className="plp-grid-mobile">
-              {bestSellers.map((p: any) => (
+              {bestSellers.map((p) => (
                 <ProductCard key={p.slug} p={p} />
               ))}
             </div>
@@ -96,8 +138,8 @@ export default function Home() {
               Shop by Collection
             </h2>
             <div className="flex flex-wrap gap-3 mb-8">
-              {categories.slice(0, 4).map((cat) => {
-                const categoryProducts = live.filter((p: any) => p.category === cat);
+              {categories.slice(0, 6).map((cat) => {
+                const categoryProducts = live.filter((p) => p.category === cat);
                 return (
                   <Link
                     key={cat}
@@ -116,6 +158,25 @@ export default function Home() {
           </section>
         )}
 
+        {/* Price Based (Under 499) */}
+        {under499.length > 0 && (
+          <section className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-semibold" style={{ fontFamily: "Cormorant Garamond, serif" }}>
+                Best Under ₹499
+              </h2>
+              <Link href="/collections?maxPrice=499" className="meta hover:underline">
+                View All →
+              </Link>
+            </div>
+            <div className="plp-grid-mobile">
+              {under499.map((p) => (
+                <ProductCard key={p.slug} p={p} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Featured Products Section */}
         <section className="mb-6">
           <div className="flex items-center justify-between mb-6">
@@ -127,11 +188,11 @@ export default function Home() {
             </Link>
           </div>
           <p className="meta mb-6">
-            Crafted on request • Ships across India
+            Crafted on request • Ships across India • Sorted by Priority
           </p>
 
           <div className="plp-grid-mobile">
-            {featuredProducts.map((p: any) => (
+            {featuredProducts.map((p) => (
               <ProductCard key={p.slug} p={p} />
             ))}
           </div>

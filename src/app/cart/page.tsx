@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import products from "@/data/products.json"; // Import products for lookup
+import { calculateShipping } from "@/lib/shipping";
+import { showToast } from "@/components/Toast";
+import type { Product } from "@/types";
 
 export default function CartPage() {
   const [items, setItems] = useState(getCart());
@@ -15,6 +18,39 @@ export default function CartPage() {
 
   useEffect(() => {
     setMounted(true);
+
+    // Safety check: Validate items against products.json
+    const currentCart = getCart();
+    let removedCount = 0;
+
+    const validItems = currentCart.filter(item => {
+      // Find product by slug logic same as implemented in rendering but cleaner
+      // The cart item stores "productSlug" sometimes, or "slug"
+      // Let's try to match
+      const pSlug = (item as any).productSlug || item.slug.split('-')[0]; // Simple heuristic
+      const p = (products as Product[]).find(x => x.slug === pSlug || x.slug === item.slug);
+
+      if (!p) {
+        // If product not found, maybe keep it? Or strict mode?
+        // Use strict for new system
+        console.warn("Cart item product not found:", item);
+        // removedCount++; return false; // Maybe too strict if slug logic is weak
+        return true;
+      }
+
+      if (p.type === 'custom-order') {
+        removedCount++;
+        return false;
+      }
+      return true;
+    });
+
+    if (removedCount > 0) {
+      localStorage.setItem("cart", JSON.stringify(validItems));
+      setItems(validItems);
+      showToast("Removed custom-order items from cart. Please enquire on Instagram.");
+    }
+
     const h = () => refresh();
     window.addEventListener("bag:changed", h);
     window.addEventListener("storage", h);
@@ -27,10 +63,22 @@ export default function CartPage() {
   const total = items.reduce((s, it) => s + it.price * it.qty, 0);
   const itemCount = items.reduce((n, it) => n + it.qty, 0);
 
+  // Enrich items with shipping info for calculation
+  const enrichedItems = items.map(it => {
+    const p = (products as Product[]).find(x => x.slug === it.slug || x.slug === (it as any).productSlug);
+    return { ...it, shippingCharge: p?.shippingCharge };
+  });
+
+  const shipping = calculateShipping(enrichedItems, total);
+  const grandTotal = total + shipping;
+
   if (!mounted) return <div className="min-h-[60vh] bg-[#FAF7F2]" />;
 
   return (
     <div className="bg-[#FAF7F2] min-h-screen pb-24">
+      {/* NO INDEX */}
+      <meta name="robots" content="noindex" />
+
       <div className="container py-8 max-w-4xl mx-auto px-4">
         {/* 1. Header */}
         <header className="mb-8 text-center md:text-left">
@@ -67,7 +115,7 @@ export default function CartPage() {
                     {/* Image */}
                     <div className="relative w-24 h-32 flex-shrink-0 bg-[#f5f5f5] rounded-lg overflow-hidden border border-[#f0e6d6]">
                       <Image
-                        src={it.image}
+                        src={it.image || "/placeholder.png"}
                         alt={it.title}
                         fill
                         className="object-cover"
@@ -170,7 +218,7 @@ export default function CartPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span className="text-[#0F766E] italic">Calculated at checkout</span>
+                    <span className="text-[#0F766E]">{shipping === 0 ? "Free" : `₹${shipping}`}</span>
                   </div>
                 </div>
 
@@ -178,7 +226,7 @@ export default function CartPage() {
 
                 <div className="flex justify-between items-end mb-6">
                   <span className="font-semibold text-lg text-[#2f2a26]">Total</span>
-                  <span className="font-bold text-2xl text-[#C2410C]">₹{total}</span>
+                  <span className="font-bold text-2xl text-[#C2410C]">₹{grandTotal}</span>
                 </div>
 
                 {/* Secure Checkout Button */}

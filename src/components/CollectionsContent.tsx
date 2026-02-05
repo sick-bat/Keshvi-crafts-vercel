@@ -4,58 +4,85 @@
 import products from "@/data/products.json";
 import ProductCard from "@/components/ProductCard";
 import BottomSheet from "@/components/BottomSheet";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { Product } from "@/types";
 
-type SortOption = "newest" | "price-low" | "price-high" | "popular";
+type SortOption = "default" | "price-low" | "price-high" | "newest";
 
 export default function CollectionsContent() {
   const searchParams = useSearchParams();
-  const categoryFilter = searchParams.get("category");
-  
-  const [sortBy, setSortBy] = useState<SortOption>("newest");
-  const [category, setCategory] = useState<string | null>(categoryFilter);
+  const categoryParam = searchParams.get("category");
+  const tagParam = searchParams.get("tag");
+  const maxPriceParam = searchParams.get("maxPrice");
+
+  const [sortBy, setSortBy] = useState<SortOption>("default");
+  const [category, setCategory] = useState<string | null>(categoryParam);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Filter out variants - only show parent products
-  const live = (products as any[]).filter(
-    (p: any) => (p.status ?? "live") !== "hidden" && !p.variants // Hide products that are variants
+  useEffect(() => {
+    if (categoryParam) setCategory(categoryParam);
+  }, [categoryParam]);
+
+  // Filter out variants and hidden items
+  const live = (products as Product[]).filter(
+    (p) => (p.status ?? "live") !== "hidden" && !p.isVariant
   );
 
   // Get unique categories
   const categories = Array.from(
-    new Set(live.map((p: any) => p.category).filter(Boolean))
+    new Set(live.map((p) => p.category).filter(Boolean))
   ) as string[];
 
-  // Filter by category
+  // Filter Logic
   const filtered = useMemo(() => {
     let result = live;
-    if (category) {
-      result = result.filter((p: any) => p.category === category);
-    }
-    return result;
-  }, [live, category]);
 
-  // Sort products
+    // 1. Category Filter
+    if (category) {
+      result = result.filter((p) => p.category === category);
+    }
+
+    // 2. Tag Filter (e.g. Valentine)
+    if (tagParam) {
+      const t = tagParam.toLowerCase().trim();
+      result = result.filter(p => p.tags?.some(pt => pt.toLowerCase().trim() === t));
+    }
+
+    // 3. Max Price Filter
+    if (maxPriceParam) {
+      const mp = parseInt(maxPriceParam, 10);
+      if (!isNaN(mp)) {
+        result = result.filter(p => (p.minPrice || p.price) <= mp);
+      }
+    }
+
+    return result;
+  }, [live, category, tagParam, maxPriceParam]);
+
+  // Sort Logic
   const sorted = useMemo(() => {
-    const sorted = [...filtered];
+    const data = [...filtered];
     switch (sortBy) {
       case "price-low":
-        return sorted.sort((a, b) => a.price - b.price);
+        return data.sort((a, b) => (a.minPrice || a.price) - (b.minPrice || b.price));
       case "price-high":
-        return sorted.sort((a, b) => b.price - a.price);
-      case "popular":
-        return sorted.sort((a, b) => {
-          const aPopular = a.badge === "Bestseller" ? 1 : 0;
-          const bPopular = b.badge === "Bestseller" ? 1 : 0;
-          return bPopular - aPopular;
-        });
+        return data.sort((a, b) => (b.minPrice || b.price) - (a.minPrice || a.price));
       case "newest":
+        return data.sort((a, b) => { // Prioritize New badge, then default priority
+          const aNew = a.badges?.includes("New") || a.badge === "New" ? 1 : 0;
+          const bNew = b.badges?.includes("New") || b.badge === "New" ? 1 : 0;
+          if (aNew !== bNew) return bNew - aNew;
+          return (b.priority ?? -9999) - (a.priority ?? -9999);
+        });
+      case "default":
       default:
-        return sorted.sort((a, b) => {
-          const aNew = a.badge === "New" ? 1 : 0;
-          const bNew = b.badge === "New" ? 1 : 0;
-          return bNew - aNew;
+        // Priority DESC, then Price ASC
+        return data.sort((a, b) => {
+          const pA = a.priority ?? -9999;
+          const pB = b.priority ?? -9999;
+          if (pA !== pB) return pB - pA;
+          return (a.minPrice || a.price) - (b.minPrice || b.price);
         });
     }
   }, [filtered, sortBy]);
@@ -69,12 +96,20 @@ export default function CollectionsContent() {
     setFiltersOpen(false);
   };
 
+  // Title Logic
+  const getPageTitle = () => {
+    if (tagParam) return `${tagParam.charAt(0).toUpperCase() + tagParam.slice(1)} Collection`;
+    if (maxPriceParam) return `Under ₹${maxPriceParam}`;
+    if (category) return `${category} Collection`;
+    return "All Collections";
+  }
+
   return (
     <>
       {/* Header */}
       <div className="collections-header">
         <h1 className="collections-title">
-          {category ? `${category} Collection` : "All Collections"}
+          {getPageTitle()}
         </h1>
       </div>
 
@@ -97,8 +132,8 @@ export default function CollectionsContent() {
             className="collections-sort-select"
             aria-label="Sort products"
           >
+            <option value="default">Sort by: Recommended</option>
             <option value="newest">Newest</option>
-            <option value="popular">Most Popular</option>
             <option value="price-low">Price: Low to High</option>
             <option value="price-high">Price: High to Low</option>
           </select>
@@ -108,7 +143,7 @@ export default function CollectionsContent() {
       {/* Products Grid - 2 columns on mobile */}
       {sorted.length === 0 ? (
         <div className="collections-empty">
-          <p className="collections-empty-text">No products found</p>
+          <p className="collections-empty-text">No products found matching your criteria</p>
           <button
             className="collections-empty-btn"
             onClick={handleResetFilters}
@@ -118,7 +153,7 @@ export default function CollectionsContent() {
         </div>
       ) : (
         <div className="plp-grid-mobile">
-          {sorted.map((p: any) => (
+          {sorted.map((p) => (
             <ProductCard key={p.slug} p={p} />
           ))}
         </div>
@@ -170,4 +205,5 @@ export default function CollectionsContent() {
     </>
   );
 }
+
 

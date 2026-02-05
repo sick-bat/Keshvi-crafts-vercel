@@ -24,6 +24,7 @@ export default function BootstrapNavbar() {
             width={100}
             height={100}
             className="logo-img"
+            priority={true}
             style={{
               objectFit: "contain",
               width: "90px", // Reduced slightly via CSS to keep sharp but large
@@ -44,6 +45,7 @@ export default function BootstrapNavbar() {
               width={20}
               height={20}
               className="nav-icon"
+              style={{ width: 20, height: 20 }}
             />
             <span className="nav-label">Home</span>
           </Link>
@@ -55,6 +57,7 @@ export default function BootstrapNavbar() {
               width={20}
               height={20}
               className="nav-icon"
+              style={{ width: 20, height: 20 }}
             />
             <span className="nav-label">Collections</span>
           </Link>
@@ -66,6 +69,7 @@ export default function BootstrapNavbar() {
               width={20}
               height={20}
               className="nav-icon"
+              style={{ width: 20, height: 20 }}
             />
             <span className="nav-label">Wishlist</span>
           </Link>
@@ -79,6 +83,7 @@ export default function BootstrapNavbar() {
                 width={20}
                 height={20}
                 className="nav-icon"
+                style={{ width: 20, height: 20 }}
               />
               <span className="cart-badge">
                 <CartBadge />

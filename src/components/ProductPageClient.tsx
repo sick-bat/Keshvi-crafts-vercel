@@ -7,6 +7,7 @@ import VariantSelector from "@/components/VariantSelector";
 import ProductCard from "@/components/ProductCard";
 import Link from "next/link";
 import type { Product, ProductVariant } from "@/types";
+import { trackEvent } from "@/lib/analytics";
 
 export default function ProductPageClient({
   product,
@@ -33,27 +34,47 @@ export default function ProductPageClient({
         <Gallery images={currentImages} alt={product.title} />
         <div>
           {/* Badge */}
-          {product.badge && (
-            <span className="product-badge" style={{
-              display: "inline-block",
-              padding: "0.3rem 0.8rem",
-              background: product.badge === "Bestseller" ? "#2C1810" : "#BCA37F",
-              color: "#fff",
-              borderRadius: "6px",
-              fontSize: "0.85rem",
-              fontWeight: 600,
-              marginBottom: "0.5rem"
-            }}>
-              {product.badge}
-            </span>
-          )}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {product.badges && product.badges.length > 0 ? (
+              product.badges.map(b => (
+                <span key={b} className="product-badge" style={{
+                  display: "inline-block",
+                  padding: "0.3rem 0.8rem",
+                  background: b === "Bestseller" ? "#2C1810" : "#BCA37F",
+                  color: "#fff",
+                  borderRadius: "6px",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                }}>
+                  {b}
+                </span>
+              ))
+            ) : product.badge ? (
+              <span className="product-badge" style={{
+                display: "inline-block",
+                padding: "0.3rem 0.8rem",
+                background: product.badge === "Bestseller" ? "#2C1810" : "#BCA37F",
+                color: "#fff",
+                borderRadius: "6px",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+              }}>
+                {product.badge}
+              </span>
+            ) : null}
+          </div>
 
           <h1 style={{ marginTop: 0, fontSize: "2rem", lineHeight: 1.3 }}>{product.title}</h1>
 
           {/* Price */}
           <div style={{ fontSize: "1.5rem", fontWeight: 700, margin: "1rem 0", color: "var(--brand)" }}>
-            ₹{currentPrice}
-            {typeof currentStock === "number" && (
+            {product.type === "custom-order" ? (
+              product.priceLabel || `Starts at ₹${product.minPrice || product.price}`
+            ) : (
+              `₹${currentPrice}`
+            )}
+
+            {(typeof currentStock === "number" && product.type !== "custom-order") && (
               <span className="meta" style={{ marginLeft: 12, fontSize: "0.9rem", fontWeight: 400 }}>
                 {inStock ? `${currentStock} in stock` : "Out of stock"}
               </span>
@@ -73,10 +94,17 @@ export default function ProductPageClient({
             marginBottom: "1.5rem",
             border: "1px solid rgba(188, 163, 127, 0.2)"
           }}>
-            <strong style={{ display: "block", marginBottom: "0.3rem" }}>Made to Order</strong>
+            <strong style={{ display: "block", marginBottom: "0.3rem" }}>
+              {product.type === "custom-order" ? "Custom Made for You" : "Made to Order"}
+            </strong>
             <span className="meta" style={{ fontSize: "0.9rem" }}>
-              Dispatch in 3–5 business days. Each piece is crafted especially for you.
+              {product.deliveryTime || "Dispatch in 3–5 business days."} {product.type === "custom-order" ? product.returnPolicy || "Non-refundable." : "Each piece is crafted especially for you."}
             </span>
+            {product.shippingCharge !== undefined && (
+              <div className="mt-2 text-sm text-stone-600 font-medium">
+                Shipping: {product.shippingCharge === 0 ? "Free" : `₹${product.shippingCharge}`}
+              </div>
+            )}
           </div>
 
           {/* Variant Selector */}
@@ -90,17 +118,55 @@ export default function ProductPageClient({
             </div>
           )}
 
-          {/* Buy Bar */}
+          {/* Actions: BuyBar or Instagram Enquiry */}
           <div style={{ marginBottom: "1.5rem" }}>
-            <BuyBar
-              slug={currentSlug}
-              title={currentTitle}
-              price={currentPrice}
-              image={currentImages[0]}
-              checkoutUrl={product.checkoutUrl}
-              disabled={!inStock}
-              productSlug={product.slug}
-            />
+            {product.type === "custom-order" ? (
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    const url = product.cta?.url || "https://instagram.com/keshvicrafts";
+                    window.open(url, "_blank", "noopener,noreferrer");
+                    trackEvent("click_instagram_enquiry", { slug: product.slug, location: "pdp_primary" });
+                  }}
+                  className="btn-luxe w-full py-3 text-center text-lg shadow-lg hover:shadow-xl transition-all"
+                >
+                  📸 {product.cta?.label || "Enquire on Instagram"}
+                </button>
+
+                <button
+                  onClick={() => {
+                    const message = product.cta?.prefillMessage || `Hi! I'm interested in ${product.title}`;
+                    navigator.clipboard.writeText(message);
+                    // Simple toast feedback
+                    const btn = document.getElementById("copy-btn");
+                    if (btn) {
+                      const original = btn.innerText;
+                      btn.innerText = "Copied! ✓";
+                      setTimeout(() => btn.innerText = original, 2000);
+                    }
+                  }}
+                  id="copy-btn"
+                  className="btn-outline w-full py-2.5 text-center text-sm"
+                >
+                  📋 Copy Enquiry Message
+                </button>
+
+                <p className="text-xs text-center text-stone-500 mt-2">
+                  Since this is a custom piece, we take orders personally on Instagram to ensure perfect customization.
+                </p>
+              </div>
+            ) : (
+              <BuyBar
+                slug={currentSlug}
+                title={currentTitle}
+                price={currentPrice}
+                image={currentImages[0]}
+                checkoutUrl={product.checkoutUrl}
+                disabled={!inStock}
+                productSlug={product.slug}
+              />
+            )}
+
           </div>
 
           {/* Trust Reassurance */}
@@ -111,7 +177,9 @@ export default function ProductPageClient({
             fontSize: "0.85rem",
             textAlign: "center"
           }}>
-            <span className="meta">🔒 Secure payments via Razorpay</span>
+            <span className="meta">
+              {product.type === "custom-order" ? "🔒 Secure payment via UPI/Bank Transfer" : "🔒 Secure payments via Razorpay"}
+            </span>
           </div>
 
           {/* Product Details */}

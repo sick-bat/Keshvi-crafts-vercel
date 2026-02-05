@@ -11,7 +11,7 @@ export default function Footer() {
           <div className="footer-section">
             <h3 className="footer-title">About Keshvi Crafts</h3>
             <p className="footer-text">
-              Handmade crochet and artisanal pieces crafted with care in India. 
+              Handmade crochet and artisanal pieces crafted with care in India.
               Each item is made to order, ensuring quality and thoughtfulness in every stitch.
             </p>
           </div>
@@ -42,6 +42,7 @@ export default function Footer() {
           <div className="footer-section">
             <h3 className="footer-title">Contact Us</h3>
             <ul className="footer-links">
+              <li><Link href="/contact">Contact Page</Link></li>
               <li>
                 <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer">
                   WhatsApp Support
@@ -56,11 +57,8 @@ export default function Footer() {
                 Follow Us
               </span>
               <div style={{ display: "flex", gap: "0.8rem" }}>
-                <a href="#" aria-label="Instagram" className="social-link">
+                <a href="https://instagram.com/keshvi_crafts" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="social-link">
                   Instagram
-                </a>
-                <a href="#" aria-label="Facebook" className="social-link">
-                  Facebook
                 </a>
               </div>
             </div>
@@ -79,4 +77,5 @@ export default function Footer() {
     </footer>
   );
 }
+
 
