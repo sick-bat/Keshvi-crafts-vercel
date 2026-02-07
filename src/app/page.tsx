@@ -3,6 +3,7 @@ import ProductCard from "@/components/ProductCard";
 import HeroSection from "@/components/HeroSection";
 import Link from "next/link";
 import { Product } from "@/types";
+import { getDisplayCategory, DISPLAY_CATEGORIES } from "@/lib/categories";
 
 export const metadata = {
   title: "Handmade Collections — Keshvi Crafts",
@@ -15,7 +16,6 @@ export default function Home() {
   );
 
   // 1. Priority Sorting (DESC priority, ASC price)
-  // Treat missing priority as -Infinity (lowest)
   const sortedProducts = [...live].sort((a, b) => {
     const pA = a.priority ?? -9999;
     const pB = b.priority ?? -9999;
@@ -23,30 +23,68 @@ export default function Home() {
     return a.price - b.price;
   });
 
+  // Track rendered slugs to prevent duplication
+  const renderedSlugs = new Set<string>();
+
+  const getDeduplicated = (list: Product[], count: number) => {
+    const output: Product[] = [];
+    for (const p of list) {
+      if (!renderedSlugs.has(p.slug)) {
+        output.push(p);
+        renderedSlugs.add(p.slug);
+      }
+      if (output.length >= count) break;
+    }
+    return output;
+  };
+
   // 2. Collections Logic
   const normalize = (s: string) => s.toLowerCase().trim();
 
-  // Valentine's
-  const valentineProducts = sortedProducts.filter(p =>
+  // Valentine's (Dedupe first)
+  const valentineRaw = sortedProducts.filter(p =>
     p.tags?.some(t => normalize(t) === "valentine")
   );
+  // Important: Valentine is hero content, so we render it first.
+  const valentineProducts = getDeduplicated(valentineRaw, 4);
 
-  // Best Sellers (Explicit badge)
-  const bestSellers = sortedProducts
-    .filter((p) => p.badges?.includes("Bestseller") || p.badge === "Bestseller")
-    .slice(0, 4);
+  // Best Sellers Logic:
+  // 1. "Sunflower Pot" (Must be present if exists)
+  // 2. Category "Flowers" or "Pots"
+  // 3. Explicit Bestseller badge
+  // 4. Fallback to sortedProducts
 
-  // Price Collections (using minPrice for custom orders)
-  const under499 = sortedProducts.filter(p => (p.minPrice || p.price) < 499).slice(0, 4);
-  const under699 = sortedProducts.filter(p => (p.minPrice || p.price) < 699).slice(0, 4);
+  const bestSellerPriority = sortedProducts.filter(p => {
+    const title = (p.title || "").toLowerCase();
+    const cat = (p.category || "").toLowerCase();
+    // Check specific item
+    if (title.includes("sunflower") && title.includes("pot")) return true;
+    // Check categories
+    if (cat === "flowers" || cat === "pots") return true;
+    return false;
+  });
 
-  // Categories (Unique)
-  const categories = Array.from(
-    new Set(sortedProducts.map((p) => p.category).filter(Boolean))
-  ) as string[];
+  const explicitBestsellers = sortedProducts.filter(p =>
+    p.badges?.includes("Bestseller") || p.badge === "Bestseller"
+  );
 
-  // Featured (Top 8 from sorted)
-  const featuredProducts = sortedProducts.slice(0, 8);
+  // Combine pools: Priority -> Explicit -> General
+  const bestSellerPool = [...bestSellerPriority, ...explicitBestsellers, ...sortedProducts];
+  const bestSellers = getDeduplicated(bestSellerPool, 4);
+
+
+  // Price Collections
+  const under499Raw = sortedProducts.filter(p => (p.minPrice || p.price) < 499);
+  const under499 = getDeduplicated(under499Raw, 4);
+
+  // Categories (Unique Display Categories)
+  // We don't render products here, just chips. No dedupe needed for chips.
+  const activeCategories = Array.from(new Set(live.map(p => getDisplayCategory(p.category || ''))));
+  const displayCats = DISPLAY_CATEGORIES.filter(c => activeCategories.includes(c));
+
+  // Featured (Top from sorted, excluding already rendered)
+  // Just show whatever is left high priority
+  const featuredProducts = getDeduplicated(sortedProducts, 8);
 
   return (
     <main>
@@ -67,7 +105,7 @@ export default function Home() {
               </Link>
             </div>
             <div className="plp-grid-mobile">
-              {valentineProducts.slice(0, 4).map((p) => (
+              {valentineProducts.map((p) => (
                 <ProductCard key={p.slug} p={p} />
               ))}
             </div>
@@ -132,14 +170,15 @@ export default function Home() {
         )}
 
         {/* Shop by Collection Section */}
-        {categories.length > 0 && (
+        {displayCats.length > 0 && (
           <section className="mb-12">
             <h2 className="text-3xl font-semibold mb-6" style={{ fontFamily: "Cormorant Garamond, serif" }}>
               Shop by Collection
             </h2>
             <div className="flex flex-wrap gap-3 mb-8">
-              {categories.slice(0, 6).map((cat) => {
-                const categoryProducts = live.filter((p) => p.category === cat);
+              {displayCats.slice(0, 6).map((cat) => {
+                // Approximate count
+                const count = live.filter((p) => getDisplayCategory(p.category || '') === cat).length;
                 return (
                   <Link
                     key={cat}
@@ -147,7 +186,7 @@ export default function Home() {
                     className="collection-chip"
                   >
                     {cat}
-                    <span className="meta ml-2">({categoryProducts.length})</span>
+                    <span className="meta ml-2">({count})</span>
                   </Link>
                 );
               })}
@@ -177,34 +216,36 @@ export default function Home() {
           </section>
         )}
 
-        {/* Featured Products Section */}
-        <section className="mb-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-semibold" style={{ fontFamily: "Cormorant Garamond, serif" }}>
-              Handmade Collections
-            </h2>
-            <Link href="/collections" className="meta hover:underline">
-              View All →
-            </Link>
-          </div>
-          <p className="meta mb-6">
-            Crafted on request • Ships across India • Sorted by Priority
-          </p>
-
-          <div className="plp-grid-mobile">
-            {featuredProducts.map((p) => (
-              <ProductCard key={p.slug} p={p} />
-            ))}
-          </div>
-
-          {live.length > featuredProducts.length && (
-            <div className="text-center mt-8">
-              <Link href="/collections" className="btn-luxe">
-                View All Products ({live.length})
+        {/* Featured Products Section (Remaining Top Priority) */}
+        {featuredProducts.length > 0 && (
+          <section className="mb-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-semibold" style={{ fontFamily: "Cormorant Garamond, serif" }}>
+                Handmade Collections
+              </h2>
+              <Link href="/collections" className="meta hover:underline">
+                View All →
               </Link>
             </div>
-          )}
-        </section>
+            <p className="meta mb-6">
+              Crafted on request • Ships across India • Sorted by Priority
+            </p>
+
+            <div className="plp-grid-mobile">
+              {featuredProducts.map((p) => (
+                <ProductCard key={p.slug} p={p} />
+              ))}
+            </div>
+
+            {live.length > renderedSlugs.size && (
+              <div className="text-center mt-8">
+                <Link href="/collections" className="btn-luxe">
+                  View All Products ({live.length})
+                </Link>
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </main>
   );

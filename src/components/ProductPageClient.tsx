@@ -128,7 +128,7 @@ export default function ProductPageClient({
                     window.open(url, "_blank", "noopener,noreferrer");
                     trackEvent("click_instagram_enquiry", { slug: product.slug, location: "pdp_primary" });
                   }}
-                  className="btn-luxe w-full py-3 text-center text-lg shadow-lg hover:shadow-xl transition-all"
+                  className="btn-primary w-full text-lg"
                 >
                   📸 {product.cta?.label || "Enquire on Instagram"}
                 </button>
@@ -146,7 +146,7 @@ export default function ProductPageClient({
                     }
                   }}
                   id="copy-btn"
-                  className="btn-outline w-full py-2.5 text-center text-sm"
+                  className="btn-secondary w-full text-sm"
                 >
                   📋 Copy Enquiry Message
                 </button>

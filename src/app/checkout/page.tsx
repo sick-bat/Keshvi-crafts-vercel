@@ -7,6 +7,8 @@ import Image from "next/image";
 import { calculateShipping } from "@/lib/shipping";
 import { showToast } from "@/components/Toast";
 import { useRouter } from "next/navigation";
+import PriceProgressBar from "@/components/PriceProgressBar";
+import CheckoutAddons from "@/components/CheckoutAddons";
 import type { Product } from "@/types";
 
 type Item = { slug: string; title: string; price: number; image?: string; qty?: number; productSlug?: string };
@@ -39,6 +41,21 @@ export default function CheckoutPage() {
         return;
       }
 
+      // Guard against custom orders slipping in
+      // Logic: If ANY item is custom order, we should probably remove it or block checkout?
+      // Prompt says: "If cart empty OR only custom-order OR invalid -> redirect"
+      // Since custom items shouldn't be in cart, let's just check invalid items
+      const hasCustom = existing.some(it => {
+        const p = productBySlug[it.productSlug || it.slug];
+        return p?.type === 'custom-order';
+      });
+
+      if (hasCustom) {
+        showToast("Custom items cannot be checked out directly. Please enquire.");
+        router.replace("/cart"); // send back to cart to clean up
+        return;
+      }
+
       setItems(existing);
 
       // Load saved details if any
@@ -58,8 +75,23 @@ export default function CheckoutPage() {
     const p = productBySlug[it.productSlug || it.slug.split('-')[0]];
     return { ...it, shippingCharge: p?.shippingCharge };
   });
+
+  // Calculate Discountable Subtotal (exclude custom-order)
+  const discountableSubtotal = enrichedItems.reduce((s, it) => {
+    const p = productBySlug[it.productSlug || it.slug.split('-')[0]];
+    if (p?.type === "custom-order") return s;
+    return s + it.price * (it.qty || 1);
+  }, 0);
+
+  // Discount Logic
+  let discountPercent = 0;
+  if (discountableSubtotal > 1800) discountPercent = 20;
+  else if (discountableSubtotal > 1250) discountPercent = 10;
+
+  const discountAmount = Math.round((discountableSubtotal * discountPercent) / 100);
+
   const shipping = calculateShipping(enrichedItems, total);
-  const grandTotal = total + shipping;
+  const grandTotal = total - discountAmount + shipping;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -189,7 +221,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="pt-4">
-              <button type="submit" className="w-full btn-luxe py-3 text-lg font-semibold shadow-lg">
+              <button type="submit" className="w-full btn-primary text-lg font-semibold">
                 Continue to Payment
               </button>
               <p className="text-center text-xs text-stone-500 mt-3 flex items-center justify-center gap-1">
@@ -199,6 +231,9 @@ export default function CheckoutPage() {
           </form>
         ) : (
           <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+
+            {/* Price Progress Bar */}
+            <PriceProgressBar subtotal={total} />
 
             {/* Order Review */}
             <div className="mb-6 bg-stone-50 p-4 rounded-xl border border-stone-200">
@@ -211,6 +246,13 @@ export default function CheckoutPage() {
                   </div>
                 ))}
 
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-[#C2410C]">
+                    <span>Discount ({discountPercent}%)</span>
+                    <span>-₹{discountAmount}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-sm text-stone-500">
                   <span>Shipping</span>
                   <span className="font-medium">{shipping === 0 ? "Free" : `₹${shipping}`}</span>
@@ -222,6 +264,9 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
+
+            {/* Checkout Add-ons */}
+            <CheckoutAddons currentCartSlugs={items.map(it => it.slug)} />
 
             <div className="mb-6">
               <p className="text-stone-600 mb-2">Since we are currently collecting payments per item, please complete the payment for each item below:</p>
@@ -254,7 +299,7 @@ export default function CheckoutPage() {
                           href={link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="btn-luxe px-4 py-2 text-sm whitespace-nowrap"
+                          className="btn-primary text-sm whitespace-nowrap"
                         >
                           Pay ₹{it.price * (it.qty || 1)}
                         </a>

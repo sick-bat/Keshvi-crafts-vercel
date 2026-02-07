@@ -27,6 +27,26 @@ export default function PrivacyPage() {
       <p>
         We use essential cookies to keep your cart active and improve your browsing experience.
       </p>
+      <h3>4. Data Controller</h3>
+      <p>
+        <strong>Keshvi Crafts</strong> is the data controller for your personal information.
+        <br />
+        Contact: <a href="mailto:KESHVICRAFTS@gmail.com" className="underline">KESHVICRAFTS@gmail.com</a>
+      </p>
+
+      <h3>5. Payment Processing</h3>
+      <p>
+        Payments are processed via a secure third-party gateway (Razorpay/UPI). We do not store or have access to your credit/debit card information.
+      </p>
+
+      <div className="mt-12 pt-8 border-t border-stone-200 text-sm">
+        <h3 className="font-bold text-stone-800 mb-2">Business Information</h3>
+        <p className="text-stone-600">
+          <strong>Keshvi Crafts</strong><br />
+          Email: KESHVICRAFTS@gmail.com<br />
+          Phone: +91 7507996961
+        </p>
+      </div>
     </main>
   );
 }

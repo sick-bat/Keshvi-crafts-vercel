@@ -8,6 +8,7 @@ import Link from "next/link";
 import products from "@/data/products.json"; // Import products for lookup
 import { calculateShipping } from "@/lib/shipping";
 import { showToast } from "@/components/Toast";
+import PriceProgressBar from "@/components/PriceProgressBar";
 import type { Product } from "@/types";
 
 export default function CartPage() {
@@ -20,35 +21,57 @@ export default function CartPage() {
     setMounted(true);
 
     // Safety check: Validate items against products.json
-    const currentCart = getCart();
-    let removedCount = 0;
+    try {
+      const currentCart = getCart();
+      let removedCount = 0;
+      let invalidCount = 0;
 
-    const validItems = currentCart.filter(item => {
-      // Find product by slug logic same as implemented in rendering but cleaner
-      // The cart item stores "productSlug" sometimes, or "slug"
-      // Let's try to match
-      const pSlug = (item as any).productSlug || item.slug.split('-')[0]; // Simple heuristic
-      const p = (products as Product[]).find(x => x.slug === pSlug || x.slug === item.slug);
+      const validItems = currentCart.filter(item => {
+        // Try multiple slug matching strategies
+        const itemSlug = item.slug;
+        const productSlug = (item as any).productSlug;
 
-      if (!p) {
-        // If product not found, maybe keep it? Or strict mode?
-        // Use strict for new system
-        console.warn("Cart item product not found:", item);
-        // removedCount++; return false; // Maybe too strict if slug logic is weak
+        // Find matching product
+        const p = (products as Product[]).find(x => {
+          // Direct match
+          if (x.slug === itemSlug || x.slug === productSlug) return true;
+          // Variant match (item slug might be product-variant)
+          if (itemSlug.startsWith(x.slug + '-')) return true;
+          return false;
+        });
+
+        if (!p) {
+          invalidCount++;
+          return false; // Remove invalid items
+        }
+
+        if (p.type === 'custom-order') {
+          removedCount++;
+          return false;
+        }
+
         return true;
-      }
+      });
 
-      if (p.type === 'custom-order') {
-        removedCount++;
-        return false;
-      }
-      return true;
-    });
+      if (invalidCount > 0 || removedCount > 0) {
+        try {
+          localStorage.setItem("cart", JSON.stringify(validItems));
+          setItems(validItems);
 
-    if (removedCount > 0) {
-      localStorage.setItem("cart", JSON.stringify(validItems));
-      setItems(validItems);
-      showToast("Removed custom-order items from cart. Please enquire on Instagram.");
+          if (removedCount > 0) {
+            showToast("Removed custom-order items from cart. Please enquire on Instagram.");
+          }
+          if (invalidCount > 0) {
+            showToast(`Removed ${invalidCount} invalid item(s) from cart.`);
+          }
+        } catch (e) {
+          console.warn("Could not update cart in localStorage:", e);
+          // Still update state even if storage fails
+          setItems(validItems);
+        }
+      }
+    } catch (e) {
+      console.warn("Cart validation error:", e);
     }
 
     const h = () => refresh();
@@ -69,8 +92,23 @@ export default function CartPage() {
     return { ...it, shippingCharge: p?.shippingCharge };
   });
 
+  // Calculate Discountable Subtotal (exclude custom-order)
+  const discountableSubtotal = enrichedItems.reduce((s, it) => {
+    // Check if custom order (based on product lookup)
+    const p = (products as Product[]).find(x => x.slug === it.slug || x.slug === (it as any).productSlug);
+    if (p?.type === "custom-order") return s;
+    return s + it.price * it.qty;
+  }, 0);
+
+  // Discount Logic
+  let discountPercent = 0;
+  if (discountableSubtotal > 1800) discountPercent = 20;
+  else if (discountableSubtotal > 1250) discountPercent = 10;
+
+  const discountAmount = Math.round((discountableSubtotal * discountPercent) / 100);
+
   const shipping = calculateShipping(enrichedItems, total);
-  const grandTotal = total + shipping;
+  const grandTotal = total - discountAmount + shipping;
 
   if (!mounted) return <div className="min-h-[60vh] bg-[#FAF7F2]" />;
 
@@ -95,7 +133,7 @@ export default function CartPage() {
             <div className="mb-4 text-4xl">🧶</div>
             <h2 className="text-xl font-semibold mb-2 text-[#2f2a26]">Your cart is empty</h2>
             <p className="text-[#6a6150] mb-6">Looks like you haven&apos;t found your perfect piece yet.</p>
-            <Link href="/collections" className="btn-luxe inline-flex px-8 py-3">
+            <Link href="/collections" className="btn-primary inline-flex px-8 py-3">
               Browse Collections
             </Link>
           </div>
@@ -104,6 +142,8 @@ export default function CartPage() {
 
             {/* Left Column: Cart Items */}
             <div className="space-y-4">
+              {/* Price Progress Bar */}
+              <PriceProgressBar subtotal={total} />
               {items.map((it) => {
                 // Parse Variant Info
                 const parts = it.title.split(" - ");
@@ -156,9 +196,20 @@ export default function CartPage() {
                           </div>
                         )}
 
-                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#fdf2f8] text-[#be185d] text-xs font-medium rounded-md border border-[#fbcfe8]">
-                          Made to order
-                        </div>
+                        {/* Check type explicitly via lookup in products list (products imported above) */
+                          (() => {
+                            const pSlug = (it as any).productSlug || it.slug.split('-')[0];
+                            const p = (products as Product[]).find(x => x.slug === pSlug || x.slug === it.slug);
+                            if (p?.type === 'custom-order') {
+                              return (
+                                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#fdf2f8] text-[#be185d] text-xs font-medium rounded-md border border-[#fbcfe8]">
+                                  Made to order
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()
+                        }
                       </div>
 
                       {/* Controls Row */}
@@ -216,6 +267,12 @@ export default function CartPage() {
                     <span>Subtotal</span>
                     <span className="font-medium text-[#2f2a26]">₹{total}</span>
                   </div>
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-[#C2410C]">
+                      <span>Discount ({discountPercent}%)</span>
+                      <span>-₹{discountAmount}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span>Shipping</span>
                     <span className="text-[#0F766E]">{shipping === 0 ? "Free" : `₹${shipping}`}</span>
@@ -230,9 +287,8 @@ export default function CartPage() {
                 </div>
 
                 {/* Secure Checkout Button */}
-                <Link href="/checkout" className="w-full btn-luxe py-3.5 text-base shadow-lg shadow-[#C2410C]/20 hover:shadow-[#C2410C]/30 flex flex-col items-center justify-center gap-0.5 text-center decoration-0">
-                  <span>Proceed to Secure Checkout</span>
-                  <span className="text-[10px] opacity-80 font-normal">Secure payments via Razorpay</span>
+                <Link href="/checkout" className="w-full btn-primary text-base flex items-center justify-center gap-2 text-center">
+                  Proceed to Checkout
                 </Link>
 
                 {/* Trust Icons Strip */}
@@ -274,21 +330,6 @@ export default function CartPage() {
           </div>
         )}
       </div>
-
-      {/* Mobile Sticky Checkout (Only visible on small screens) */}
-      {items.length > 0 && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e7eb] p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
-          <div className="flex gap-3 max-w-md mx-auto">
-            <div className="flex-1">
-              <div className="text-xs text-[#6b7280] mb-0.5">Total</div>
-              <div className="font-bold text-lg text-[#C2410C]">₹{total}</div>
-            </div>
-            <Link href="/checkout" className="flex-[2] btn-luxe py-3 text-sm shadow-md flex items-center justify-center">
-              Checkout
-            </Link>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

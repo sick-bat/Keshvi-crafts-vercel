@@ -35,19 +35,21 @@ export default function ContactPage() {
                     <p className="text-stone-600 mb-4">
                         For order inquiries or collaborations, drop us a mail.
                     </p>
-                    <a href="mailto:hello@keshvicrafts.com" className="text-stone-800 underline hover:text-[#C2410C]">
-                        hello@keshvicrafts.com
+                    <a href="mailto:KESHVICRAFTS@gmail.com" className="text-stone-800 underline hover:text-[#C2410C]">
+                        KESHVICRAFTS@gmail.com
                     </a>
                 </div>
             </div>
 
-            <div className="mt-12 pt-8 border-t border-stone-200">
-                <h3 className="font-bold text-stone-800 mb-2">Registered Address</h3>
-                <p className="text-stone-500 whitespace-pre-line">
-                    Keshvi Crafts Studio
-                    [Full Address Placeholder]
-                    India
-                </p>
+            <div className="mt-12 pt-8 border-t border-stone-200 text-sm md:text-base">
+                <h3 className="font-bold text-stone-800 mb-2">Business Information</h3>
+                <div className="text-stone-600 space-y-1">
+                    <p><span className="font-semibold">Legal Entity:</span> Keshvi Crafts</p>
+                    <p><span className="font-semibold">Type:</span> Sole Proprietorship</p>
+                    <p><span className="font-semibold">Address:</span> Keshvi Crafts Studio, India</p>
+                    <p><span className="font-semibold">Email:</span> <a href="mailto:KESHVICRAFTS@gmail.com" className="underline">KESHVICRAFTS@gmail.com</a></p>
+                    <p><span className="font-semibold">Phone:</span> +91 7507996961</p>
+                </div>
             </div>
         </main>
     );

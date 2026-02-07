@@ -34,6 +34,19 @@ export default function ShippingPage() {
         While we strive to meet our timelines, courier delays due to weather or operational issues are out of our control.
         If your package is delayed significantly, please contact us on Instagram.
       </p>
+      <h3>5. Shipping Origin</h3>
+      <p>
+        All orders are shipped from our studio in <strong>India</strong>.
+      </p>
+
+      <div className="mt-12 pt-8 border-t border-stone-200 text-sm">
+        <h3 className="font-bold text-stone-800 mb-2">Business Information</h3>
+        <p className="text-stone-600">
+          <strong>Keshvi Crafts</strong><br />
+          Email: KESHVICRAFTS@gmail.com<br />
+          Phone: +91 7507996961
+        </p>
+      </div>
     </main>
   );
 }

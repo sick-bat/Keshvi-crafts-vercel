@@ -28,6 +28,14 @@ export default function TermsPage() {
         All designs, photos, and content on this website are the property of Keshvi Crafts.
         You may not use our images for commercial purposes without permission.
       </p>
+      <div className="mt-12 pt-8 border-t border-stone-200 text-sm">
+        <h3 className="font-bold text-stone-800 mb-2">Business Information</h3>
+        <p className="text-stone-600">
+          <strong>Keshvi Crafts</strong><br />
+          Email: KESHVICRAFTS@gmail.com<br />
+          Phone: +91 7507996961
+        </p>
+      </div>
     </main>
   );
 }

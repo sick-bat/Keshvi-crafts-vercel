@@ -41,7 +41,7 @@ export default function BuyBar({
     <div className="buy-bar">
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: "0.8rem" }}>
         <button
-          className="btn-luxe btn-primary"
+          className="btn-primary"
           onClick={buyNow}
           disabled={disabled}
           style={{ flex: "1 1 auto", minWidth: "140px" }}
@@ -49,7 +49,7 @@ export default function BuyBar({
           Buy Now
         </button>
         <button
-          className="btn-outline"
+          className="btn-secondary"
           onClick={addToCart}
           disabled={disabled}
           data-cart-btn={slug}

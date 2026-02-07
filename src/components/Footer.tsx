@@ -44,12 +44,12 @@ export default function Footer() {
             <ul className="footer-links">
               <li><Link href="/contact">Contact Page</Link></li>
               <li>
-                <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.me/+917507996961" target="_blank" rel="noopener noreferrer">
                   WhatsApp Support
                 </a>
               </li>
               <li>
-                <a href="mailto:hello@keshvicrafts.com">Email Us</a>
+                <a href="mailto:KESHVICRAFTS@gmail.com">Email Us</a>
               </li>
             </ul>
             <div className="footer-social" style={{ marginTop: "1rem" }}>

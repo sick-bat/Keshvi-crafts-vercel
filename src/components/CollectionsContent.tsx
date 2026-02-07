@@ -2,6 +2,7 @@
 "use client";
 
 import products from "@/data/products.json";
+import { getDisplayCategory, DISPLAY_CATEGORIES } from "@/lib/categories";
 import ProductCard from "@/components/ProductCard";
 import BottomSheet from "@/components/BottomSheet";
 import { useMemo, useState, useEffect } from "react";
@@ -24,23 +25,32 @@ export default function CollectionsContent() {
     if (categoryParam) setCategory(categoryParam);
   }, [categoryParam]);
 
-  // Filter out variants and hidden items
-  const live = (products as Product[]).filter(
-    (p) => (p.status ?? "live") !== "hidden" && !p.isVariant
-  );
 
-  // Get unique categories
-  const categories = Array.from(
-    new Set(live.map((p) => p.category).filter(Boolean))
-  ) as string[];
+
+  // ... existing imports
+
+  // Filter out variants and hidden items
+  // Also dedupe by slug just in case
+  const live = useMemo(() => {
+    const all = (products as Product[]).filter(p => (p.status ?? "live") !== "hidden" && !p.isVariant);
+    const seen = new Set();
+    return all.filter(p => {
+      if (seen.has(p.slug)) return false;
+      seen.add(p.slug);
+      return true;
+    });
+  }, []);
+
+  // Use defined Display Categories
+  const categories = DISPLAY_CATEGORIES;
 
   // Filter Logic
   const filtered = useMemo(() => {
     let result = live;
 
-    // 1. Category Filter
+    // 1. Category Filter (Match Display Category)
     if (category) {
-      result = result.filter((p) => p.category === category);
+      result = result.filter((p) => getDisplayCategory(p.category || "") === category);
     }
 
     // 2. Tag Filter (e.g. Valentine)
@@ -111,6 +121,11 @@ export default function CollectionsContent() {
         <h1 className="collections-title">
           {getPageTitle()}
         </h1>
+        {getPageTitle() === "All Collections" && (
+          <p className="text-stone-600 mb-6 italic text-sm md:text-base mt-2">
+            Discover our handcrafted treasures, made with love and tradition in every stitch.
+          </p>
+        )}
       </div>
 
       {/* Top Control Bar */}

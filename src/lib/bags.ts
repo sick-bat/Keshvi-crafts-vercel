@@ -27,7 +27,11 @@ function read<T>(key: string, fallback: T): T {
 }
 
 function write<T>(key: string, value: T) {
-  localStorage.setItem(key, JSON.stringify(value));
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.warn("Storage write failed", e);
+  }
 }
 
 function snap(p: { slug: string; title: string; price: number; images?: string[] }): ItemSnapshot {
@@ -43,7 +47,9 @@ function snap(p: { slug: string; title: string; price: number; images?: string[]
 function notify() {
   window.dispatchEvent(new CustomEvent("bag:changed"));
   // also ping storage so other tabs update
-  localStorage.setItem("__bag_ping__", String(Date.now()));
+  try {
+    localStorage.setItem("__bag_ping__", String(Date.now()));
+  } catch { }
 }
 
 /* ---------------- CART ---------------- */

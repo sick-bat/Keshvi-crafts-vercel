@@ -92,15 +92,22 @@
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[14px] font-medium transition-all duration-200 border disabled:opacity-60
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-[15px] font-medium transition-all duration-200 border disabled:cursor-not-allowed disabled:no-underline
   }
 
-  .btn-luxe {
-    @apply btn bg-[#2C1810] text-[#FAF9F7] border-[#2C1810] hover:bg-[#3a2016]
+  /* Primary CTA: Soft filled earthy-brown, off-white text, subtle hover darken */
+  .btn-primary, .btn-luxe {
+    @apply btn bg-[#8B5E3C] text-[#FAF9F7] border-[#8B5E3C] hover:bg-[#6F4E37] shadow-sm hover:shadow-md disabled:bg-[#E5E0D8] disabled:text-[#9CA3AF] disabled:border-[#E5E0D8]
   }
 
-  .btn-outline {
-    @apply btn bg-white text-[#2C1810] border-[#2C1810]/25 hover:bg-neutral-50 hover:border-[#2C1810]/40
+  /* Secondary CTA: Outline with same brown border/text, hover light beige */
+  .btn-secondary, .btn-outline {
+    @apply btn bg-transparent text-[#8B5E3C] border-[#8B5E3C] hover:bg-[#FAF7F2] hover:border-[#6F4E37] disabled:border-[#D1D5DB] disabled:text-[#9CA3AF] disabled:hover:bg-transparent
+  }
+
+  /* Explicit disabled utility if needed separately */
+  .btn-disabled {
+    @apply bg-[#E5E0D8] text-[#9CA3AF] border-[#E5E0D8] cursor-not-allowed hover:bg-[#E5E0D8] hover:shadow-none
   }
 }
 

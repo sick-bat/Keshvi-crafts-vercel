@@ -68,24 +68,28 @@ export default function ProductCard({ p }: { p: Product }) {
   };
 
   const getButtonLabel = () => {
-    if (isCustomOrder) return "Enquire";
+    if (isCustomOrder) return "Enquire on Instagram";
     if (state === "adding") return "Adding…";
     if (state === "added") return "Added ✓";
     return "Add to Cart";
   };
 
+  const visibleBadges = badges.slice(0, 2);
+  const overflowCount = badges.length - 2;
+
   return (
-    <article className="plp-card-mobile h-full flex flex-col relative group">
+    <article className="plp-card-mobile h-full flex flex-col relative group bg-white rounded-2xl overflow-hidden border border-stone-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+
       {/* MEDIA WRAPPER */}
-      {/* MEDIA WRAPPER */}
-      <div className="relative w-full bg-stone-100 overflow-hidden group rounded-xl mb-3">
+      <div className="relative w-full bg-stone-100 overflow-hidden">
         <Link
           href={`/products/${encoded}`}
           aria-label={p.title}
           className="block w-full h-full"
           onClick={handleCardClick}
         >
-          <div className="relative w-full h-0" style={{ paddingBottom: '125%' }}>
+          {/* Square Aspect Ratio */}
+          <div className="relative w-full h-0" style={{ paddingBottom: '100%' }}>
             <ImageWithFallback
               src={p.images?.[0] || '/placeholder.png'}
               alt={p.title}
@@ -98,21 +102,35 @@ export default function ProductCard({ p }: { p: Product }) {
           </div>
         </Link>
 
-        {/* Badges */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
+        {/* Badges - Top Left */}
+        <div className="absolute top-3 left-3 flex flex-wrap gap-2 z-10 pointer-events-none max-w-[80%]">
           {!inStock && !isCustomOrder && (
-            <span className="px-2 py-0.5 text-xs font-bold bg-neutral-900 text-white rounded">Out of Stock</span>
+            <span className="px-2 py-1 text-[10px] font-bold bg-neutral-900 text-white rounded shadow-sm">Out of Stock</span>
           )}
-          {badges.map(b => (
-            <span key={b} className="px-2 py-0.5 text-xs font-semibold bg-white/90 text-neutral-800 backdrop-blur-sm rounded shadow-sm border border-neutral-100">
+          {/* Auto-badge for custom order if not present */}
+          {isCustomOrder && !badges.includes("Made to Order") && (
+            <span className="px-2 py-1 text-[10px] font-semibold bg-[#C2410C] text-white backdrop-blur-sm rounded shadow-sm">
+              Made to Order
+            </span>
+          )}
+          {visibleBadges.map(b => (
+            <span key={b} className={`px-2 py-1 text-[10px] font-semibold backdrop-blur-sm rounded shadow-sm border ${b === "Bestseller"
+              ? "bg-[#2C1810] text-white border-[#2C1810]"
+              : "bg-white/90 text-neutral-800 border-neutral-100"
+              }`}>
               {b}
             </span>
           ))}
+          {overflowCount > 0 && (
+            <span className="px-2 py-1 text-[10px] font-semibold bg-white/90 text-neutral-600 backdrop-blur-sm rounded shadow-sm border border-neutral-100">
+              +{overflowCount}
+            </span>
+          )}
         </div>
 
-        {/* Wishlist Button */}
+        {/* Wishlist Button - Top Right */}
         <button
-          className={`absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 backdrop-blur text-neutral-600 transition-colors z-20 hover:bg-white hover:text-red-500 ${hearted ? "text-red-500 bg-white" : ""}`}
+          className={`absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-white/90 backdrop-blur shadow-sm text-neutral-400 transition-colors z-20 hover:text-red-500 hover:bg-white ${hearted ? "text-red-500" : ""}`}
           aria-label={hearted ? "Remove from wishlist" : "Add to wishlist"}
           onClick={onHeartClick}
           type="button"
@@ -130,34 +148,31 @@ export default function ProductCard({ p }: { p: Product }) {
       </div>
 
       {/* CONTENT */}
-      <div className="flex flex-col flex-grow">
-        <h3 className="text-base font-medium text-neutral-900 leading-tight mb-1 line-clamp-2 min-h-[2.5em]">
-          <Link href={`/products/${encoded}`} onClick={handleCardClick} className="hover:underline decoration-neutral-300 underline-offset-2">
+      <div className="flex flex-col flex-grow p-4">
+        <h3 className="text-base font-medium text-neutral-900 leading-snug mb-2 line-clamp-2 min-h-[2.5em]">
+          <Link href={`/products/${encoded}`} onClick={handleCardClick} className="hover:text-[#C2410C] transition-colors">
             {p.title}
           </Link>
         </h3>
 
-        <div className="mt-auto pt-2 flex items-center justify-between gap-2">
-          <div className="text-lg font-bold text-neutral-900">
-            {priceDisplay}
+        <div className="mt-auto">
+          {isCustomOrder && (
+            <p className="text-[11px] text-stone-500 mb-2 font-medium">Non-refundable (custom made)</p>
+          )}
+
+          <div className="flex items-baseline gap-2 mb-3">
+            <span className="text-lg font-bold text-neutral-900">{priceDisplay}</span>
           </div>
 
           <button
             type="button"
             onClick={handleAction}
             disabled={(!inStock && !isCustomOrder) || state === "adding" || state === "added"}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isCustomOrder
-              ? "bg-stone-100 text-stone-800 hover:bg-stone-200 border border-stone-200"
-              : "bg-[#2C1810] text-[#FAF9F7] hover:bg-[#3a2016] disabled:opacity-50 disabled:cursor-not-allowed"
-              }`}
+            className={`w-full ${isCustomOrder ? "btn-secondary" : "btn-primary"}`}
           >
             {getButtonLabel()}
           </button>
         </div>
-
-        {isCustomOrder && (
-          <p className="text-[10px] text-stone-500 mt-1 uppercase tracking-wide font-medium">Made to Order</p>
-        )}
       </div>
     </article>
   );

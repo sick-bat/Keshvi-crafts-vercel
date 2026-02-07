@@ -24,10 +24,16 @@ export function calculateShipping(cartItems: CartItem[], subtotal: number): numb
         return 0;
     }
 
-    // Find the maximum shipping charge among the items
-    // default to 0 if shippingCharge is missing
-    const maxShipping = Math.max(...cartItems.map(item => item.shippingCharge || 0));
+    // Find the maximum shipping charge among items
+    // If shippingCharge is undefined, assume 0
+    let maxShipping = 0;
 
-    // Math.max returns -Infinity for empty arrays, handle that just in case logic slips
-    return maxShipping < 0 ? 0 : maxShipping;
+    for (const item of cartItems) {
+        const charge = item.shippingCharge || 0;
+        if (charge > maxShipping) {
+            maxShipping = charge;
+        }
+    }
+
+    return maxShipping;
 }
