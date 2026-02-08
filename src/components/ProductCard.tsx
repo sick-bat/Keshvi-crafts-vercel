@@ -102,6 +102,28 @@ export default function ProductCard({ p }: { p: Product }) {
           </div>
         </Link>
 
+        {/* Wishlist Button - Restored */}
+        <button
+          className={`absolute top-3 right-3 z-30 w-9 h-9 flex items-center justify-center rounded-full shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer ${hearted
+            ? "bg-white text-red-500 border border-neutral-100"
+            : "bg-white/90 text-neutral-400 border border-transparent hover:text-red-500 hover:bg-white"
+            }`}
+          onClick={onHeartClick}
+          aria-label={hearted ? "Remove from wishlist" : "Add to wishlist"}
+          type="button"
+          title={hearted ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          {hearted ? (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+              <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+            </svg>
+          )}
+        </button>
+
         {/* Badges - Top Left */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-2 z-10 pointer-events-none max-w-[80%]">
           {!inStock && !isCustomOrder && (
@@ -128,23 +150,6 @@ export default function ProductCard({ p }: { p: Product }) {
           )}
         </div>
 
-        {/* Wishlist Button - Top Right */}
-        <button
-          className={`absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-white/90 backdrop-blur shadow-sm text-neutral-400 transition-colors z-20 hover:text-red-500 hover:bg-white ${hearted ? "text-red-500" : ""}`}
-          aria-label={hearted ? "Remove from wishlist" : "Add to wishlist"}
-          onClick={onHeartClick}
-          type="button"
-        >
-          {hearted ? (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-              <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-            </svg>
-          )}
-        </button>
       </div>
 
       {/* CONTENT */}

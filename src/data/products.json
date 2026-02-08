@@ -10,12 +10,17 @@
     "category": "Keyrings",
     "stock": 999,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 40,
     "handcraftedHours": "1",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "keyring-sunflower",
@@ -28,12 +33,17 @@
     "category": "Keyrings",
     "stock": 999,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 40,
     "handcraftedHours": "1",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "keyring-strawberry",
@@ -46,12 +56,17 @@
     "category": "Keyrings",
     "stock": 999,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 40,
     "handcraftedHours": "0.5",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "keyring-evil-eye",
@@ -64,12 +79,17 @@
     "category": "Keyrings",
     "stock": 999,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 40,
     "handcraftedHours": "1",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "keyring-turtle",
@@ -82,12 +102,17 @@
     "category": "Keyrings",
     "stock": 999,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 40,
     "handcraftedHours": "1",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "scrunchie",
@@ -102,12 +127,46 @@
     "category": "Accessories",
     "stock": 999,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 40,
     "handcraftedHours": "2",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    },
+    "variants": [
+      {
+        "name": "Pink",
+        "slug": "pink",
+        "price": 135,
+        "images": [
+          "/uploads/products/Hair/Scrunchie_pp.PNG"
+        ],
+        "stock": 999
+      },
+      {
+        "name": "Red",
+        "slug": "red",
+        "price": 135,
+        "images": [
+          "/uploads/products/Hair/Scrunchie_red.PNG"
+        ],
+        "stock": 999
+      },
+      {
+        "name": "Lavender",
+        "slug": "lavender",
+        "price": 135,
+        "images": [
+          "/uploads/products/Hair/Scrunchie_lb.PNG"
+        ],
+        "stock": 999
+      }
+    ]
   },
   {
     "slug": "earpod-holder",
@@ -120,12 +179,17 @@
     "category": "Accessories",
     "stock": 999,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 40,
     "handcraftedHours": "1",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "coin-purse",
@@ -138,12 +202,17 @@
     "category": "Accessories",
     "stock": 999,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 40,
     "handcraftedHours": "2",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "flower-sunflower",
@@ -158,12 +227,17 @@
     "category": "Flowers",
     "stock": 999,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 70,
     "handcraftedHours": "2",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "flower-rose",
@@ -176,32 +250,43 @@
     "category": "Flowers",
     "stock": 999,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 70,
     "handcraftedHours": "2",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" },
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    },
     "variants": [
       {
         "name": "Pink",
         "slug": "pink",
         "price": 230,
-        "images": ["/uploads/products/Flowers/indi_pink_rose.PNG"],
+        "images": [
+          "/uploads/products/Flowers/indi_pink_rose.PNG"
+        ],
         "stock": 999
       },
       {
         "name": "Red",
         "slug": "red",
         "price": 245,
-        "images": ["/uploads/products/Flowers/indi_red_rose.PNG"],
+        "images": [
+          "/uploads/products/Flowers/indi_red_rose.PNG"
+        ],
         "stock": 999
       },
       {
         "name": "White",
         "slug": "white",
         "price": 230,
-        "images": ["/uploads/products/Flowers/indi_white_rose.PNG"],
+        "images": [
+          "/uploads/products/Flowers/indi_white_rose.PNG"
+        ],
         "stock": 999
       }
     ]
@@ -218,12 +303,17 @@
     "category": "Pots",
     "stock": 16,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 70,
     "handcraftedHours": "4",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "pot-rose",
@@ -236,12 +326,17 @@
     "category": "Pots",
     "stock": 16,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 70,
     "handcraftedHours": "4",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "home-decor-turtle",
@@ -257,12 +352,17 @@
     "category": "Home Decor",
     "stock": 999,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 70,
     "handcraftedHours": "3",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "home-decor-curtain-ropes",
@@ -275,12 +375,17 @@
     "category": "Home Decor",
     "stock": 999,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-500",
     "shippingCharge": 70,
     "handcraftedHours": "2",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "home-decor-toran",
@@ -293,12 +398,18 @@
     "category": "Home Decor",
     "stock": 6,
     "badge": "Bestseller",
-    "badges": ["Bestseller", "Handmade"],
+    "badges": [
+      "Bestseller",
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-1000",
     "shippingCharge": 150,
     "handcraftedHours": "10",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "home-decor-design-toran-colourful",
@@ -311,12 +422,19 @@
     "category": "Home Decor",
     "stock": 2,
     "badge": "Bestseller",
-    "badges": ["Bestseller", "Handmade", "Premium"],
+    "badges": [
+      "Bestseller",
+      "Handmade",
+      "Premium"
+    ],
     "type": "direct-purchase",
     "priceBucket": "premium",
     "shippingCharge": 150,
     "handcraftedHours": "42",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "bag-breadbag",
@@ -329,12 +447,17 @@
     "category": "Bags",
     "stock": 5,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-1000",
     "shippingCharge": 150,
     "handcraftedHours": "",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "bag-granny-bag-coin-purse",
@@ -348,12 +471,18 @@
     "category": "Bags",
     "stock": 3,
     "badge": "Handmade",
-    "badges": ["Handmade", "Premium"],
+    "badges": [
+      "Handmade",
+      "Premium"
+    ],
     "type": "direct-purchase",
     "priceBucket": "premium",
     "shippingCharge": 150,
     "handcraftedHours": "",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "top-backless-maroon",
@@ -369,7 +498,11 @@
     "category": "Clothing",
     "stock": 999,
     "badge": "New",
-    "badges": ["Custom Made", "Made to Order", "Handmade"],
+    "badges": [
+      "Custom Made",
+      "Made to Order",
+      "Handmade"
+    ],
     "type": "custom-order",
     "priceLabel": "Starts at ₹700",
     "minPrice": 700,
@@ -399,7 +532,11 @@
     "category": "Clothing",
     "stock": 999,
     "badge": "New",
-    "badges": ["Custom Made", "Made to Order", "Handmade"],
+    "badges": [
+      "Custom Made",
+      "Made to Order",
+      "Handmade"
+    ],
     "type": "custom-order",
     "priceLabel": "Starts at ₹1489",
     "minPrice": 1489,
@@ -432,7 +569,11 @@
     "category": "Clothing",
     "stock": 999,
     "badge": "New",
-    "badges": ["Custom Made", "Made to Order", "Handmade"],
+    "badges": [
+      "Custom Made",
+      "Made to Order",
+      "Handmade"
+    ],
     "type": "custom-order",
     "priceLabel": "Starts at ₹1150",
     "minPrice": 1150,
@@ -460,12 +601,17 @@
     "category": "Book Cover",
     "stock": 10,
     "badge": "Handmade",
-    "badges": ["Handmade"],
+    "badges": [
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-1000",
     "shippingCharge": 150,
     "handcraftedHours": "10",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   },
   {
     "slug": "doll-antyprenuer",
@@ -481,11 +627,17 @@
     "category": "doll",
     "stock": 10,
     "badge": "New",
-    "badges": ["New", "Handmade"],
+    "badges": [
+      "New",
+      "Handmade"
+    ],
     "type": "direct-purchase",
     "priceBucket": "under-1000",
     "shippingCharge": 40,
     "handcraftedHours": "10",
-    "cta": { "type": "add-to-cart", "label": "Add to Cart" }
+    "cta": {
+      "type": "add-to-cart",
+      "label": "Add to Cart"
+    }
   }
 ]

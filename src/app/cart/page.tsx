@@ -55,7 +55,7 @@ export default function CartPage() {
 
       if (invalidCount > 0 || removedCount > 0) {
         try {
-          localStorage.setItem("cart", JSON.stringify(validItems));
+          localStorage.setItem("cart:v1", JSON.stringify(validItems));
           setItems(validItems);
 
           if (removedCount > 0) {
