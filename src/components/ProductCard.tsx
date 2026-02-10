@@ -50,7 +50,7 @@ export default function ProductCard({ p }: { p: Product }) {
 
     if (isCustomOrder) {
       // Enquire action
-      const url = p.cta?.url || "https://instagram.com/keshvicrafts";
+      const url = p.cta?.url || "https://ig.me/m/keshvi_craft";
       window.open(url, "_blank", "noopener,noreferrer");
       trackEvent("click_instagram_enquiry", { slug: p.slug, location: "card" });
     } else {
@@ -155,7 +155,7 @@ export default function ProductCard({ p }: { p: Product }) {
       {/* CONTENT */}
       <div className="flex flex-col flex-grow p-4">
         <h3 className="text-base font-medium text-neutral-900 leading-snug mb-2 line-clamp-2 min-h-[2.5em]">
-          <Link href={`/products/${encoded}`} onClick={handleCardClick} className="hover:text-[#C2410C] transition-colors">
+          <Link href={`/products/${encoded}`} onClick={handleCardClick} className="product-title-link">
             {p.title}
           </Link>
         </h3>

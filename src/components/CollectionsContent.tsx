@@ -3,8 +3,9 @@
 
 import products from "@/data/products.json";
 import { getDisplayCategory, DISPLAY_CATEGORIES } from "@/lib/categories";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/components/ProductCardV2";
 import BottomSheet from "@/components/BottomSheet";
+import CategoryChips from "@/components/CategoryChips";
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Product } from "@/types";
@@ -127,6 +128,9 @@ export default function CollectionsContent() {
           </p>
         )}
       </div>
+
+      {/* Category Chips */}
+      <CategoryChips />
 
       {/* Top Control Bar */}
       <div className="collections-control-bar">

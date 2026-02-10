@@ -29,7 +29,8 @@ export default function BootstrapNavbar() {
               objectFit: "contain",
               width: "90px", // Reduced slightly via CSS to keep sharp but large
               height: "90px",
-              marginTop: "30px", // Pushes logo down to overlap
+              marginTop: "22px", // Reduced from 30px for better alignment
+              marginBottom: "8px", // Added bottom margin
               filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.1))" // Add depth for overlap
             }}
           />
@@ -42,10 +43,10 @@ export default function BootstrapNavbar() {
             <Image
               src="/uploads/hero/home.png"
               alt="Home"
-              width={20}
-              height={20}
+              width={32}
+              height={32}
               className="nav-icon"
-              style={{ width: 20, height: 20 }}
+              style={{ width: 32, height: 32 }}
             />
             <span className="nav-label">Home</span>
           </Link>
@@ -54,10 +55,10 @@ export default function BootstrapNavbar() {
             <Image
               src="/uploads/hero/collections.png"
               alt="Collections"
-              width={20}
-              height={20}
+              width={32}
+              height={32}
               className="nav-icon"
-              style={{ width: 20, height: 20 }}
+              style={{ width: 32, height: 32 }}
             />
             <span className="nav-label">Collections</span>
           </Link>
@@ -66,10 +67,10 @@ export default function BootstrapNavbar() {
             <Image
               src="/uploads/hero/wishlist.png"
               alt="Wishlist"
-              width={20}
-              height={20}
+              width={32}
+              height={32}
               className="nav-icon"
-              style={{ width: 20, height: 20 }}
+              style={{ width: 32, height: 32 }}
             />
             <span className="nav-label">Wishlist</span>
           </Link>
@@ -80,14 +81,12 @@ export default function BootstrapNavbar() {
               <Image
                 src="/uploads/hero/cart.png"
                 alt="Cart"
-                width={20}
-                height={20}
+                width={32}
+                height={32}
                 className="nav-icon"
-                style={{ width: 20, height: 20 }}
+                style={{ width: 32, height: 32 }}
               />
-              <span className="cart-badge">
-                <CartBadge />
-              </span>
+              <CartBadge />
             </div>
             <span className="nav-label">Cart</span>
           </Link>

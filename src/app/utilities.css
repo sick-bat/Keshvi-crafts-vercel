@@ -457,6 +457,13 @@
 }
 
 /* Responsive (Mobile First Override) */
+@media (min-width: 640px) {
+    .sm\:px-6 {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
 @media (min-width: 768px) {
     .md\:grid-cols-2 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -468,6 +475,11 @@
 
     .md\:text-left {
         text-align: left;
+    }
+
+    .md\:px-8 {
+        padding-left: 2rem;
+        padding-right: 2rem;
     }
 }
 

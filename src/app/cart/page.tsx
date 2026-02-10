@@ -9,6 +9,7 @@ import products from "@/data/products.json"; // Import products for lookup
 import { calculateShipping } from "@/lib/shipping";
 import { showToast } from "@/components/Toast";
 import PriceProgressBar from "@/components/PriceProgressBar";
+import CartEnquireButton from "@/components/CartEnquireButton";
 import type { Product } from "@/types";
 
 export default function CartPage() {
@@ -117,7 +118,7 @@ export default function CartPage() {
       {/* NO INDEX */}
       <meta name="robots" content="noindex" />
 
-      <div className="container py-8 max-w-4xl mx-auto px-4">
+      <div className="container py-8">
         {/* 1. Header */}
         <header className="mb-8 text-center md:text-left">
           <h1 className="text-3xl font-bold text-[#2f2a26] font-serif mb-2">
@@ -151,7 +152,7 @@ export default function CartPage() {
                 const variant = parts.length > 1 ? parts[1] : null;
 
                 return (
-                  <div key={it.slug} className="bg-white p-4 rounded-xl border border-[#eadfcd] flex gap-4 transition-shadow hover:shadow-sm">
+                  <div key={it.slug} className="bg-white p-4 rounded-xl border border-[#eadfcd] flex gap-4 transition-shadow hover:shadow-sm max-w-full">
                     {/* Image */}
                     <div className="relative w-24 h-32 flex-shrink-0 bg-[#f5f5f5] rounded-lg overflow-hidden border border-[#f0e6d6]">
                       <Image
@@ -166,7 +167,7 @@ export default function CartPage() {
                     <div className="flex-1 flex flex-col justify-between py-1">
                       <div>
                         <div className="flex justify-between items-start">
-                          <h3 className="font-bold text-[#2f2a26] text-lg leading-tight mb-1">
+                          <h3 className="font-bold text-[#2f2a26] text-lg leading-tight mb-1 cart-item-title">
                             {/* ROBUST LINK FIX: Find matching product by prefix/title */
                               (() => {
                                 const pSlug = (it as any).productSlug;
@@ -180,7 +181,7 @@ export default function CartPage() {
                                 })();
 
                                 return (
-                                  <Link href={`/products/${found}`} className="hover:underline">
+                                  <Link href={`/products/${found}`} className="product-title-link">
                                     {title}
                                   </Link>
                                 );
@@ -290,6 +291,9 @@ export default function CartPage() {
                 <Link href="/checkout" className="w-full btn-primary text-base flex items-center justify-center gap-2 text-center">
                   Proceed to Checkout
                 </Link>
+
+                {/* Instagram Enquire Button */}
+                <CartEnquireButton items={items} total={grandTotal} />
 
                 {/* Trust Icons Strip */}
                 <div className="mt-4 pt-4 border-t border-[#f3f4f6] grid grid-cols-2 gap-2 text-[10px] text-[#6b7280] text-center">

@@ -124,13 +124,18 @@ export default function ProductPageClient({
               <div className="flex flex-col gap-3">
                 <button
                   onClick={() => {
-                    const url = product.cta?.url || "https://instagram.com/keshvicrafts";
-                    window.open(url, "_blank", "noopener,noreferrer");
+                    const message = `Hi Keshvi Crafts! I want to enquire about: ${product.title}. Please share availability and delivery time.`;
+                    navigator.clipboard.writeText(message);
+                    window.open("https://ig.me/m/keshvi_craft", "_blank", "noopener,noreferrer");
+                    // Show toast if available
+                    if (typeof window !== 'undefined' && (window as any).showToast) {
+                      (window as any).showToast("Message copied! Paste it in Instagram DM.");
+                    }
                     trackEvent("click_instagram_enquiry", { slug: product.slug, location: "pdp_primary" });
                   }}
                   className="btn-primary w-full text-lg"
                 >
-                  📸 {product.cta?.label || "Enquire on Instagram"}
+                  📸 Enquire on Instagram
                 </button>
 
                 <button

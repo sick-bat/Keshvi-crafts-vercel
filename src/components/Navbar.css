@@ -108,26 +108,32 @@
   justify-content: center;
   overflow: visible;
   /* Ensuring wrapper is large enough */
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
 }
 
-.cart-badge {
-  position: absolute;
-  top: -8px;
-  right: -10px;
-  background: #ce380e;
-  color: #fff;
-  font-size: 0.7rem;
-  padding: 0.1rem 0.35rem;
-  border-radius: 999px;
-  font-weight: 700;
-  line-height: 1;
-  min-width: 16px;
-  text-align: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  border: 2px solid #FAF7F2;
-  z-index: 10;
+.cart-wrapper .cart-badge {
+  position: absolute !important;
+  top: -8px !important;
+  right: -10px !important;
+  background: #C2410C !important;
+  color: #fff !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 2px 5px !important;
+  border-radius: 10px !important;
+  line-height: 1 !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  text-align: center !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+  border: 2px solid #FAF7F2 !important;
+  z-index: 10 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-left: 0 !important;
+  vertical-align: baseline !important;
 }
 
 /* === Mobile Navigation (Bottom Bar or Top Bar? User said Header) === */
@@ -139,14 +145,9 @@
     padding: 0 1rem;
   }
 
-  /* Show labels under icons */
+  /* HIDE labels on mobile */
   .nav-label {
-    display: block;
-    font-size: 10px;
-    line-height: 1;
-    margin-top: 2px;
-    margin-top: 2px;
-    font-weight: 600;
+    display: none !important;
   }
 
   /* Hide HOME link text and icon on mobile */
@@ -189,7 +190,7 @@
   }
 
   .nav-item {
-    padding: 0.4rem 0.2rem;
+    padding: 0.4rem 0.5rem;
     gap: 2px;
     flex-direction: column;
     justify-content: center;
@@ -221,7 +222,8 @@
     width: 65px;
     height: 65px !important;
     /* Force override inline styles if needed */
-    margin-top: 15px !important;
+    margin-top: 8px !important;
+    margin-bottom: 4px !important;
   }
 
   .nav-icons {
@@ -233,21 +235,21 @@
     height: 24px;
   }
 
-  .cart-badge {
-    top: -5px;
+  .cart-wrapper .cart-badge {
+    top: -5px !important;
     /* Closer to top edge */
-    right: -8px;
+    right: -8px !important;
     /* Closer to right edge */
-    font-size: 0.6rem;
-    min-width: 14px;
-    height: 14px;
+    font-size: 9px !important;
+    min-width: 16px !important;
+    height: 16px !important;
     /* Fixed height for circle/oval */
-    padding: 0 3px;
+    padding: 0 4px !important;
     /* Smaller padding */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1.5px solid #fff;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1.5px solid #fff !important;
     /* Thinner border */
   }
 }

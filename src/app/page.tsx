@@ -1,5 +1,5 @@
 import products from "@/data/products.json";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/components/ProductCardV2";
 import HeroSection from "@/components/HeroSection";
 import Link from "next/link";
 import { Product } from "@/types";

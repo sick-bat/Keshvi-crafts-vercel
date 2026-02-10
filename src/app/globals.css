@@ -1001,6 +1001,24 @@ summary::-webkit-details-marker {
   position: relative;
 }
 
+/* ====== Product Title Link Styling ====== */
+.plp-card-mobile h3 a,
+.cart-item-title a,
+.product-title-link {
+  color: #2C1810;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.plp-card-mobile h3 a:hover,
+.cart-item-title a:hover,
+.product-title-link:hover {
+  color: #C2410C;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
 .plp-card .heart-container .svg-outline,
 .plp-card .heart-container .svg-filled {
   width: 24px;
@@ -1597,6 +1615,52 @@ summary::-webkit-details-marker {
   font-size: 14px;
   font-weight: 500;
   color: var(--muted);
+}
+
+/* ====== Category Chips ====== */
+.category-chips-container {
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.category-chips-scroll {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.category-chips-scroll::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari */
+}
+
+.category-chip {
+  flex-shrink: 0;
+  padding: 0.625rem 1.25rem;
+  background: white;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4B5563;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.category-chip:hover {
+  border-color: #C2410C;
+  background: rgba(194, 65, 12, 0.05);
+}
+
+.category-chip.active {
+  background: #C2410C;
+  color: white;
+  border-color: #C2410C;
 }
 
 .collections-controls-right {

@@ -23,19 +23,25 @@ export default function CartBadge() {
   if (!n) return null;
   return (
     <span
+      className="cart-badge"
       style={{
         display: "inline-flex",
-        minWidth: 18,
-        height: 18,
-        borderRadius: 9,
-        background: "#111",
+        minWidth: 20,
+        height: 20,
+        borderRadius: 10,
+        background: "#C2410C",
         color: "#fff",
-        fontSize: 12,
-        lineHeight: "18px",
-        padding: "0 6px",
+        fontSize: 11,
+        fontWeight: 600,
+        lineHeight: "20px",
+        padding: "0 5px",
         justifyContent: "center",
         alignItems: "center",
-        marginLeft: 6
+        marginLeft: 4,
+        pointerEvents: "none",
+        verticalAlign: "middle",
+        position: "relative",
+        top: "-1px"
       }}
     >
       {n}
