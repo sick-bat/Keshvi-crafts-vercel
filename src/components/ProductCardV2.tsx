@@ -53,7 +53,13 @@ export default function ProductCardV2({ p }: { p: Product }) {
             // Enquire action
             const url = p.cta?.url || "https://instagram.com/keshvicrafts";
             window.open(url, "_blank", "noopener,noreferrer");
-            trackEvent("click_instagram_enquiry", { slug: p.slug, location: "card" });
+            trackEvent({
+                action: "click_instagram_enquiry",
+                category: "Card",
+                label: p.title,
+                location: "card",
+                slug: p.slug
+            });
         } else {
             // Add to Cart action
             addToCart(p);

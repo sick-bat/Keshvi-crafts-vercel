@@ -16,7 +16,14 @@ export default function CartEnquireButton({ items, total }: CartEnquireButtonPro
         navigator.clipboard.writeText(message);
         window.open("https://ig.me/m/keshvi_craft", "_blank", "noopener,noreferrer");
         showToast("Cart details copied! Paste in Instagram DM.");
-        trackEvent("click_instagram_enquiry", { location: "cart", itemCount: items.length, total });
+        trackEvent({
+            action: "click_instagram_enquiry",
+            category: "Ecommerce",
+            label: "Cart Enquiry",
+            location: "cart",
+            itemCount: items.length,
+            total
+        });
     };
 
     return (

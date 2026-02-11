@@ -131,7 +131,13 @@ export default function ProductPageClient({
                     if (typeof window !== 'undefined' && (window as any).showToast) {
                       (window as any).showToast("Message copied! Paste it in Instagram DM.");
                     }
-                    trackEvent("click_instagram_enquiry", { slug: product.slug, location: "pdp_primary" });
+                    trackEvent({
+                      action: "click_instagram_enquiry",
+                      category: "Ecommerce",
+                      label: product.title,
+                      location: "pdp_primary",
+                      slug: product.slug
+                    });
                   }}
                   className="btn-primary w-full text-lg"
                 >
