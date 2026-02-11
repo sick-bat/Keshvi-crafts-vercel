@@ -1,14 +1,37 @@
-type EventName =
-    | "add_to_cart"
-    | "view_item"
-    | "begin_checkout"
-    | "click_instagram_enquiry"
-    | "remove_from_cart";
+export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID || '';
 
-export function trackEvent(name: EventName, data: Record<string, any> = {}) {
-    // Stub for analytics
-    if (process.env.NODE_ENV === "development") {
-        console.log(`[Analytics] ${name}:`, data);
+// Declare global window property for GA
+declare global {
+    interface Window {
+        gtag: (...args: any[]) => void;
+        dataLayer: any[];
     }
-    // Future: window.gtag(...) or similar
 }
+
+export const pageview = (url: string) => {
+    if (typeof window.gtag !== 'undefined') {
+        window.gtag('config', GA_TRACKING_ID, {
+            page_path: url,
+        });
+    } else {
+        console.log(`[Analytics] Page View: ${url}`);
+    }
+};
+
+export const trackEvent = ({ action, category, label, value }: {
+    action: string;
+    category?: string;
+    label?: string;
+    value?: number;
+    [key: string]: any;
+}) => {
+    if (typeof window.gtag !== 'undefined') {
+        window.gtag('event', action, {
+            event_category: category,
+            event_label: label,
+            value: value,
+        });
+    } else {
+        console.log(`[Analytics] Event: ${action}`, { category, label, value });
+    }
+};

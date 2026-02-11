@@ -2,6 +2,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { addToCart } from "@/lib/bags";
+import { trackEvent } from "@/lib/analytics";
 
 export default function BuyBar({
   slug, title, price, image, checkoutUrl, disabled = false, productSlug
@@ -13,6 +14,13 @@ export default function BuyBar({
 
   function handleAddToCart() {
     addToCart({ slug, title, price, image: image || "/placeholder.png" }, 1);
+
+    trackEvent({
+      action: "add_to_cart",
+      category: "Ecommerce",
+      label: title,
+      value: price,
+    });
 
     // Show subtle feedback
     const btn = document.querySelector(`[data-cart-btn="${slug}"]`) as HTMLElement;
@@ -27,6 +35,14 @@ export default function BuyBar({
 
   function buyNow() {
     addToCart({ slug, title, price, image: image || "/placeholder.png" }, 1);
+
+    trackEvent({
+      action: "begin_checkout",
+      category: "Ecommerce",
+      label: title,
+      value: price,
+    });
+
     setTimeout(() => {
       router.push("/cart"); // Redirect to Cart
     }, 100);
