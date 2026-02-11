@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       title,
       description,
       images: p.images && p.images.length > 0 ? [{ url: p.images[0] }] : [],
-      url: `https://keshvicrafts.com/products/${p.slug}`,
+      url: `https://keshvicrafts.in/products/${p.slug}`,
     },
   };
 }
@@ -58,7 +58,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
     "@context": "https://schema.org/",
     "@type": "Product",
     "name": p.title,
-    "image": p.images && p.images.length > 0 ? p.images.map((img: string) => `https://keshvicrafts.com${img}`) : [],
+    "image": p.images && p.images.length > 0 ? p.images.map((img: string) => `https://keshvicrafts.in${img}`) : [],
     "description": p.description,
     "sku": p.slug,
     "brand": {
@@ -67,7 +67,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
     },
     "offers": {
       "@type": "Offer",
-      "url": `https://keshvicrafts.com/products/${p.slug}`,
+      "url": `https://keshvicrafts.in/products/${p.slug}`,
       "priceCurrency": "INR",
       "price": p.price,
       "availability": p.stock && p.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
@@ -83,19 +83,19 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://keshvicrafts.com"
+        "item": "https://keshvicrafts.in"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": p.category || "Products",
-        "item": `https://keshvicrafts.com/collections?category=${encodeURIComponent(p.category || "")}`
+        "item": `https://keshvicrafts.in/collections?category=${encodeURIComponent(p.category || "")}`
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": p.title,
-        "item": `https://keshvicrafts.com/products/${p.slug}`
+        "item": `https://keshvicrafts.in/products/${p.slug}`
       }
     ]
   };

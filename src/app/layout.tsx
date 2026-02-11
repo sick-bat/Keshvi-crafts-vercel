@@ -9,7 +9,7 @@ import JsonLd from "@/components/JsonLd";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 
 export const metadata = {
-  metadataBase: new URL("https://keshvicrafts.com"),
+  metadataBase: new URL("https://keshvicrafts.in"),
   title: {
     default: "Keshvi Crafts | Handmade Crochet, Artisanal Home Decor & luxury Gifts",
     template: "%s | Keshvi Crafts",
@@ -62,9 +62,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             "@context": "https://schema.org",
             "@type": "LocalBusiness",
             "name": "Keshvi Crafts",
-            "image": "https://keshvicrafts.com/logo.png", // Assuming a logo exists or general image
+            "image": "https://keshvicrafts.in/logo.png", // Assuming a logo exists or general image
             "description": "Handmade crochet and artisanal home decor, crafted with care in India.",
-            "url": "https://keshvicrafts.com",
+            "url": "https://keshvicrafts.in",
             "telephone": "+917507996961",
             "address": {
               "@type": "PostalAddress",

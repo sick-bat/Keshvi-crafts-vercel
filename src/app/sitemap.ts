@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import products from '@/data/products.json';
 
-const BASE_URL = 'https://keshvicrafts.com';
+const BASE_URL = 'https://keshvicrafts.in';
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const staticRoutes = [

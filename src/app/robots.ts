@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
             userAgent: '*',
             allow: '/',
         },
-        sitemap: 'https://keshvicrafts.com/sitemap.xml',
+        sitemap: 'https://keshvicrafts.in/sitemap.xml',
     };
 }
