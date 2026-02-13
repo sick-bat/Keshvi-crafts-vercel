@@ -14,7 +14,7 @@ export default function CartEnquireButton({ items, total }: CartEnquireButtonPro
         const message = `Hi Keshvi Crafts! I want to enquire about my cart:\n\nItems: ${itemList}\n\nTotal: ₹${total}\n\nPlease share availability and delivery time.`;
 
         navigator.clipboard.writeText(message);
-        window.open("https://www.instagram.com/direct/t/keshvi_crafts/", "_blank", "noreferrer");
+        window.open("https://ig.me/m/keshvi_crafts", "_blank", "noreferrer");
         showToast("Cart details copied! Paste in Instagram DM.");
         trackEvent({
             action: "click_instagram_enquiry",

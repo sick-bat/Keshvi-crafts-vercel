@@ -130,7 +130,7 @@ export default function ProductPageClient({
 
                     // Open Instagram DM Deep Link
                     const encodedMsg = encodeURIComponent(messageText);
-                    const url = `https://www.instagram.com/direct/t/keshvi_crafts/`;
+                    const url = `https://ig.me/m/keshvi_crafts`;
                     window.open(url, "_blank", "noopener,noreferrer");
 
                     // Show toast if available
