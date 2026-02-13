@@ -47,7 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="bg-cream text-dark">
-        <GoogleTagManager gtmId="GTM-KDBTTV7R" />
+        <GoogleTagManager gtmId="GTM-MFVDFHT3" />
         <AnalyticsTracker />
         <TrustBar />
         <BootstrapNavbar />
