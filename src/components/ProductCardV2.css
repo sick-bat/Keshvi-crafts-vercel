@@ -1,22 +1,27 @@
 /* Ensure wishlist heart button is always visible */
-.plp-card-mobile button[aria-label*="wishlist"] {
+.plp-card-mobile button[aria-label*="wishlist"],
+.force-visible {
     opacity: 1 !important;
     visibility: visible !important;
     display: flex !important;
     pointer-events: auto !important;
-    z-index: 35 !important;
+    z-index: 100 !important;
     background-color: white !important;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
 }
 
 /* Make sure the heart icon inside is centered and visible */
-.plp-card-mobile button[aria-label*="wishlist"] svg {
+.plp-card-mobile button[aria-label*="wishlist"] svg,
+.force-visible svg {
     width: 20px !important;
     height: 20px !important;
     display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 /* Hover state for interactions */
-.plp-card-mobile button[aria-label*="wishlist"]:hover {
+.plp-card-mobile button[aria-label*="wishlist"]:hover,
+.force-visible:hover {
     transform: scale(1.1) !important;
 }

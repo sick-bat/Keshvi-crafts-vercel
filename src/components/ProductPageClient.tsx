@@ -124,12 +124,18 @@ export default function ProductPageClient({
               <div className="flex flex-col gap-3">
                 <button
                   onClick={() => {
-                    const message = `Hi Keshvi Crafts! I want to enquire about: ${product.title}. Please share availability and delivery time.`;
-                    navigator.clipboard.writeText(message);
-                    window.open("https://ig.me/m/keshvi_craft", "_blank", "noopener,noreferrer");
+                    const messageText = `Hi Keshvi Crafts! I want to enquire about: ${product.title}. Please share availability and delivery time.`;
+                    // Copy to clipboard as backup
+                    navigator.clipboard.writeText(messageText);
+
+                    // Open Instagram DM Deep Link
+                    const encodedMsg = encodeURIComponent(messageText);
+                    const url = `https://www.instagram.com/direct/t/keshvi_crafts/`;
+                    window.open(url, "_blank", "noopener,noreferrer");
+
                     // Show toast if available
                     if (typeof window !== 'undefined' && (window as any).showToast) {
-                      (window as any).showToast("Message copied! Paste it in Instagram DM.");
+                      (window as any).showToast("Opening Instagram... Message copied too!");
                     }
                     trackEvent({
                       action: "click_instagram_enquiry",

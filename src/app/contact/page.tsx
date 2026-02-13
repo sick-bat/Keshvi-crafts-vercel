@@ -21,9 +21,9 @@ export default function ContactPage() {
                         Follow us for updates, behind the scenes, and direct messages.
                     </p>
                     <a
-                        href="https://instagram.com/keshvi_craft"
+                        href="https://www.instagram.com/direct/t/keshvi_crafts/"
                         target="_blank"
-                        rel="noopener noreferrer"
+                        rel="noreferrer"
                         className="btn-outline inline-flex"
                     >
                         Hashtag Keshvi Crafts on Instagram

@@ -20,11 +20,10 @@ export default function AnalyticsTracker() {
         // Track Time on Page on unmount/route change
         return () => {
             const timeOnPage = Math.round((Date.now() - startTime) / 1000);
-            analytics.trackEvent({
-                action: "time_on_page",
-                category: "Engagement",
-                label: pathname,
-                value: timeOnPage,
+            window.dataLayer?.push({
+                event: "time_on_page",
+                duration: timeOnPage,
+                path: pathname
             });
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -39,19 +38,17 @@ export default function AnalyticsTracker() {
 
             if (!scrolled50 && scrollPercentage >= 50) {
                 setScrolled50(true);
-                analytics.trackEvent({
-                    action: "scroll_depth",
-                    category: "Engagement",
-                    label: "50%",
+                window.dataLayer?.push({
+                    event: "scroll_depth",
+                    percent: "50%"
                 });
             }
 
             if (!scrolled90 && scrollPercentage >= 90) {
                 setScrolled90(true);
-                analytics.trackEvent({
-                    action: "scroll_depth",
-                    category: "Engagement",
-                    label: "90%",
+                window.dataLayer?.push({
+                    event: "scroll_depth",
+                    percent: "90%"
                 });
             }
         };

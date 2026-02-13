@@ -21,7 +21,7 @@ export function useAddToCart() {
       if (state === "adding" || state === "added") return;
 
       setState("adding");
-      
+
       // Debounce: clear any existing timeout
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -30,9 +30,19 @@ export function useAddToCart() {
       // Add to cart
       addToCartLib(product, 1);
 
+      // Track Add to Cart
+      if (typeof window !== "undefined" && window.dataLayer) {
+        window.dataLayer.push({
+          event: "add_to_cart",
+          product_name: product.title,
+          price: product.price,
+          currency: "INR",
+        });
+      }
+
       // Show "Added" state
       setState("added");
-      
+
       // Show toast if requested (default true)
       if (options?.showToast !== false) {
         showToast("Added to cart", {

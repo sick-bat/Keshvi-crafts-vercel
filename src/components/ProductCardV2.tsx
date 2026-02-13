@@ -51,7 +51,8 @@ export default function ProductCardV2({ p }: { p: Product }) {
 
         if (isCustomOrder) {
             // Enquire action
-            const url = p.cta?.url || "https://instagram.com/keshvicrafts";
+            const message = encodeURIComponent(`Hi! I'm interested in ${p.title}`);
+            const url = p.cta?.url || `https://www.instagram.com/direct/t/keshvi_crafts/`;
             window.open(url, "_blank", "noopener,noreferrer");
             trackEvent({
                 action: "click_instagram_enquiry",
@@ -113,16 +114,15 @@ export default function ProductCardV2({ p }: { p: Product }) {
                 {/* Wishlist Button - Explicitly Z-Indexed and Positioned */}
                 <button
                     onClick={onHeartClick}
-                    className={`absolute top-3 right-3 z-30 w-10 h-10 flex items-center justify-center rounded-full shadow-lg transition-all active:scale-95 border border-stone-200/50 ${hearted
+                    className={`absolute top-3 right-3 flex items-center justify-center rounded-full shadow-lg transition-all active:scale-95 border border-stone-200/50 force-visible ${hearted
                         ? "bg-white text-red-600"
                         : "bg-white/95 text-neutral-500 hover:text-red-500"
                         }`}
                     style={{
-                        opacity: 1,
-                        visibility: 'visible',
-                        display: 'flex',
+                        width: '40px',
+                        height: '40px',
+                        zIndex: 20, // Clean z-index
                         pointerEvents: 'auto',
-                        zIndex: 30
                     }}
                     aria-label={hearted ? "Remove from wishlist" : "Add to wishlist"}
                     type="button"
