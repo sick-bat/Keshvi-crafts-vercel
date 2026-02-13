@@ -4,7 +4,7 @@ export const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_ID || '';
 declare global {
     interface Window {
         gtag: (...args: any[]) => void;
-        dataLayer: any[];
+        // dataLayer: any[]; // Removed to avoid conflict with @next/third-parties or other declarations
     }
 }
 
