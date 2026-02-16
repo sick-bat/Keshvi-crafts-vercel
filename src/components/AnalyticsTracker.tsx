@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import * as analytics from "@/lib/analytics";
+import { pushToDataLayer } from "@/lib/analytics";
 
 export default function AnalyticsTracker() {
     const pathname = usePathname();
@@ -10,9 +10,8 @@ export default function AnalyticsTracker() {
     const [scrolled50, setScrolled50] = useState(false);
     const [scrolled90, setScrolled90] = useState(false);
 
-    // Track Pageview and reset timer on route change
+    // Reset timer on route change (Page view tracking handled by GTM automatically)
     useEffect(() => {
-        analytics.pageview(pathname);
         setStartTime(Date.now());
         setScrolled50(false);
         setScrolled90(false);
@@ -20,7 +19,7 @@ export default function AnalyticsTracker() {
         // Track Time on Page on unmount/route change
         return () => {
             const timeOnPage = Math.round((Date.now() - startTime) / 1000);
-            window.dataLayer?.push({
+            pushToDataLayer({
                 event: "time_on_page",
                 duration: timeOnPage,
                 path: pathname
@@ -38,7 +37,7 @@ export default function AnalyticsTracker() {
 
             if (!scrolled50 && scrollPercentage >= 50) {
                 setScrolled50(true);
-                window.dataLayer?.push({
+                pushToDataLayer({
                     event: "scroll_depth",
                     percent: "50%"
                 });
@@ -46,7 +45,7 @@ export default function AnalyticsTracker() {
 
             if (!scrolled90 && scrollPercentage >= 90) {
                 setScrolled90(true);
-                window.dataLayer?.push({
+                pushToDataLayer({
                     event: "scroll_depth",
                     percent: "90%"
                 });

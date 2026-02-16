@@ -4,6 +4,7 @@ import { useState, useCallback, useRef } from "react";
 import { addToCart as addToCartLib } from "@/lib/bags";
 import { showToast } from "@/components/Toast";
 import { useRouter } from "next/navigation";
+import { pushToDataLayer } from "@/lib/analytics";
 
 type AddToCartState = "idle" | "adding" | "added";
 
@@ -30,15 +31,14 @@ export function useAddToCart() {
       // Add to cart
       addToCartLib(product, 1);
 
+
       // Track Add to Cart
-      if (typeof window !== "undefined" && window.dataLayer) {
-        window.dataLayer.push({
-          event: "add_to_cart",
-          product_name: product.title,
-          price: product.price,
-          currency: "INR",
-        });
-      }
+      pushToDataLayer({
+        event: "add_to_cart",
+        product_name: product.title,
+        price: product.price,
+        currency: "INR",
+      });
 
       // Show "Added" state
       setState("added");
