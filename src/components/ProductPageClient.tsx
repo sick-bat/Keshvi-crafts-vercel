@@ -130,7 +130,10 @@ export default function ProductPageClient({
 
                     // Open Instagram DM Deep Link
                     const encodedMsg = encodeURIComponent(messageText);
-                    const url = `https://ig.me/m/keshvi_crafts`;
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    const url = isMobile
+                      ? "https://ig.me/m/keshvi_crafts"
+                      : "https://www.instagram.com/direct/new/?username=keshvi_crafts";
                     window.open(url, "_blank", "noopener,noreferrer");
 
                     // Show toast if available

@@ -57,7 +57,7 @@ export default function Footer() {
                 Follow Us
               </span>
               <div style={{ display: "flex", gap: "0.8rem" }}>
-                <a href="https://ig.me/m/keshvi_crafts" target="_blank" rel="noreferrer" aria-label="Instagram" className="social-link">
+                <a href="https://www.instagram.com/keshvi_crafts/" target="_blank" rel="noreferrer" aria-label="Instagram" className="social-link">
                   Instagram
                 </a>
               </div>

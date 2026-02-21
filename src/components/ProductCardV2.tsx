@@ -52,7 +52,12 @@ export default function ProductCardV2({ p }: { p: Product }) {
         if (isCustomOrder) {
             // Enquire action
             const message = encodeURIComponent(`Hi! I'm interested in ${p.title}`);
-            const url = p.cta?.url || `https://ig.me/m/keshvi_crafts`;
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const defaultUrl = isMobile
+                ? "https://ig.me/m/keshvi_crafts"
+                : "https://www.instagram.com/direct/new/?username=keshvi_crafts";
+
+            const url = p.cta?.url || defaultUrl;
             window.open(url, "_blank", "noopener,noreferrer");
             trackEvent({
                 action: "click_instagram_enquiry",
