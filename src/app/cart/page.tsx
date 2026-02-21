@@ -287,13 +287,13 @@ export default function CartPage() {
                   <span className="font-bold text-2xl text-[#C2410C]">₹{grandTotal}</span>
                 </div>
 
-                {/* Secure Checkout Button */}
-                <Link href="/checkout" className="w-full btn-primary text-base flex items-center justify-center gap-2 text-center">
-                  Proceed to Checkout
-                </Link>
-
-                {/* Instagram Enquire Button */}
-                <CartEnquireButton items={items} total={grandTotal} />
+                {/* Secure Checkout Button -> Routed to Instagram */}
+                <CartEnquireButton
+                  items={items}
+                  total={grandTotal}
+                  className="w-full btn-primary text-base flex items-center justify-center gap-2 text-center"
+                  label="Proceed to Checkout (via Instagram)"
+                />
 
                 {/* Trust Icons Strip */}
                 <div className="mt-4 pt-4 border-t border-[#f3f4f6] grid grid-cols-2 gap-2 text-[10px] text-[#6b7280] text-center">

@@ -6,9 +6,16 @@ import { trackEvent } from "@/lib/analytics";
 interface CartEnquireButtonProps {
     items: Array<{ title: string; qty: number; price: number }>;
     total: number;
+    className?: string;
+    label?: string;
 }
 
-export default function CartEnquireButton({ items, total }: CartEnquireButtonProps) {
+export default function CartEnquireButton({
+    items,
+    total,
+    className = "btn-secondary w-full text-sm mt-3",
+    label = "📸 Enquire on Instagram"
+}: CartEnquireButtonProps) {
     const handleEnquire = () => {
         const itemList = items.map(it => `${it.title} (x${it.qty})`).join(", ");
         const message = `Hi Keshvi Crafts! I want to enquire about my cart:\n\nItems: ${itemList}\n\nTotal: ₹${total}\n\nPlease share availability and delivery time.`;
@@ -29,9 +36,9 @@ export default function CartEnquireButton({ items, total }: CartEnquireButtonPro
     return (
         <button
             onClick={handleEnquire}
-            className="btn-secondary w-full text-sm mt-3"
+            className={className}
         >
-            📸 Enquire on Instagram
+            {label}
         </button>
     );
 }
