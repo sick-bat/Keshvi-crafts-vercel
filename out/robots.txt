@@ -1,4 +1,4 @@
-User-agent: *
+User-Agent: *
 Allow: /
 
-Sitemap: https://your-domain.com/sitemap.xml
+Sitemap: https://keshvicrafts.in/sitemap.xml

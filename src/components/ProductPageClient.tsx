@@ -227,6 +227,55 @@ export default function ProductPageClient({
               </dd>
             </dl>
           </div>
+
+          {/* SEO Enriched Content */}
+          {product.seoContent && (
+            <div className="product-seo-content" style={{ marginTop: "2rem", paddingTop: "2rem", borderTop: "1px solid var(--border)", lineHeight: 1.8 }}>
+              {product.seoContent.intro && <p style={{ marginBottom: "1.5rem" }}>{product.seoContent.intro}</p>}
+
+              {product.seoContent.materials && (
+                <>
+                  <h3 style={{ fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.8rem", color: "var(--brand)" }}>Materials Used</h3>
+                  <p style={{ marginBottom: "1.5rem" }}>{product.seoContent.materials}</p>
+                </>
+              )}
+
+              {product.seoContent.craftsmanship && (
+                <>
+                  <h3 style={{ fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.8rem", color: "var(--brand)" }}>Craftsmanship Details</h3>
+                  <p style={{ marginBottom: "1.5rem" }}>{product.seoContent.craftsmanship}</p>
+                </>
+              )}
+
+              {product.seoContent.useCases && (
+                <>
+                  <h3 style={{ fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.8rem", color: "var(--brand)" }}>Use Cases</h3>
+                  <p style={{ marginBottom: "1.5rem" }}>{product.seoContent.useCases}</p>
+                </>
+              )}
+
+              {product.seoContent.care && (
+                <>
+                  <h3 style={{ fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.8rem", color: "var(--brand)" }}>Care Instructions</h3>
+                  <p style={{ marginBottom: "1.5rem" }}>{product.seoContent.care}</p>
+                </>
+              )}
+
+              {product.seoContent.faqs && product.seoContent.faqs.length > 0 && (
+                <>
+                  <h3 style={{ fontSize: "1.3rem", fontWeight: 600, marginBottom: "1rem", color: "var(--brand)" }}>Frequently Asked Questions</h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    {product.seoContent.faqs.map((faq, i) => (
+                      <div key={i}>
+                        <h4 style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "0.4rem" }}>{faq.q}</h4>
+                        <p style={{ margin: 0 }}>{faq.a}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

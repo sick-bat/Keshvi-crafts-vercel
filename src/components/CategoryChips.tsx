@@ -1,21 +1,20 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { DISPLAY_CATEGORIES } from "@/lib/categories";
+import { DISPLAY_CATEGORIES, CATEGORY_SLUGS } from "@/lib/categories";
 
-export default function CategoryChips() {
+export default function CategoryChips({ serverCategory }: { serverCategory?: string }) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const activeCategory = searchParams.get("category");
+    const activeCategory = serverCategory || searchParams.get("category");
 
     const handleCategoryClick = (category: string | null) => {
-        const params = new URLSearchParams(searchParams.toString());
         if (category) {
-            params.set("category", category);
+            const slug = CATEGORY_SLUGS[category];
+            router.push(`/collections/${slug}`);
         } else {
-            params.delete("category");
+            router.push(`/collections`);
         }
-        router.push(`/collections?${params.toString()}`);
     };
 
     return (

@@ -12,9 +12,17 @@ import { Product } from "@/types";
 
 type SortOption = "default" | "price-low" | "price-high" | "newest";
 
-export default function CollectionsContent() {
+const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  "Forever Blooms": "Welcome to our Forever Blooms collection, where the beauty of nature meets the timeless art of crochet. Each handmade flower in this collection is carefully crafted to bring everlasting joy to your home or office. Unlike real flowers that fade and wilt with the passing seasons, these exquisite crochet blooms retain their vibrant color, perfect shape, and delightful charm forever. This makes them the ultimate zero-maintenance decor solution or a deeply heartfelt gift that your loved ones can cherish indefinitely. Whether you are searching for bright, cheerful sunflowers to liven up your workspace, elegant, classic roses for a timeless romantic gesture, or a custom bespoke bouquet for a very special milestone, our artisans have poured countless hours of delicate, intricate stitching into every single petal. We use only the finest, premium yarns to ensure that these floral creations look absolutely stunning from every angle. Embrace the unique beauty of slow, sustainable craftsmanship with our floral arrangements that truly stand the test of time, adding a permanent, comforting touch of handmade warmth to any room you place them in.",
+  "Soft Fits": "Discover the Soft Fits collection, a curated selection of handmade crochet clothing that redefines comfort and style. In a world dominated by fast fashion, our crochet apparel stands out by celebrating slow, intentional craftsmanship. Every top, scarf, and wearable piece in this collection is meticulously designed and stitched by hand, creating a truly unique garment that you won't find anywhere else. We use soft, breathable, and highly durable yarns that feel gentle against the skin while providing excellent structure and fit. From trendy crop tops perfect for summer festivals to cozy wrap accessories for cooler evenings, our clothing items are highly versatile and fashion-forward. Because each piece is often made to order, we ensure a level of personalization and quality control that mass-produced clothing simply cannot match. Elevate your wardrobe with these artisanal creations that not only look incredibly stylish but also support sustainable fashion practices and traditional crafting techniques.",
+  "Home Feelings": "Welcome to the Home Feelings collection, where we believe that your living space should be a true reflection of warmth and personality. This thoughtfully curated range of handmade crochet home decor is designed to add a cozy, inviting, and highly personalized touch to any room. Decorating with handmade items introduces a unique character and charm that commercially manufactured goods cannot replicate. Our collection features everything from beautiful traditional torans that grace your entrance with festive elegance, to adorable amigurumi figures and intricate curtain ties that serve as perfect conversation starters. Each decor piece is the result of many hours of focused, passionate craftsmanship, utilizing premium materials to ensure they become long-lasting additions to your home. By incorporating these crochet accents into your interior design, you create an environment that feels lived-in, loved, and deeply authentic. Transform your house into a truly handcrafted home with our exclusive decor items that celebrate the timeless beauty of artisanal skill.",
+  "Carry Stories": "Explore the Carry Stories collection, featuring our beautifully handcrafted crochet bags and purses designed for those who appreciate functional art. A bag is more than just a convenient accessory; it is a statement piece that carries your daily essentials along with your unique personal style. Each piece in this collection, from spacious granny square tote bags to compact and charming coin purses, is sturdy, reliable, and incredibly fashionable. Our artisans dedicate hours to ensuring that the handles are reinforced and the stitches are tight, so your crochet bag is as durable as it is beautiful. Whether you are heading to the local farmer's market, enjoying a casual brunch with friends, or simply running everyday errands, these handmade bags provide the perfect blend of practicality and boho-chic aesthetics. Stand out from the crowd with a sustainable, ethically made accessory that tells a story of dedicated craftsmanship, slow fashion, and individuality with every single stitch.",
+  "Little Things": "Welcome to the Little Things collection, a delightful assortment of handmade crochet accessories, keyrings, and small treasures that bring immense joy to everyday life. We believe that true beauty often lies in the smallest details, and this collection perfectly embodies that philosophy. These miniature masterpieces, ranging from cute strawberry keychains to practical earpod holders and charming scrunchies, are crafted with the exact same level of precision and care as our larger items. They are the perfect way to add a subtle, personalized pop of color and handmade charm to your keys, backpacks, or daily outfits. Furthermore, these items make incredibly thoughtful, unique gifts for friends, family, or colleagues for any occasion. Every single stitch is a testament to the patience and skill of our artisans. Browse through these small wonders and discover how integrating handmade art into your daily routine can bring a constant, comforting reminder of creativity, care, and traditional craftsmanship."
+};
+
+export default function CollectionsContent({ serverCategory }: { serverCategory?: string }) {
   const searchParams = useSearchParams();
-  const categoryParam = searchParams.get("category");
+  const categoryParam = serverCategory || searchParams.get("category");
   const tagParam = searchParams.get("tag");
   const maxPriceParam = searchParams.get("maxPrice");
 
@@ -127,10 +135,15 @@ export default function CollectionsContent() {
             Discover our handcrafted treasures, made with love and tradition in every stitch.
           </p>
         )}
+        {category && CATEGORY_DESCRIPTIONS[category] && (
+          <p className="text-stone-600 mb-6 text-sm md:text-base mt-4 max-w-4xl leading-relaxed mx-auto text-left">
+            {CATEGORY_DESCRIPTIONS[category]}
+          </p>
+        )}
       </div>
 
       {/* Category Chips */}
-      <CategoryChips />
+      <CategoryChips serverCategory={serverCategory} />
 
       {/* Top Control Bar */}
       <div className="collections-control-bar">

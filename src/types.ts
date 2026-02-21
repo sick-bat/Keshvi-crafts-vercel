@@ -60,4 +60,14 @@ export type Product = {
   // Variants Logic
   isVariant?: boolean;
   variants?: ProductVariant[];
+
+  // SEO
+  seoContent?: {
+    intro: string;
+    materials: string;
+    craftsmanship: string;
+    useCases: string;
+    care: string;
+    faqs: { q: string; a: string }[];
+  };
 };

@@ -41,6 +41,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       images: p.images && p.images.length > 0 ? [{ url: p.images[0] }] : [],
       url: `https://keshvicrafts.in/products/${p.slug}`,
     },
+    alternates: {
+      canonical: `https://keshvicrafts.in/products/${p.slug}`,
+    }
   };
 }
 
@@ -54,6 +57,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
     .filter((prod) => prod.category === p.category && prod.slug !== p.slug && (prod.status ?? "live") !== "hidden")
     .slice(0, 4);
 
+  const inStock = (typeof p.stock === "number" ? p.stock > 0 : true) || p.type === "custom-order";
   const jsonLdData = {
     "@context": "https://schema.org/",
     "@type": "Product",
@@ -69,8 +73,8 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
       "@type": "Offer",
       "url": `https://keshvicrafts.in/products/${p.slug}`,
       "priceCurrency": "INR",
-      "price": p.price,
-      "availability": p.stock && p.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "price": p.minPrice || p.price,
+      "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "itemCondition": "https://schema.org/NewCondition"
     }
   };

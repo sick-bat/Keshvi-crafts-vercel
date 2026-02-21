@@ -3,7 +3,7 @@ import ProductCard from "@/components/ProductCardV2";
 import HeroSection from "@/components/HeroSection";
 import Link from "next/link";
 import { Product } from "@/types";
-import { getDisplayCategory, DISPLAY_CATEGORIES } from "@/lib/categories";
+import { getDisplayCategory, DISPLAY_CATEGORIES, CATEGORY_SLUGS } from "@/lib/categories";
 
 export const metadata = {
   title: "Handmade Collections — Keshvi Crafts",
@@ -47,6 +47,10 @@ export default function Home() {
   );
   // Important: Valentine is hero content, so we render it first.
   const valentineProducts = getDeduplicated(valentineRaw, 4);
+
+  // 1A. Popular Handmade Picks (SEO Crawl Authority Boost)
+  // Required: 6-8 top products linked via pure HTML tags.
+  const popularPicks = getDeduplicated(sortedProducts, 6);
 
   // Best Sellers Logic:
   // 1. "Sunflower Pot" (Must be present if exists)
@@ -106,6 +110,22 @@ export default function Home() {
             </div>
             <div className="plp-grid-mobile">
               {valentineProducts.map((p) => (
+                <ProductCard key={p.slug} p={p} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Popular Handmade Picks (SEO Authority) */}
+        {popularPicks.length > 0 && (
+          <section className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-semibold" style={{ fontFamily: "Cormorant Garamond, serif" }}>
+                Popular Handmade Picks
+              </h2>
+            </div>
+            <div className="plp-grid-mobile">
+              {popularPicks.map((p) => (
                 <ProductCard key={p.slug} p={p} />
               ))}
             </div>
@@ -179,10 +199,11 @@ export default function Home() {
               {displayCats.slice(0, 6).map((cat) => {
                 // Approximate count
                 const count = live.filter((p) => getDisplayCategory(p.category || '') === cat).length;
+                const slug = CATEGORY_SLUGS[cat];
                 return (
                   <Link
                     key={cat}
-                    href={`/collections?category=${encodeURIComponent(cat)}`}
+                    href={`/collections/${slug}`}
                     className="collection-chip"
                   >
                     {cat}
