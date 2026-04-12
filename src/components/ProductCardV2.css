@@ -1,27 +1,40 @@
-/* Ensure wishlist heart button is always visible */
-.plp-card-mobile button[aria-label*="wishlist"],
-.force-visible {
-    opacity: 1 !important;
-    visibility: visible !important;
-    display: flex !important;
-    pointer-events: auto !important;
-    z-index: 100 !important;
-    background-color: white !important;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+/* --- ADD TO CART INLINE COUNTER --- */
+.inline-counter-container {
+  display: flex;
+  align-items: center;
+  background: var(--brand, #4b5320); 
+  border-radius: 8px; /* soft rounded edges matching btn style */
+  height: 48px; /* match current btn height */
+  overflow: hidden;
+  width: 100%; 
+  transition: background 0.3s;
 }
 
-/* Make sure the heart icon inside is centered and visible */
-.plp-card-mobile button[aria-label*="wishlist"] svg,
-.force-visible svg {
-    width: 20px !important;
-    height: 20px !important;
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
+.inline-counter-btn {
+  width: 44px;
+  height: 100%;
+  background: rgba(0,0,0,0.1); 
+  border: none;
+  color: #fff;
+  font-size: 1.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-/* Hover state for interactions */
-.plp-card-mobile button[aria-label*="wishlist"]:hover,
-.force-visible:hover {
-    transform: scale(1.1) !important;
+.inline-counter-btn:active, .inline-counter-btn:hover {
+  background: rgba(0,0,0,0.25);
+}
+
+.inline-counter-value {
+  flex: 1;
+  text-align: center;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: transparent;
+  user-select: none;
 }

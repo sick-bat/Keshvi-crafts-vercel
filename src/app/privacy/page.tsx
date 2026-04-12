@@ -25,16 +25,27 @@ export default function PrivacyPage() {
 
       <h3>3. Cookies</h3>
       <p>
-        We use essential cookies to keep your cart active and improve your browsing experience.
+        We use cookies and similar tracking technologies to track the activity on our website and store certain information. This helps us improve your browsing experience, analyze site traffic, and understand where our visitors are coming from. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent.
       </p>
-      <h3>4. Data Controller</h3>
+
+      <h3>4. Third-Party Services (Instagram & WhatsApp)</h3>
+      <p>
+        As a small business, we frequently use third-party platforms like Instagram for marketing and WhatsApp for customer support and order coordination. When you interact with us on these platforms, your data is also governed by their respective Privacy Policies. We do not sell or share your personal information with these third parties beyond what is necessary to fulfill your order and provide support.
+      </p>
+
+      <h3>5. Data Security</h3>
+      <p>
+        We take the security of your personal information seriously. We implement reasonable administrative, technical, and physical security measures to protect your data against unauthorized access, loss, or alteration. However, please remember that no method of transmission over the Internet or method of electronic storage is 100% secure.
+      </p>
+
+      <h3>6. Data Controller</h3>
       <p>
         <strong>Keshvi Crafts</strong> is the data controller for your personal information.
         <br />
         Contact: <a href="mailto:KESHVICRAFTS@gmail.com" className="underline">KESHVICRAFTS@gmail.com</a>
       </p>
 
-      <h3>5. Payment Processing</h3>
+      <h3>7. Payment Processing</h3>
       <p>
         Payments are processed via a secure third-party gateway (Razorpay/UPI). We do not store or have access to your credit/debit card information.
       </p>

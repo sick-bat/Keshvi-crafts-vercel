@@ -11,18 +11,22 @@ export default function ReturnsPage() {
       <h1 className="font-serif text-3xl font-bold mb-6">Returns & Exchange Policy</h1>
       <p className="text-stone-500 mb-8 italic">Last updated: {new Date().toLocaleDateString()}</p>
 
-      <h3>1. No Returns on Custom Orders</h3>
+      <h3>1. Returns & Exchanges</h3>
       <p>
-        Since our items are handmade specifically for you upon order, we <strong>do not accept returns or cancellations</strong> once the making process has started (usually within 24 hours of ordering).
+        Because our items are carefully handcrafted to order, we only accept returns or exchanges for items that are delivered damaged or defective. If you receive a defective item, please contact us within 7 days of delivery with photographic proof.
       </p>
 
-      <h3>2. Damaged or Defective Items</h3>
+      <h3>2. Refund Process</h3>
       <p>
-        In the unlikely event that you receive a damaged or incorrect item, please notify us within <strong>48 hours</strong> of delivery with an unboxing video.
-        We will happily offer a replacement or repair.
+        Once your return is received and inspected, we will notify you of the approval or rejection of your refund. If approved, your refund will be processed, and a credit will automatically be applied to your original method of payment or via direct bank transfer within 5-7 working days.
       </p>
 
-      <h3>3. Size Issues</h3>
+      <h3>3. Cancellation Policy</h3>
+      <p>
+        Cancellations are only accepted within 24 hours of placing the order. Because our pieces are made to order, once the crafting process has begun after this 24-hour window, we cannot cancel the order.
+      </p>
+
+      <h3>4. Size Issues</h3>
       <p>
         For clothing items, please check our size guide carefully before ordering.
         If there is a fit issue, we can alter the piece for a nominal charge, but shipping costs for alterations will be borne by the customer.

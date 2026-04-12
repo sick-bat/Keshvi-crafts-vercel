@@ -5,15 +5,19 @@ import { getWishlist, removeFromWishlist, addToCart } from "@/lib/bags";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/components/ProductCardV2";
 import products from "@/data/products.json";
 
 
 export default function WishlistPage() {
-  const [items, setItems] = useState(getWishlist());
+  const [items, setItems] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
+
   const refresh = () => setItems(getWishlist());
 
   useEffect(() => {
+    setMounted(true);
+    refresh();
     const h = () => refresh();
     window.addEventListener("bag:changed", h);
     window.addEventListener("storage", h);
@@ -22,6 +26,15 @@ export default function WishlistPage() {
       window.removeEventListener("storage", h);
     };
   }, []);
+
+  if (!mounted) {
+    return (
+      <div className="container py-4">
+        <h1>Wishlist</h1>
+        <p className="mt-3">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-4">

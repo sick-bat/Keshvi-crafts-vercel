@@ -10,10 +10,30 @@ export default function Footer() {
           {/* About */}
           <div className="footer-section">
             <h3 className="footer-title">About Keshvi Crafts</h3>
-            <p className="footer-text">
+            <p className="footer-text" style={{ marginBottom: "1.5rem" }}>
               Handmade crochet and artisanal pieces crafted with care in India.
               Each item is made to order, ensuring quality and thoughtfulness in every stitch.
             </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              <div>
+                <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(250, 249, 247, 0.5)", display: "block", marginBottom: "0.25rem" }}>
+                  Founder
+                </span>
+                <span className="footer-text" style={{ color: "#faf9f7", fontWeight: 500 }}>
+                  Vaishnavi Sharma
+                </span>
+              </div>
+              <div>
+                <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(250, 249, 247, 0.5)", display: "block", marginBottom: "0.25rem" }}>
+                  Studio
+                </span>
+                <p className="footer-text" style={{ lineHeight: 1.6, margin: 0 }}>
+                  167 L, In Front of Indane Gas Godam,<br />
+                  New Colony, Madhopur, Surajkund,<br />
+                  Gorakhpur, Uttar Pradesh - 273015
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Quick Links */}
@@ -21,6 +41,7 @@ export default function Footer() {
             <h3 className="footer-title">Quick Links</h3>
             <ul className="footer-links">
               <li><Link href="/">Home</Link></li>
+              <li><Link href="/about">About Us</Link></li>
               <li><Link href="/collections">Collections</Link></li>
               <li><Link href="/wishlist">Wishlist</Link></li>
               <li><Link href="/cart">Cart</Link></li>

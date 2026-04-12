@@ -295,6 +295,10 @@ export default function CartPage() {
                   label="Proceed to Checkout (via Instagram)"
                 />
 
+                <div className="text-center mt-3 text-[0.9rem] font-medium text-[#4b5563] flex items-center justify-center gap-1.5">
+                   💸 Cash on Delivery Available
+                </div>
+
                 {/* Trust Icons Strip */}
                 <div className="mt-4 pt-4 border-t border-[#f3f4f6] grid grid-cols-2 gap-2 text-[10px] text-[#6b7280] text-center">
                   <div className="flex items-center justify-center gap-1.5 bg-[#f9fafb] py-1.5 rounded">

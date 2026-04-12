@@ -11,6 +11,10 @@ export default function TermsPage() {
       <h1 className="font-serif text-3xl font-bold mb-6">Terms of Service</h1>
       <p className="text-stone-500 mb-8 italic">Last updated: {new Date().toLocaleDateString()}</p>
 
+      <p className="mb-8">
+        This website is operated by Keshvi Crafts. Throughout the site, the terms &ldquo;we&rdquo;, &ldquo;us&rdquo; and &ldquo;our&rdquo; refer to Keshvi Crafts. Keshvi Crafts offers this website, including all information, tools, and services available from this site to you, the user, conditioned upon your acceptance of all terms, conditions, policies, and notices stated here.
+      </p>
+
       <h3>1. General</h3>
       <p>
         By placing an order with Keshvi Crafts, you agree to these terms.

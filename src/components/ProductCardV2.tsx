@@ -4,7 +4,7 @@ import ImageWithFallback from "@/components/ImageWithFallback";
 import Link from "next/link";
 import { useEffect, useState, MouseEvent } from "react";
 import type { Product } from "@/types";
-import { toggleWishlist } from "@/lib/bags";
+import { toggleWishlist, getCart, updateQty, removeFromCart } from "@/lib/bags";
 import { useAddToCart } from "@/hooks/useAddToCart";
 import { useRouter } from "next/navigation";
 import { trackEvent } from "@/lib/analytics";
@@ -13,8 +13,20 @@ import "./ProductCardV2.css";
 
 export default function ProductCardV2({ p }: { p: Product }) {
     const [hearted, setHearted] = useState(false);
+    const [qtyInCart, setQtyInCart] = useState(0);
     const { addToCart, state } = useAddToCart();
     const router = useRouter();
+
+    useEffect(() => {
+        const updateCartQty = () => {
+            const cart = getCart();
+            const item = cart.find(x => x.slug === p.slug);
+            setQtyInCart(item ? item.qty : 0);
+        };
+        updateCartQty();
+        window.addEventListener("bag:changed", updateCartQty);
+        return () => window.removeEventListener("bag:changed", updateCartQty);
+    }, [p.slug]);
 
     // Initialize "hearted" from storage on mount or slug change
     useEffect(() => {
@@ -91,7 +103,7 @@ export default function ProductCardV2({ p }: { p: Product }) {
     const overflowCount = badges.length - 2;
 
     return (
-        <article className="plp-card-mobile h-full flex flex-col relative group bg-white rounded-2xl overflow-hidden border border-stone-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <article className="plp-card-mobile plp-card h-full flex flex-col relative group bg-white rounded-2xl overflow-hidden border border-stone-100 shadow-sm hover:shadow-md transition-shadow duration-300">
 
             {/* MEDIA WRAPPER - Relative container for Image + Badges + Heart */}
             <div className="relative w-full bg-stone-100 overflow-hidden">
@@ -116,32 +128,32 @@ export default function ProductCardV2({ p }: { p: Product }) {
                     </div>
                 </Link>
 
-                {/* Wishlist Button - Explicitly Z-Indexed and Positioned */}
+                {/* Wishlist Button - Using globals.css styles */}
                 <button
                     onClick={onHeartClick}
-                    className={`absolute top-3 right-3 flex items-center justify-center rounded-full shadow-lg transition-all active:scale-95 border border-stone-200/50 force-visible ${hearted
-                        ? "bg-white text-red-600"
-                        : "bg-white/95 text-neutral-500 hover:text-red-500"
-                        }`}
-                    style={{
-                        width: '40px',
-                        height: '40px',
-                        zIndex: 20, // Clean z-index
-                        pointerEvents: 'auto',
-                    }}
+                    className={`heart-container ${hearted ? "wishlisted" : ""}`}
                     aria-label={hearted ? "Remove from wishlist" : "Add to wishlist"}
                     type="button"
                     title={hearted ? "Remove from wishlist" : "Add to wishlist"}
                 >
-                    {hearted ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                            <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
-                        </svg>
-                    ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                    <div className="svg-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="var(--heart-color)" className="svg-outline">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                         </svg>
-                    )}
+
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--heart-color)" className="svg-filled">
+                            <path fillRule="evenodd" clipRule="evenodd" d="M12.001 21.243c-.414 0-.83-.133-1.177-.4C5.001 16.478 2 12.718 2 8.75 2 6.127 4.083 4.001 6.75 4.001c1.704 0 3.252.988 4.001 2.453.749-1.465 2.297-2.453 4.001-2.453 2.667 0 4.75 2.127 4.75 4.75 0 3.968-3.001 7.728-8.824 12.093-.347.267-.763.4-1.177.4Z" />
+                        </svg>
+
+                        <svg xmlns="http://www.w3.org/2000/svg" height="100" width="100" className="svg-celebrate" viewBox="0 0 100 100">
+                            <polygon points="10,10 20,20"></polygon>
+                            <polygon points="10,50 20,50"></polygon>
+                            <polygon points="20,80 30,70"></polygon>
+                            <polygon points="90,10 80,20"></polygon>
+                            <polygon points="90,50 80,50"></polygon>
+                            <polygon points="80,80 70,70"></polygon>
+                        </svg>
+                    </div>
                 </button>
 
                 {/* Badges - Top Left */}
@@ -187,14 +199,59 @@ export default function ProductCardV2({ p }: { p: Product }) {
                         <span className="text-lg font-bold text-neutral-900">{priceDisplay}</span>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={handleAction}
-                        disabled={(!inStock && !isCustomOrder) || state === "adding" || state === "added"}
-                        className={`w-full ${isCustomOrder ? "btn-secondary" : "btn-primary"}`}
-                    >
-                        {getButtonLabel()}
-                    </button>
+                    {isCustomOrder ? (
+                        <button
+                            type="button"
+                            onClick={handleAction}
+                            disabled={!isCustomOrder}
+                            className="w-full btn-secondary"
+                        >
+                            {getButtonLabel()}
+                        </button>
+                    ) : qtyInCart > 0 ? (
+                        <div className="inline-counter-container">
+                            <button
+                                className="inline-counter-btn"
+                                aria-label="Decrease quantity"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (qtyInCart > 1) {
+                                        updateQty(p.slug, qtyInCart - 1);
+                                    } else {
+                                        removeFromCart(p.slug);
+                                    }
+                                }}
+                            >
+                                &minus;
+                            </button>
+                            <div className="inline-counter-value" aria-live="polite">
+                                {qtyInCart}
+                            </div>
+                            <button
+                                className="inline-counter-btn"
+                                aria-label="Increase quantity"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (typeof p.stock !== 'number' || qtyInCart < p.stock) {
+                                        updateQty(p.slug, qtyInCart + 1);
+                                    }
+                                }}
+                            >
+                                +
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={handleAction}
+                            disabled={!inStock || state === "adding" || state === "added"}
+                            className="w-full btn-primary"
+                        >
+                            {getButtonLabel()}
+                        </button>
+                    )}
                 </div>
             </div>
         </article>

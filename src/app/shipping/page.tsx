@@ -11,10 +11,9 @@ export default function ShippingPage() {
       <h1 className="font-serif text-3xl font-bold mb-6">Shipping Policy</h1>
       <p className="text-stone-500 mb-8 italic">Last updated: {new Date().toLocaleDateString()}</p>
 
-      <h3>1. Turnaround Time</h3>
+      <h3>1. Shipping & Delivery Timelines</h3>
       <p>
-        Since all our pieces are handmade to order, we need <strong>7-10 business days</strong> to craft your order with care before it is shipped.
-        During high volume periods (like Valentine&apos;s or Diwali), this may extend slightly. We appreciate your patience.
+        Every piece at Keshvi Crafts is handmade to order. Please allow 7-10 days for us to craft your items with the utmost care. Once dispatched, the estimated delivery duration is 5-10 business days, depending on your location in India.
       </p>
 
       <h3>2. Shipping Costs</h3>

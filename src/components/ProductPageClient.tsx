@@ -4,10 +4,12 @@ import { useState } from "react";
 import Gallery from "@/components/Gallery";
 import BuyBar from "@/components/BuyBar";
 import VariantSelector from "@/components/VariantSelector";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/components/ProductCardV2";
 import Link from "next/link";
 import type { Product, ProductVariant } from "@/types";
 import { trackEvent } from "@/lib/analytics";
+import { toggleWishlist } from "@/lib/bags";
+import { useEffect } from "react";
 
 export default function ProductPageClient({
   product,
@@ -20,6 +22,22 @@ export default function ProductPageClient({
     product.variants && product.variants.length > 0 ? product.variants[0] : null
   );
 
+  const [hearted, setHearted] = useState(false);
+
+  // Initialize wishlist state
+  useEffect(() => {
+      try {
+          const slugs = JSON.parse(localStorage.getItem("wishlist:v1") || "[]") as string[];
+          setHearted(slugs.includes(product.slug));
+      } catch {}
+  }, [product.slug]);
+
+  const onHeartClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setHearted(toggleWishlist(product));
+  };
+
   // Use variant images/price if variant selected, otherwise use product defaults
   const currentImages = selectedVariant?.images || product.images || ["/placeholder.png"];
   const currentPrice = selectedVariant?.price || product.price;
@@ -31,7 +49,34 @@ export default function ProductPageClient({
   return (
     <>
       <div className="product-page-grid">
-        <Gallery images={currentImages} alt={product.title} />
+        <div className="relative plp-card">
+          <Gallery images={currentImages} alt={product.title} />
+          
+          <button
+              onClick={onHeartClick}
+              className={`heart-container flex items-center justify-center bg-white/70 backdrop-blur-md rounded-full shadow-md hover:bg-white transition-all active:scale-95 ${hearted ? "wishlisted" : ""}`}
+              style={{ position: 'absolute', top: 16, right: 16, width: 44, height: 44, zIndex: 30 }}
+              aria-label={hearted ? "Remove from wishlist" : "Add to wishlist"}
+              title={hearted ? "Remove from wishlist" : "Add to wishlist"}
+          >
+              <div className="svg-container relative flex items-center justify-center w-full h-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="var(--heart-color)" className="svg-outline" style={{width: 24, height: 24}}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--heart-color)" className="svg-filled" style={{width: 24, height: 24, position: 'absolute'}}>
+                      <path fillRule="evenodd" clipRule="evenodd" d="M12.001 21.243c-.414 0-.83-.133-1.177-.4C5.001 16.478 2 12.718 2 8.75 2 6.127 4.083 4.001 6.75 4.001c1.704 0 3.252.988 4.001 2.453.749-1.465 2.297-2.453 4.001-2.453 2.667 0 4.75 2.127 4.75 4.75 0 3.968-3.001 7.728-8.824 12.093-.347.267-.763.4-1.177.4Z" />
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" height="100" width="100" className="svg-celebrate" viewBox="0 0 100 100" style={{position: 'absolute', width: 38, height: 38}}>
+                      <polygon points="10,10 20,20"></polygon>
+                      <polygon points="10,50 20,50"></polygon>
+                      <polygon points="20,80 30,70"></polygon>
+                      <polygon points="90,10 80,20"></polygon>
+                      <polygon points="90,50 80,50"></polygon>
+                      <polygon points="80,80 70,70"></polygon>
+                  </svg>
+              </div>
+          </button>
+        </div>
         <div>
           {/* Badge */}
           <div className="flex flex-wrap gap-2 mb-3">
