@@ -9,6 +9,7 @@ import { toggleWishlist } from "@/lib/bags";
 import { useAddToCart } from "@/hooks/useAddToCart";
 import { useRouter } from "next/navigation";
 import { trackEvent } from "@/lib/analytics";
+import styles from "./ProductCard.module.css";
 
 export default function ProductCard({ p }: { p: Product }) {
   const [hearted, setHearted] = useState(false);
@@ -74,122 +75,114 @@ export default function ProductCard({ p }: { p: Product }) {
     }
   };
 
-  const getButtonLabel = () => {
-    if (isCustomOrder) return "Enquire on Instagram";
-    if (state === "adding") return "Adding…";
-    if (state === "added") return "Added ✓";
-    return "Add to Cart";
+  const visibleBadges = badges.slice(0, 2);
+
+  // Badge mapping logic
+  const renderBadges = () => {
+    // Special out of stock
+    if (!inStock && !isCustomOrder) {
+      return <span className={`${styles['product-badge']} ${styles['badge-neutral']}`}>Out of Stock</span>;
+    }
+    // Specific Custom Order badge mapping
+    if (isCustomOrder && !badges.includes("Made to Order")) {
+      return <span className={`${styles['product-badge']} ${styles['badge-clay']}`}>Made to Order</span>;
+    }
+    
+    // Original badges
+    if (visibleBadges.length > 0) {
+      return visibleBadges.map(b => {
+        const badgeClass = b.toLowerCase() === "bestseller" || b.toLowerCase() === "trending" 
+          ? styles['badge-clay'] 
+          : styles['badge-green'];
+        return (
+          <span key={b} className={`${styles['product-badge']} ${badgeClass}`}>
+            {b}
+          </span>
+        );
+      });
+    }
+    return null;
   };
 
-  const visibleBadges = badges.slice(0, 2);
-  const overflowCount = badges.length - 2;
-
   return (
-    <article className="plp-card-mobile h-full flex flex-col relative group bg-white rounded-2xl overflow-hidden border border-stone-100 shadow-sm hover:shadow-md transition-shadow duration-300">
-
-      {/* MEDIA WRAPPER */}
-      <div className="relative w-full bg-stone-100 overflow-hidden">
-        <Link
-          href={`/products/${encoded}`}
-          aria-label={p.title}
-          className="block w-full h-full"
-          onClick={handleCardClick}
-        >
-          {/* Square Aspect Ratio */}
-          <div className="relative w-full h-0" style={{ paddingBottom: '100%' }}>
-            <ImageWithFallback
-              src={p.images?.[0] || '/placeholder.png'}
-              alt={p.title}
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
-              sizes="(max-width: 768px) 50vw, 33vw"
-              draggable={false}
-              loading="lazy"
-            />
-          </div>
-        </Link>
-
-        {/* Wishlist Button - Restored */}
-        <button
-          className={`absolute top-3 right-3 flex items-center justify-center rounded-full shadow-lg transition-all active:scale-95 border border-stone-200/50 force-visible ${hearted
-            ? "bg-white text-red-600"
-            : "bg-white/95 text-neutral-500 hover:text-red-500"
-            }`}
-          style={{
-            width: '40px',
-            height: '40px',
-            zIndex: 20, // Clean z-index
-            pointerEvents: 'auto',
-          }}
-          onClick={onHeartClick}
-          aria-label={hearted ? "Remove from wishlist" : "Add to wishlist"}
-          type="button"
-          title={hearted ? "Remove from wishlist" : "Add to wishlist"}
-        >
-          {hearted ? (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-              <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-            </svg>
-          )}
-        </button>
-
-        {/* Badges - Top Left */}
-        <div className="absolute top-3 left-3 flex flex-wrap gap-2 z-10 pointer-events-none max-w-[80%]">
-          {!inStock && !isCustomOrder && (
-            <span className="px-2 py-1 text-[10px] font-bold bg-neutral-900 text-white rounded shadow-sm">Out of Stock</span>
-          )}
-          {/* Auto-badge for custom order if not present */}
-          {isCustomOrder && !badges.includes("Made to Order") && (
-            <span className="px-2 py-1 text-[10px] font-semibold bg-[#C2410C] text-white backdrop-blur-sm rounded shadow-sm">
-              Made to Order
-            </span>
-          )}
-          {visibleBadges.map(b => (
-            <span key={b} className={`px-2 py-1 text-[10px] font-semibold backdrop-blur-sm rounded shadow-sm border ${b === "Bestseller"
-              ? "bg-[#2C1810] text-white border-[#2C1810]"
-              : "bg-white/90 text-neutral-800 border-neutral-100"
-              }`}>
-              {b}
-            </span>
-          ))}
-          {overflowCount > 0 && (
-            <span className="px-2 py-1 text-[10px] font-semibold bg-white/90 text-neutral-600 backdrop-blur-sm rounded shadow-sm border border-neutral-100">
-              +{overflowCount}
-            </span>
-          )}
+    <article className={`${styles['product-card']} plp-card-mobile`}>
+      <div className={`relative w-full bg-[#f4eee7] overflow-hidden`}>
+        {/* Badges Top Left */}
+        <div className="absolute top-3 left-3 flex flex-wrap gap-2 z-[10] pointer-events-none max-w-[80%]">
+          {renderBadges()}
         </div>
 
+        {/* Global wishlisted button Top Right - Wrapped in plp-card to inherit globals.css */}
+        <div className="plp-card absolute top-3 right-3 z-[15]">
+          <button
+            onClick={onHeartClick}
+            className={`heart-container ${hearted ? "wishlisted" : ""}`}
+            aria-label={hearted ? "Remove from wishlist" : "Add to wishlist"}
+            type="button"
+            title={hearted ? "Remove from wishlist" : "Add to wishlist"}
+          >
+            <div className="svg-container">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="var(--heart-color, #a0401b)" className="svg-outline">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--heart-color, #a0401b)" className="svg-filled">
+                <path fillRule="evenodd" clipRule="evenodd" d="M12.001 21.243c-.414 0-.83-.133-1.177-.4C5.001 16.478 2 12.718 2 8.75 2 6.127 4.083 4.001 6.75 4.001c1.704 0 3.252.988 4.001 2.453.749-1.465 2.297-2.453 4.001-2.453 2.667 0 4.75 2.127 4.75 4.75 0 3.968-3.001 7.728-8.824 12.093-.347.267-.763.4-1.177.4Z" />
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" height="100" width="100" className="svg-celebrate" viewBox="0 0 100 100">
+                <polygon points="10,10 20,20"></polygon>
+                <polygon points="10,50 20,50"></polygon>
+                <polygon points="20,80 30,70"></polygon>
+                <polygon points="90,10 80,20"></polygon>
+                <polygon points="90,50 80,50"></polygon>
+                <polygon points="80,80 70,70"></polygon>
+              </svg>
+            </div>
+          </button>
+        </div>
+
+        <Link href={`/products/${encoded}`} aria-label={p.title} onClick={handleCardClick} className="block w-full">
+            <div className="relative w-full h-0" style={{ paddingBottom: '105%' }}>
+                <ImageWithFallback
+                  src={p.images?.[0] || '/placeholder.png'}
+                  alt={p.title}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  className={`${styles['product-image']} object-cover duration-500`}
+                  draggable={false}
+                  loading="lazy"
+                />
+            </div>
+        </Link>
       </div>
 
-      {/* CONTENT */}
-      <div className="flex flex-col flex-grow p-4">
-        <h3 className="text-base font-medium text-neutral-900 leading-snug mb-2 line-clamp-2 min-h-[2.5em]">
+      <div className={styles['product-content']}>
+        <p className={styles['product-category']}>
+          {p.category || 'Handmade Crochet'}
+        </p>
+        
+        <h3 className={styles['product-title']}>
           <Link href={`/products/${encoded}`} onClick={handleCardClick} className="product-title-link">
             {p.title}
           </Link>
         </h3>
+        
+        <p className={styles['product-note']}>
+          {isCustomOrder ? 'Non-refundable (custom made)' : 'Handmade with care'}
+        </p>
 
-        <div className="mt-auto">
-          {isCustomOrder && (
-            <p className="text-[11px] text-stone-500 mb-2 font-medium">Non-refundable (custom made)</p>
-          )}
+        <div className={styles['product-footer']}>
+          <p className={styles['product-price']}>{priceDisplay}</p>
 
-          <div className="flex items-baseline gap-2 mb-3">
-            <span className="text-lg font-bold text-neutral-900">{priceDisplay}</span>
+          <div className={styles['cart-area']}>
+            <button 
+              className={`${styles['add-btn']} ${isCustomOrder ? styles['enquire-btn'] : ''} ${state === 'added' ? styles['add-btn-added'] : ''}`} 
+              type="button"
+              onClick={handleAction}
+              disabled={(!inStock && !isCustomOrder) || state === "adding" || state === "added"}
+            >
+              {isCustomOrder ? "Enquire" : state === 'adding' ? 'Adding…' : state === 'added' ? '✓' : 'Add'}
+            </button>
           </div>
-
-          <button
-            type="button"
-            onClick={handleAction}
-            disabled={(!inStock && !isCustomOrder) || state === "adding" || state === "added"}
-            className={`w-full ${isCustomOrder ? "btn-secondary" : "btn-primary"}`}
-          >
-            {getButtonLabel()}
-          </button>
         </div>
       </div>
     </article>

@@ -5,7 +5,7 @@ import { getWishlist, removeFromWishlist, addToCart } from "@/lib/bags";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import ProductCard from "@/components/ProductCardV2";
+import ProductCard from "@/components/ProductCard";
 import products from "@/data/products.json";
 
 

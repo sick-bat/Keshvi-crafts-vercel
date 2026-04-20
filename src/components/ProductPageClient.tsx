@@ -4,7 +4,7 @@ import { useState } from "react";
 import Gallery from "@/components/Gallery";
 import BuyBar from "@/components/BuyBar";
 import VariantSelector from "@/components/VariantSelector";
-import ProductCard from "@/components/ProductCardV2";
+import ProductCard from "@/components/ProductCard";
 import Link from "next/link";
 import type { Product, ProductVariant } from "@/types";
 import { trackEvent } from "@/lib/analytics";

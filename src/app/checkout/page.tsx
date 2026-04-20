@@ -14,11 +14,13 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
+    whatsappNumber: "",
     address: "",
     city: "",
     pincode: "",
     instagram: "",
-    orderNote: ""
+    orderNote: "",
+    whatsappUpdates: true,
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -139,6 +141,32 @@ export default function CheckoutPage() {
                   />
                   {errors.phoneNumber && <p className="text-red-500 text-xs">{errors.phoneNumber}</p>}
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-[#2f2a26]">WhatsApp Number</label>
+                <input
+                  type="tel"
+                  name="whatsappNumber"
+                  value={formData.whatsappNumber}
+                  onChange={handleChange}
+                  placeholder="Leave blank if same as phone number"
+                  className="w-full px-4 py-2 border border-[#eadfcd] rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow"
+                />
+              </div>
+
+              <div className="flex items-start gap-3 bg-[#fdfaf6] p-4 rounded-xl border border-[#eadfcd]">
+                <input
+                  type="checkbox"
+                  id="whatsappUpdates"
+                  name="whatsappUpdates"
+                  checked={formData.whatsappUpdates}
+                  onChange={(e) => setFormData({ ...formData, whatsappUpdates: e.target.checked })}
+                  className="mt-1 w-4 h-4 text-[#C2410C] border-[#eadfcd] rounded focus:ring-[#C2410C] accent-[#C2410C] cursor-pointer"
+                />
+                <label htmlFor="whatsappUpdates" className="text-sm leading-relaxed text-[#4b5563] cursor-pointer">
+                  All the order related updates will be sent on whatsapp
+                </label>
               </div>
 
               <div className="space-y-2">

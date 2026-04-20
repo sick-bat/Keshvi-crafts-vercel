@@ -3,7 +3,7 @@
 
 import products from "@/data/products.json";
 import { getDisplayCategory, DISPLAY_CATEGORIES } from "@/lib/categories";
-import ProductCard from "@/components/ProductCardV2";
+import ProductCard from "@/components/ProductCard";
 import BottomSheet from "@/components/BottomSheet";
 import CategoryChips from "@/components/CategoryChips";
 import { useMemo, useState, useEffect } from "react";
