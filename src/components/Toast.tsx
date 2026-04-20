@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 type ToastMessage = {
   id: string;
@@ -32,16 +32,35 @@ export function showToast(message: string, action?: { label: string; onClick: ()
 export default function Toast() {
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const listener = (newToast: ToastMessage | null) => {
       setToast(newToast);
     };
     toastListeners.push(listener);
+
+    // Initial check on mount
+    const pendingMsg = sessionStorage.getItem("triggerToast");
+    if (pendingMsg) {
+      sessionStorage.removeItem("triggerToast");
+      // Fire it using the standard event path so it gets an ID and auto-dismisses
+      setTimeout(() => showToast(pendingMsg), 100);
+    }
+
     return () => {
       toastListeners = toastListeners.filter((l) => l !== listener);
     };
   }, []);
+
+  // Also check on pathname change in case component doesn't unmount
+  useEffect(() => {
+    const pendingMsg = sessionStorage.getItem("triggerToast");
+    if (pendingMsg) {
+      sessionStorage.removeItem("triggerToast");
+      setTimeout(() => showToast(pendingMsg), 100);
+    }
+  }, [pathname]);
 
   if (!toast) return null;
 
@@ -54,16 +73,16 @@ export default function Toast() {
 
   return (
     <div
-      className="toast-container"
+      className="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-[9999]"
       role="status"
       aria-live="polite"
       aria-atomic="true"
     >
-      <div className="toast">
-        <span className="toast-message">{toast.message}</span>
+      <div className="bg-[#2f2a26] text-[#faf9f7] px-6 py-4 rounded-full shadow-2xl flex items-center gap-4 text-sm sm:text-base font-medium border border-[#4a3212] transition-all duration-300">
+        <span>{toast.message}</span>
         {toast.action && (
           <button
-            className="toast-action"
+            className="text-[#eadfcd] hover:text-white underline font-semibold transition-colors"
             onClick={handleAction}
             aria-label={toast.action.label}
           >
@@ -71,11 +90,11 @@ export default function Toast() {
           </button>
         )}
         <button
-          className="toast-close"
+          className="text-gray-400 hover:text-white hover:bg-gray-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-lg leading-none transition-colors"
           onClick={() => setToast(null)}
           aria-label="Close notification"
         >
-          ×
+          &times;
         </button>
       </div>
     </div>

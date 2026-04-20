@@ -1,327 +1,297 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import products from "@/data/products.json";
 import Link from "next/link";
 import Image from "next/image";
+import { getCart, clearCart } from "@/lib/bags";
+import products from "@/data/products.json";
 import { calculateShipping } from "@/lib/shipping";
-import { showToast } from "@/components/Toast";
-import { useRouter } from "next/navigation";
-import PriceProgressBar from "@/components/PriceProgressBar";
-import CheckoutAddons from "@/components/CheckoutAddons";
 import type { Product } from "@/types";
-
-type Item = { slug: string; title: string; price: number; image?: string; qty?: number; productSlug?: string };
-type P = any;
-
-const productBySlug: Record<string, P> = Object.fromEntries(
-  (products as P[]).map((p) => [p.slug, p])
-);
+import { useRouter } from "next/navigation";
 
 export default function CheckoutPage() {
-  const [items, setItems] = useState<Item[]>([]);
-  const [step, setStep] = useState<"details" | "payment">("details");
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
+    fullName: "",
+    phoneNumber: "",
     address: "",
     city: "",
-    pincode: ""
+    pincode: "",
+    instagram: "",
+    orderNote: ""
   });
-  const router = useRouter();
+  
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [cart, setCart] = useState<any[]>([]);
 
   useEffect(() => {
-    try {
-      const existing = JSON.parse(localStorage.getItem("cart") || "[]") as Item[];
-      // CHECKOUT GUARD
-      if (!existing || existing.length === 0) {
-        showToast("Your cart is empty.");
-        router.replace("/products");
-        return;
-      }
+    setCart(getCart());
+  }, []);
 
-      // Guard against custom orders slipping in
-      // Logic: If ANY item is custom order, we should probably remove it or block checkout?
-      // Prompt says: "If cart empty OR only custom-order OR invalid -> redirect"
-      // Since custom items shouldn't be in cart, let's just check invalid items
-      const hasCustom = existing.some(it => {
-        const p = productBySlug[it.productSlug || it.slug];
-        return p?.type === 'custom-order';
-      });
+  const total = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
 
-      if (hasCustom) {
-        showToast("Custom items cannot be checked out directly. Please enquire.");
-        router.replace("/cart"); // send back to cart to clean up
-        return;
-      }
-
-      setItems(existing);
-
-      // Load saved details if any
-      const savedDetails = JSON.parse(localStorage.getItem("customer_details") || "{}");
-      if (savedDetails.name) setFormData(savedDetails);
-    }
-    catch {
-      setItems([]);
-      router.replace("/products");
-    }
-  }, [router]);
-
-  const total = items.reduce((s, i) => s + (i.price * (i.qty || 1)), 0);
-
-  // Shipping Calc
-  const enrichedItems = items.map(it => {
-    const p = productBySlug[it.productSlug || it.slug.split('-')[0]];
+  // Enrich items with shipping info for calculation
+  const enrichedItems = cart.map(it => {
+    const p = (products as Product[]).find(x => x.slug === it.slug || x.slug === (it as any).productSlug);
     return { ...it, shippingCharge: p?.shippingCharge };
   });
 
-  // Calculate Discountable Subtotal (exclude custom-order)
+  // Calculate Discountable Subtotal
   const discountableSubtotal = enrichedItems.reduce((s, it) => {
-    const p = productBySlug[it.productSlug || it.slug.split('-')[0]];
+    const p = (products as Product[]).find(x => x.slug === it.slug || x.slug === (it as any).productSlug);
     if (p?.type === "custom-order") return s;
-    return s + it.price * (it.qty || 1);
+    return s + it.price * it.qty;
   }, 0);
 
-  // Discount Logic
   let discountPercent = 0;
   if (discountableSubtotal > 1800) discountPercent = 20;
   else if (discountableSubtotal > 1250) discountPercent = 10;
 
   const discountAmount = Math.round((discountableSubtotal * discountPercent) / 100);
-
   const shipping = calculateShipping(enrichedItems, total);
   const grandTotal = total - discountAmount + shipping;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+    // Clear error on change
+    if (errors[e.target.name]) {
+      setErrors({
+        ...errors,
+        [e.target.name]: ""
+      });
+    }
   };
 
-  const handleDetailsSubmit = (e: React.FormEvent) => {
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.fullName.trim()) newErrors.fullName = "Full Name is required";
+    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = "Phone Number is required";
+    if (!formData.address.trim()) newErrors.address = "Address is required";
+    if (!formData.city.trim()) newErrors.city = "City is required";
+    if (!formData.pincode.trim()) newErrors.pincode = "Pincode is required";
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem("customer_details", JSON.stringify(formData));
-    setStep("payment");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (validate()) {
+      console.log("Order Submitted Data:");
+      console.log({
+        ...formData,
+        cartItems: cart,
+        cartTotal: total,
+        discountAmount,
+        shipping,
+        grandTotal
+      });
+      clearCart();
+      sessionStorage.setItem("triggerToast", "Order placed please continue shopping");
+      router.push("/");
+    }
   };
 
-  if (!items.length) {
-    // Should have redirected, but show fallback
-    return (
-      <main className="container py-10 text-center">
-        <h1 className="text-3xl font-serif mb-4">Checkout</h1>
-        <p className="text-stone-600 mb-6">Redirecting...</p>
-      </main>
-    );
+  // Prevent hydration mismatch on initial render
+  if (cart.length === 0 && typeof window === 'undefined') {
+      return <div className="bg-[#FAF7F2] min-h-screen pb-24 border-t border-transparent" />;
   }
 
   return (
-    <main className="container py-10 max-w-2xl mx-auto">
-      {/* NO INDEX */}
-      <meta name="robots" content="noindex" />
+    <div className="bg-[#FAF7F2] min-h-screen pb-24">
+      <div className="container mx-auto py-8 px-4">
+        <h1 className="text-3xl font-bold text-[#2f2a26] font-serif mb-8 mt-4">Checkout</h1>
+        
+        <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr] items-start">
+            
+          {/* Left Column: Form */}
+          <div className="bg-white p-6 md:p-8 rounded-2xl border border-[#eadfcd] shadow-sm">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
+              <h2 className="text-xl font-bold text-[#2f2a26] font-serif border-b border-[#eadfcd] pb-4">Shipping Details</h2>
 
-      <h1 className="text-3xl font-serif font-bold text-[#2f2a26] mb-2 text-center">
-        {step === "details" ? "Shipping Details" : "Complete Payment"}
-      </h1>
-
-      {/* Stepper */}
-      <div className="flex items-center justify-center gap-4 mb-8 text-sm">
-        <div className={`flex items-center gap-2 ${step === "details" ? "font-bold text-[#C2410C]" : "text-stone-500"}`}>
-          <span className={`w-6 h-6 rounded-full flex items-center justify-center border ${step === "details" ? "border-[#C2410C] bg-[#fff7ed]" : "border-stone-300"}`}>1</span>
-          Details
-        </div>
-        <div className="w-12 h-px bg-stone-300"></div>
-        <div className={`flex items-center gap-2 ${step === "payment" ? "font-bold text-[#C2410C]" : "text-stone-400"}`}>
-          <span className={`w-6 h-6 rounded-full flex items-center justify-center border ${step === "payment" ? "border-[#C2410C] bg-[#fff7ed]" : "border-stone-300"}`}>2</span>
-          Payment
-        </div>
-      </div>
-
-      <div className="bg-white p-6 md:p-8 rounded-2xl border border-[#eadfcd] shadow-sm">
-
-        {step === "details" ? (
-          <form onSubmit={handleDetailsSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Full Name</label>
-                <input
-                  required
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-all"
-                  placeholder="e.g. Aditi Sharma"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1">Email</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-[#2f2a26]">Full Name *</label>
                   <input
-                    required
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none"
-                    placeholder="aditi@example.com"
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    placeholder="Jane Doe"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow ${errors.fullName ? 'border-red-500' : 'border-[#eadfcd]'}`}
                   />
+                  {errors.fullName && <p className="text-red-500 text-xs">{errors.fullName}</p>}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1">Phone</label>
+                
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-[#2f2a26]">Phone Number *</label>
                   <input
-                    required
                     type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none"
-                    placeholder="+91 98765 43210"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                    placeholder="+91 9876543210"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow ${errors.phoneNumber ? 'border-red-500' : 'border-[#eadfcd]'}`}
                   />
+                  {errors.phoneNumber && <p className="text-red-500 text-xs">{errors.phoneNumber}</p>}
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-stone-700 mb-1">Delivery Address</label>
-                <textarea
-                  required
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-[#2f2a26]">Address *</label>
+                <input
+                  type="text"
                   name="address"
                   value={formData.address}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full px-4 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none resize-none"
-                  placeholder="Flat No, Building, Street..."
+                  onChange={handleChange}
+                  placeholder="123 Block A, Sector 4"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow ${errors.address ? 'border-red-500' : 'border-[#eadfcd]'}`}
                 />
+                {errors.address && <p className="text-red-500 text-xs">{errors.address}</p>}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1">City</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-[#2f2a26]">City *</label>
                   <input
-                    required
                     type="text"
                     name="city"
                     value={formData.city}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none"
+                    onChange={handleChange}
+                    placeholder="New Delhi"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow ${errors.city ? 'border-red-500' : 'border-[#eadfcd]'}`}
                   />
+                  {errors.city && <p className="text-red-500 text-xs">{errors.city}</p>}
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1">Pincode</label>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-[#2f2a26]">Pincode *</label>
                   <input
-                    required
                     type="text"
                     name="pincode"
                     value={formData.pincode}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none"
+                    onChange={handleChange}
+                    placeholder="110001"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow ${errors.pincode ? 'border-red-500' : 'border-[#eadfcd]'}`}
                   />
+                  {errors.pincode && <p className="text-red-500 text-xs">{errors.pincode}</p>}
                 </div>
               </div>
-            </div>
 
-            <div className="pt-4">
-              <button type="submit" className="w-full btn-primary text-lg font-semibold">
-                Continue to Payment
-              </button>
-              <p className="text-center text-xs text-stone-500 mt-3 flex items-center justify-center gap-1">
-                🔒 Your details are stored securely for this session
-              </p>
-            </div>
-          </form>
-        ) : (
-          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-[#2f2a26]">Instagram Username (Optional)</label>
+                <input
+                  type="text"
+                  name="instagram"
+                  value={formData.instagram}
+                  onChange={handleChange}
+                  placeholder="@yourusername"
+                  className="w-full px-4 py-2 border border-[#eadfcd] rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow"
+                />
+              </div>
 
-            {/* Price Progress Bar */}
-            <PriceProgressBar subtotal={total} />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-[#2f2a26]">Order Note (Optional)</label>
+                <textarea
+                  name="orderNote"
+                  value={formData.orderNote}
+                  onChange={handleChange}
+                  placeholder="Any special requests or details..."
+                  rows={4}
+                  className="w-full px-4 py-2 border border-[#eadfcd] rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow resize-none"
+                ></textarea>
+              </div>
 
-            {/* Order Review */}
-            <div className="mb-6 bg-stone-50 p-4 rounded-xl border border-stone-200">
-              <h3 className="font-bold text-stone-800 mb-2 text-sm uppercase tracking-wider">Review Order</h3>
-              <div className="space-y-3">
-                {items.map(it => (
-                  <div key={it.slug} className="flex justify-between text-sm">
-                    <span>{it.qty}x {it.title}</span>
-                    <span className="font-medium">₹{it.price * (it.qty || 1)}</span>
+              <div className="pt-4 border-t border-[#eadfcd]">
+                <button 
+                  type="submit" 
+                  className="w-full btn-primary py-3 px-6 rounded-lg text-lg font-medium text-center"
+                >
+                  Place Order (₹{grandTotal})
+                </button>
+              </div>
+              
+            </form>
+          </div>
+
+          {/* Right Column: Order Summary */}
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-2xl border border-[#eadfcd] shadow-sm sticky top-24">
+              <h3 className="font-serif text-xl font-bold text-[#2f2a26] mb-4">Order Summary</h3>
+
+              {/* Items List */}
+              <div className="space-y-4 mb-6">
+                {cart.map((it) => (
+                  <div key={it.slug} className="flex gap-4">
+                    <div className="relative w-16 h-16 bg-[#f5f5f5] rounded-md border border-[#f0e6d6] flex-shrink-0 overflow-hidden">
+                      <Image 
+                        src={it.image || "/placeholder.png"} 
+                        fill 
+                        alt={it.title} 
+                        className="object-cover" 
+                      />
+                    </div>
+                    <div className="flex-1 text-sm flex flex-col justify-center">
+                      <span className="text-[#2f2a26] font-medium leading-snug block mb-1">{it.title}</span>
+                      <span className="text-[#6a6150]">Qty: {it.qty}</span>
+                    </div>
+                    <div className="text-sm font-medium text-[#2f2a26] flex items-center">
+                      ₹{it.price * it.qty}
+                    </div>
                   </div>
                 ))}
+              </div>
 
+              {/* Totals */}
+              <div className="space-y-3 text-sm text-[#4b5563] mb-4 border-t border-[#f3f4f6] pt-4">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span className="font-medium text-[#2f2a26]">₹{total}</span>
+                </div>
                 {discountAmount > 0 && (
-                  <div className="flex justify-between text-sm text-[#C2410C]">
+                  <div className="flex justify-between text-[#C2410C]">
                     <span>Discount ({discountPercent}%)</span>
                     <span>-₹{discountAmount}</span>
                   </div>
                 )}
-
-                <div className="flex justify-between text-sm text-stone-500">
+                <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span className="font-medium">{shipping === 0 ? "Free" : `₹${shipping}`}</span>
+                  <span className="text-[#0F766E]">{shipping === 0 ? "Free" : `₹${shipping}`}</span>
                 </div>
+              </div>
 
-                <div className="pt-2 mt-2 border-t border-stone-200 flex justify-between font-bold text-[#C2410C] text-lg">
-                  <span>Total</span>
-                  <span>₹{grandTotal}</span>
-                </div>
+              <div className="h-px bg-[#e5e7eb] my-4" />
+
+              <div className="flex justify-between items-end">
+                <span className="font-semibold text-lg text-[#2f2a26]">Total</span>
+                <span className="font-bold text-2xl text-[#C2410C]">₹{grandTotal}</span>
               </div>
             </div>
 
-            {/* Checkout Add-ons */}
-            <CheckoutAddons currentCartSlugs={items.map(it => it.slug)} />
-
-            <div className="mb-6">
-              <p className="text-stone-600 mb-2">Since we are currently collecting payments per item, please complete the payment for each item below:</p>
-
-              <div className="space-y-4">
-                {items.map((it) => {
-                  const p = productBySlug[it.productSlug || it.slug.split('-')[0]] || productBySlug[it.slug];
-                  // Fallback logic for finding product
-                  const link = p?.checkoutUrl;
-
-                  return (
-                    <div key={it.slug} className="flex items-center justify-between p-3 border border-[#eadfcd] rounded-lg bg-white">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 relative bg-stone-100 rounded overflow-hidden">
-                          <Image
-                            src={it.image || "/placeholder.png"}
-                            alt={it.title}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <div>
-                          <div className="font-medium text-stone-800 text-sm">{it.title}</div>
-                          <div className="text-xs text-stone-500">₹{it.price} x {it.qty}</div>
-                        </div>
-                      </div>
-
-                      {link ? (
-                        <a
-                          href={link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-primary text-sm whitespace-nowrap"
-                        >
-                          Pay ₹{it.price * (it.qty || 1)}
-                        </a>
-                      ) : (
-                        <span className="text-xs bg-stone-100 text-stone-500 px-2 py-1 rounded">Link Unavailable</span>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
+            {/* Emotional Reinforcement Block from Cart */}
+            <div className="bg-[#fffbeb] p-5 rounded-xl border border-[#fef3c7]">
+              <h4 className="font-serif font-bold text-[#92400e] mb-2 flex items-center gap-2">
+                <span>💝</span> Why your order is special
+              </h4>
+              <ul className="text-sm space-y-2 text-[#b45309]">
+                <li className="flex gap-2">
+                  <span className="mt-0.5">•</span>
+                  <span><strong>Handmade for you:</strong> Not mass produced in a factory.</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-0.5">•</span>
+                  <span><strong>Crafted with care:</strong> Every stitch is intentional.</span>
+                </li>
+              </ul>
             </div>
-
-            <button
-              onClick={() => setStep("details")}
-              className="text-sm text-stone-500 hover:text-stone-800 underline underline-offset-4"
-            >
-              Back to Details
-            </button>
           </div>
-        )}
+          
+        </div>
       </div>
-
-    </main>
+    </div>
   );
 }

@@ -204,7 +204,7 @@ export default function ProductCardV2({ p }: { p: Product }) {
                             type="button"
                             onClick={handleAction}
                             disabled={!isCustomOrder}
-                            className="w-full btn-secondary"
+                            className="w-full btn-secondary h-[48px]"
                         >
                             {getButtonLabel()}
                         </button>
@@ -247,7 +247,7 @@ export default function ProductCardV2({ p }: { p: Product }) {
                             type="button"
                             onClick={handleAction}
                             disabled={!inStock || state === "adding" || state === "added"}
-                            className="w-full btn-primary"
+                            className="w-full btn-primary h-[48px]"
                         >
                             {getButtonLabel()}
                         </button>

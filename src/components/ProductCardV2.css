@@ -16,13 +16,16 @@
   background: rgba(0,0,0,0.1); 
   border: none;
   color: #fff;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: background 0.2s;
+  line-height: 1;
+  padding: 0;
+  padding-bottom: 2px;
 }
 
 .inline-counter-btn:active, .inline-counter-btn:hover {

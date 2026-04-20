@@ -289,10 +289,8 @@ export default function CartPage() {
 
                 {/* Secure Checkout Button -> Routed to Instagram */}
                 <CartEnquireButton
-                  items={items}
-                  total={grandTotal}
                   className="w-full btn-primary text-base flex items-center justify-center gap-2 text-center"
-                  label="Proceed to Checkout (via Instagram)"
+                  label="Proceed to Checkout"
                 />
 
                 <div className="text-center mt-3 text-[0.9rem] font-medium text-[#4b5563] flex items-center justify-center gap-1.5">
