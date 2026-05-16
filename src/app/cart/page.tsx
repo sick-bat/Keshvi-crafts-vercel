@@ -1,7 +1,7 @@
 // app/cart/page.tsx
 "use client";
 
-import { getCart, updateQty, removeFromCart, clearCart } from "@/lib/bags";
+import { getCart, updateQty, removeFromCart, clearCart, addToCart } from "@/lib/bags";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,11 +15,17 @@ import type { Product } from "@/types";
 export default function CartPage() {
   const [items, setItems] = useState(getCart());
   const [mounted, setMounted] = useState(false);
+  const [pastOrders, setPastOrders] = useState<any[]>([]);
 
   const refresh = () => setItems(getCart());
 
   useEffect(() => {
     setMounted(true);
+    try {
+      setPastOrders(JSON.parse(localStorage.getItem("pastOrders") || "[]"));
+    } catch (e) {
+      console.warn("Could not parse pastOrders", e);
+    }
 
     // Safety check: Validate items against products.json
     try {
@@ -112,6 +118,15 @@ export default function CartPage() {
   const grandTotal = total - discountAmount + shipping;
 
   if (!mounted) return <div className="min-h-[60vh] bg-[#FAF7F2]" />;
+
+  const handleReorder = (orderItems: any[]) => {
+    orderItems.forEach(it => {
+      addToCart({ ...it, images: [it.image] }, it.qty);
+    });
+    showToast("Items added back to your cart!");
+    refresh();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="bg-[#FAF7F2] min-h-screen pb-24">
@@ -332,6 +347,56 @@ export default function CartPage() {
                 </ul>
               </div>
 
+            </div>
+          </div>
+        )}
+
+        {/* Previous Orders Section */}
+        {pastOrders.length > 0 && (
+          <div className="mt-16 border-t border-[#eadfcd] pt-12">
+            <header className="mb-8">
+              <h2 className="text-2xl font-bold text-[#2f2a26] font-serif mb-2">Previous Orders</h2>
+              <p className="text-[#6a6150] italic">Reorder your favorite pieces with ease</p>
+            </header>
+
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {pastOrders.map((order, idx) => (
+                <div key={order.id || idx} className="bg-white rounded-xl border border-[#eadfcd] p-5 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-start mb-4 border-b border-[#f3f4f6] pb-4">
+                    <div>
+                      <div className="text-xs font-medium text-[#C2410C] mb-1">{new Date(order.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                      <div className="text-sm font-semibold text-[#2f2a26]">{order.id}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-bold text-[#2f2a26]">₹{order.total}</div>
+                      <div className="text-xs font-medium text-[#0F766E] bg-[#f0fdf4] px-2 py-0.5 rounded-full inline-block mt-1">
+                        {order.status || "Processing"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 mb-5">
+                    {order.items?.map((it: any, i: number) => (
+                      <div key={i} className="flex gap-3 items-center">
+                        <div className="relative w-12 h-16 bg-[#f5f5f5] rounded overflow-hidden border border-[#f0e6d6] flex-shrink-0">
+                          <Image src={it.image || "/placeholder.png"} alt={it.title} fill className="object-cover" />
+                        </div>
+                        <div className="flex-1 text-sm overflow-hidden text-ellipsis whitespace-nowrap">
+                          <span className="font-medium text-[#2f2a26] block truncate">{it.title}</span>
+                          <span className="text-[#6a6150] text-xs">Qty: {it.qty}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button 
+                    onClick={() => handleReorder(order.items)}
+                    className="w-full btn-luxe py-2 text-sm text-center"
+                  >
+                    Reorder All Items
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         )}

@@ -8,6 +8,7 @@ import products from "@/data/products.json";
 import { calculateShipping } from "@/lib/shipping";
 import type { Product } from "@/types";
 import { useRouter } from "next/navigation";
+import OrderSuccessOverlay from "@/components/OrderSuccessOverlay";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function CheckoutPage() {
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [cart, setCart] = useState<any[]>([]);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
     setCart(getCart());
@@ -82,19 +84,32 @@ export default function CheckoutPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      console.log("Order Submitted Data:");
-      console.log({
-        ...formData,
-        cartItems: cart,
-        cartTotal: total,
+      const orderData = {
+        id: "ORD-" + Math.random().toString(36).substr(2, 9).toUpperCase(),
+        date: new Date().toISOString(),
+        items: cart,
+        total: grandTotal,
         discountAmount,
         shipping,
-        grandTotal
-      });
-      clearCart();
-      sessionStorage.setItem("triggerToast", "Order placed please continue shopping");
-      router.push("/");
+        status: "Processing"
+      };
+
+      // Save to localStorage pastOrders
+      try {
+        const pastOrders = JSON.parse(localStorage.getItem("pastOrders") || "[]");
+        pastOrders.unshift(orderData); // Add to beginning
+        localStorage.setItem("pastOrders", JSON.stringify(pastOrders));
+      } catch (err) {
+        console.error("Failed to save order", err);
+      }
+
+      setIsSuccess(true);
     }
+  };
+
+  const handleContinue = () => {
+    clearCart();
+    router.push("/");
   };
 
   // Prevent hydration mismatch on initial render
@@ -104,6 +119,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="bg-[#FAF7F2] min-h-screen pb-24">
+      {isSuccess && <OrderSuccessOverlay onContinue={handleContinue} items={cart} />}
       <div className="container mx-auto py-8 px-4">
         <h1 className="text-3xl font-bold text-[#2f2a26] font-serif mb-8 mt-4">Checkout</h1>
         
