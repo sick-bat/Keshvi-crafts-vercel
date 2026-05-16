@@ -305,11 +305,11 @@ export default function CartPage() {
                 {/* Secure Checkout Button -> Routed to Instagram */}
                 <CartEnquireButton
                   className="w-full btn-primary text-base flex items-center justify-center gap-2 text-center"
-                  label="Proceed to Checkout"
+                  label="Proceed to Checkout(via COD)"
                 />
 
                 <div className="text-center mt-3 text-[0.9rem] font-medium text-[#4b5563] flex items-center justify-center gap-1.5">
-                   💸 Cash on Delivery Available
+                  💸 Only Cash on Delivery Available for now
                 </div>
 
                 {/* Trust Icons Strip */}
@@ -389,7 +389,7 @@ export default function CartPage() {
                     ))}
                   </div>
 
-                  <button 
+                  <button
                     onClick={() => handleReorder(order.items)}
                     className="w-full btn-luxe py-2 text-sm text-center"
                   >
