@@ -15,6 +15,7 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
+    email: "",
     whatsappNumber: "",
     address: "",
     city: "",
@@ -27,6 +28,7 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [cart, setCart] = useState<any[]>([]);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     setCart(getCart());
@@ -73,6 +75,7 @@ export default function CheckoutPage() {
     const newErrors: Record<string, string> = {};
     if (!formData.fullName.trim()) newErrors.fullName = "Full Name is required";
     if (!formData.phoneNumber.trim()) newErrors.phoneNumber = "Phone Number is required";
+    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Valid Email is required";
     if (!formData.address.trim()) newErrors.address = "Address is required";
     if (!formData.city.trim()) newErrors.city = "City is required";
     if (!formData.pincode.trim()) newErrors.pincode = "Pincode is required";
@@ -81,29 +84,70 @@ export default function CheckoutPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      const orderData = {
-        id: "ORD-" + Math.random().toString(36).substr(2, 9).toUpperCase(),
-        date: new Date().toISOString(),
-        items: cart,
-        total: grandTotal,
-        discountAmount,
-        shipping,
-        status: "Processing"
-      };
+      setIsProcessing(true);
 
-      // Save to localStorage pastOrders
       try {
-        const pastOrders = JSON.parse(localStorage.getItem("pastOrders") || "[]");
-        pastOrders.unshift(orderData); // Add to beginning
-        localStorage.setItem("pastOrders", JSON.stringify(pastOrders));
-      } catch (err) {
-        console.error("Failed to save order", err);
-      }
+        const response = await fetch('/api/payu/hash', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ formData, cart, grandTotal })
+        });
 
-      setIsSuccess(true);
+        const result = await response.json();
+
+        if (result.success) {
+          const orderData = {
+            id: result.txnid,
+            date: new Date().toISOString(),
+            items: cart,
+            total: grandTotal,
+            status: "Processing"
+          };
+          try {
+            const pastOrders = JSON.parse(localStorage.getItem("pastOrders") || "[]");
+            pastOrders.unshift(orderData);
+            localStorage.setItem("pastOrders", JSON.stringify(pastOrders));
+          } catch (err) {}
+
+          const form = document.createElement("form");
+          form.setAttribute("method", "post");
+          form.setAttribute("action", result.actionUrl);
+
+          const payuFields = {
+            key: result.key,
+            txnid: result.txnid,
+            amount: result.amount,
+            productinfo: result.productInfo,
+            firstname: result.firstName,
+            email: result.email,
+            phone: formData.phoneNumber,
+            surl: result.surl,
+            furl: result.furl,
+            hash: result.hash
+          };
+
+          for (const [k, v] of Object.entries(payuFields)) {
+            const hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", k);
+            hiddenField.setAttribute("value", v as string);
+            form.appendChild(hiddenField);
+          }
+
+          document.body.appendChild(form);
+          form.submit();
+        } else {
+          alert('Failed to initiate payment. Please try again.');
+          setIsProcessing(false);
+        }
+      } catch (error) {
+        console.error(error);
+        alert('An error occurred. Please try again.');
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -157,6 +201,19 @@ export default function CheckoutPage() {
                   />
                   {errors.phoneNumber && <p className="text-red-500 text-xs">{errors.phoneNumber}</p>}
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-[#2f2a26]">Email Address *</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="jane@example.com"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow ${errors.email ? 'border-red-500' : 'border-[#eadfcd]'}`}
+                />
+                {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
               </div>
 
               <div className="space-y-2">
@@ -253,9 +310,10 @@ export default function CheckoutPage() {
               <div className="pt-4 border-t border-[#eadfcd]">
                 <button 
                   type="submit" 
-                  className="w-full btn-primary py-3 px-6 rounded-lg text-lg font-medium text-center"
+                  disabled={isProcessing}
+                  className="w-full btn-primary py-3 px-6 rounded-lg text-lg font-medium text-center disabled:opacity-70"
                 >
-                  Place Order (₹{grandTotal})
+                  {isProcessing ? 'Processing...' : `Place Order (₹${grandTotal})`}
                 </button>
               </div>
               

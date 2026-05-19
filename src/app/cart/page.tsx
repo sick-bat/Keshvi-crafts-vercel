@@ -302,14 +302,14 @@ export default function CartPage() {
                   <span className="font-bold text-2xl text-[#C2410C]">₹{grandTotal}</span>
                 </div>
 
-                {/* Secure Checkout Button -> Routed to Instagram */}
+                {/* Secure Checkout Button -> Routed to checkout */}
                 <CartEnquireButton
                   className="w-full btn-primary text-base flex items-center justify-center gap-2 text-center"
-                  label="Proceed to Checkout(via COD)"
+                  label="Secure Checkout"
                 />
 
                 <div className="text-center mt-3 text-[0.9rem] font-medium text-[#4b5563] flex items-center justify-center gap-1.5">
-                  💸 Only Cash on Delivery Available for now
+                  🔒 Payments securely processed by PayU
                 </div>
 
                 {/* Trust Icons Strip */}
