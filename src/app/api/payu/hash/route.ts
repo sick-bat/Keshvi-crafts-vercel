@@ -1,3 +1,5 @@
+// THis has been created for PayU
+
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
@@ -46,8 +48,8 @@ export async function POST(req: Request) {
     const amount = grandTotal.toFixed(2); // PayU expects exact decimal string format for hash like "100.00"
     const productInfo = "Order"; // Simplify productInfo to avoid space-related issues
     const firstName = formData.fullName.split(' ')[0] || 'Customer';
-    const email = formData.email || 'customer@example.com'; 
-    
+    const email = formData.email || 'customer@example.com';
+
     // Hash sequence: key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5||||||salt
     // Using array join to guarantee exactly 11 pipes after email.
     const hashParts = [
