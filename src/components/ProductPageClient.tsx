@@ -7,9 +7,10 @@ import VariantSelector from "@/components/VariantSelector";
 import ProductCard from "@/components/ProductCard";
 import Link from "next/link";
 import type { Product, ProductVariant } from "@/types";
-import { trackEvent } from "@/lib/analytics";
+import { trackEvent, trackViewItem } from "@/lib/analytics";
 import { toggleWishlist } from "@/lib/bags";
 import { useEffect } from "react";
+import JsonLd from "@/components/JsonLd";
 
 export default function ProductPageClient({
   product,
@@ -23,6 +24,11 @@ export default function ProductPageClient({
   );
 
   const [hearted, setHearted] = useState(false);
+
+  // Track product view for GA4 E-commerce
+  useEffect(() => {
+    trackViewItem(product);
+  }, [product]);
 
   // Initialize wishlist state
   useEffect(() => {
@@ -121,7 +127,7 @@ export default function ProductPageClient({
 
             {(typeof currentStock === "number" && product.type !== "custom-order") && (
               <span className="meta" style={{ marginLeft: 12, fontSize: "0.9rem", fontWeight: 400 }}>
-                {inStock ? `${currentStock} in stock` : "Out of stock"}
+                {inStock ? "Available to order" : "Out of stock"}
               </span>
             )}
           </div>
@@ -243,7 +249,7 @@ export default function ProductPageClient({
             textAlign: "center"
           }}>
             <span className="meta">
-              {product.type === "custom-order" ? "🔒 Secure payment via UPI/Bank Transfer" : "🔒 Secure payments via Razorpay"}
+              {product.type === "custom-order" ? "Secure payment via UPI/Bank Transfer." : "Secure payments via PayU. We never store card or UPI details."}
             </span>
           </div>
 
@@ -311,6 +317,20 @@ export default function ProductPageClient({
 
               {product.seoContent.faqs && product.seoContent.faqs.length > 0 && (
                 <>
+                  <JsonLd
+                    data={{
+                      "@context": "https://schema.org",
+                      "@type": "FAQPage",
+                      "mainEntity": product.seoContent.faqs.map((faq) => ({
+                        "@type": "Question",
+                        "name": faq.q,
+                        "acceptedAnswer": {
+                          "@type": "Answer",
+                          "text": faq.a
+                        }
+                      }))
+                    }}
+                  />
                   <h3 style={{ fontSize: "1.3rem", fontWeight: 600, marginBottom: "1rem", color: "var(--brand)" }}>Frequently Asked Questions</h3>
                   <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                     {product.seoContent.faqs.map((faq, i) => (
@@ -341,4 +361,3 @@ export default function ProductPageClient({
     </>
   );
 }
-

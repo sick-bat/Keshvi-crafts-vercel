@@ -25,6 +25,10 @@ model Order {
   payuTransactionId     String? @unique 
   payuStatus            String?
 
+  refundStatus          String?  // null -> "REQUESTED" -> "SUCCESS" / "FAILED"
+  refundAmount          Int?     // in paise
+  disputeStatus         String?  // null -> "OPEN" -> "RESOLVED"
+
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   
@@ -40,4 +44,19 @@ model OrderItem {
   priceAtPurchasePaise  Int
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model PaymentEvent {
+  id           String   @id @default(cuid())
+  eventType    String   // "payment" | "refund" | "dispute"
+  txnId        String   // merchantTransactionId / merchantTxnId / txn_id
+  mihpayid     String?  // PayU's payment ID
+  status       String   // "success" | "failure" | "pending"
+  amount       String?  // Amount as string (PayU sends it this way)
+  source       String   // "webhook" | "redirect"
+  rawPayload   String   // Full payload as JSON for audit trail
+  processedAt  DateTime @default(now())
+
+  @@index([txnId])
+  @@index([mihpayid])
 }

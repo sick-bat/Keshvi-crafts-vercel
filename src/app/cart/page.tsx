@@ -11,11 +11,13 @@ import { showToast } from "@/components/Toast";
 import PriceProgressBar from "@/components/PriceProgressBar";
 import CartEnquireButton from "@/components/CartEnquireButton";
 import type { Product } from "@/types";
+import { trackViewCart } from "@/lib/analytics";
 
 export default function CartPage() {
   const [items, setItems] = useState(getCart());
   const [mounted, setMounted] = useState(false);
   const [pastOrders, setPastOrders] = useState<any[]>([]);
+  const [tracked, setTracked] = useState(false);
 
   const refresh = () => setItems(getCart());
 
@@ -117,6 +119,13 @@ export default function CartPage() {
   const shipping = calculateShipping(enrichedItems, total);
   const grandTotal = total - discountAmount + shipping;
 
+  useEffect(() => {
+    if (mounted && !tracked && items.length > 0) {
+      trackViewCart(items, total);
+      setTracked(true);
+    }
+  }, [mounted, tracked, items, total]);
+
   if (!mounted) return <div className="min-h-[60vh] bg-[#FAF7F2]" />;
 
   const handleReorder = (orderItems: any[]) => {
@@ -130,9 +139,6 @@ export default function CartPage() {
 
   return (
     <div className="bg-[#FAF7F2] min-h-screen pb-24">
-      {/* NO INDEX */}
-      <meta name="robots" content="noindex" />
-
       <div className="container py-8">
         {/* 1. Header */}
         <header className="mb-8 text-center md:text-left">
@@ -148,9 +154,11 @@ export default function CartPage() {
           <div className="text-center py-16 bg-white rounded-2xl border border-[#eadfcd]">
             <div className="mb-4 text-4xl">🧶</div>
             <h2 className="text-xl font-semibold mb-2 text-[#2f2a26]">Your cart is empty</h2>
-            <p className="text-[#6a6150] mb-6">Looks like you haven&apos;t found your perfect piece yet.</p>
+            <p className="text-[#6a6150] mb-6">
+              Your cart is waiting for something handmade. Explore best sellers, gifts under ₹499, and made-to-order crochet pieces.
+            </p>
             <Link href="/collections" className="btn-primary inline-flex px-8 py-3">
-              Browse Collections
+              Browse Best Sellers
             </Link>
           </div>
         ) : (

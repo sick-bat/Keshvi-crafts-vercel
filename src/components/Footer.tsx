@@ -1,8 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  // Hide on checkout pages (distraction-free checkout)
+  if (pathname?.startsWith("/checkout")) return null;
+
   return (
     <footer className="site-footer">
       <div className="footer-inner">

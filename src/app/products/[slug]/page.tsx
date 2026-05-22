@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Product } from "@/types";
 
 type P = any;
+type RouteParams = Promise<{ slug: string }>;
 
 // Required for output:'export' on a dynamic route
 import { Metadata } from "next";
@@ -19,8 +20,9 @@ export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
     .map((p) => ({ slug: String(p.slug) }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const slug = decodeURIComponent(params.slug);
+export async function generateMetadata({ params }: { params: RouteParams }): Promise<Metadata> {
+  const { slug: rawSlug } = await params;
+  const slug = decodeURIComponent(rawSlug);
   const p: P | undefined = (products as P[]).find((x) => x.slug === slug);
 
   if (!p) {
@@ -39,16 +41,17 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       title,
       description,
       images: p.images && p.images.length > 0 ? [{ url: p.images[0] }] : [],
-      url: `https://keshvicrafts.in/products/${p.slug}`,
+      url: `https://www.keshvicrafts.in/products/${p.slug}`,
     },
     alternates: {
-      canonical: `https://keshvicrafts.in/products/${p.slug}`,
+      canonical: `https://www.keshvicrafts.in/products/${p.slug}`,
     }
   };
 }
 
-export default function ProductPage({ params }: { params: { slug: string } }) {
-  const slug = decodeURIComponent(params.slug);
+export default async function ProductPage({ params }: { params: RouteParams }) {
+  const { slug: rawSlug } = await params;
+  const slug = decodeURIComponent(rawSlug);
   const p: P | undefined = (products as P[]).find((x) => x.slug === slug);
   if (!p) notFound();
 
@@ -62,7 +65,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
     "@context": "https://schema.org/",
     "@type": "Product",
     "name": p.title,
-    "image": p.images && p.images.length > 0 ? p.images.map((img: string) => `https://keshvicrafts.in${img}`) : [],
+    "image": p.images && p.images.length > 0 ? p.images.map((img: string) => `https://www.keshvicrafts.in${img}`) : [],
     "description": p.description,
     "sku": p.slug,
     "brand": {
@@ -71,7 +74,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
     },
     "offers": {
       "@type": "Offer",
-      "url": `https://keshvicrafts.in/products/${p.slug}`,
+      "url": `https://www.keshvicrafts.in/products/${p.slug}`,
       "priceCurrency": "INR",
       "price": p.minPrice || p.price,
       "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
@@ -87,19 +90,19 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://keshvicrafts.in"
+        "item": "https://www.keshvicrafts.in"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": p.category || "Products",
-        "item": `https://keshvicrafts.in/collections?category=${encodeURIComponent(p.category || "")}`
+        "item": `https://www.keshvicrafts.in/collections?category=${encodeURIComponent(p.category || "")}`
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": p.title,
-        "item": `https://keshvicrafts.in/products/${p.slug}`
+        "item": `https://www.keshvicrafts.in/products/${p.slug}`
       }
     ]
   };

@@ -9,9 +9,16 @@ import "./Navbar.css";
 export default function BootstrapNavbar() {
   const pathname = usePathname();
 
+  // Hide navbar on checkout pages (distraction-free checkout)
+  if (pathname?.startsWith("/checkout")) return null;
+
   const isActive = (href: string): boolean =>
     href === "/" ? pathname === "/" : pathname?.startsWith(href) ?? false;
 
+
+  const handleCartClick = () => {
+    window.dispatchEvent(new CustomEvent("cart:drawer-open"));
+  };
 
   return (
     <nav className="keshvi-nav">
@@ -75,8 +82,13 @@ export default function BootstrapNavbar() {
             <span className="nav-label">Wishlist</span>
           </Link>
 
-          {/* === Cart with badge === */}
-          <Link href="/cart" className={`nav-item cart ${isActive("/cart") ? "active" : ""}`} title="Cart">
+          {/* === Cart: opens drawer instead of navigating === */}
+          <button
+            className={`nav-item cart ${isActive("/cart") ? "active" : ""}`}
+            title="Cart"
+            onClick={handleCartClick}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+          >
             <div className="cart-wrapper">
               <Image
                 src="/uploads/hero/cart.png"
@@ -89,7 +101,7 @@ export default function BootstrapNavbar() {
               <CartBadge />
             </div>
             <span className="nav-label">Cart</span>
-          </Link>
+          </button>
         </div>
       </div>
     </nav>

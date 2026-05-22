@@ -3,15 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { getCart, clearCart } from "@/lib/bags";
+import { getCart } from "@/lib/bags";
 import products from "@/data/products.json";
 import { calculateShipping } from "@/lib/shipping";
 import type { Product } from "@/types";
-import { useRouter } from "next/navigation";
-import OrderSuccessOverlay from "@/components/OrderSuccessOverlay";
+import "./checkout.css";
+import { trackBeginCheckout } from "@/lib/analytics";
 
 export default function CheckoutPage() {
-  const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
@@ -19,20 +18,31 @@ export default function CheckoutPage() {
     whatsappNumber: "",
     address: "",
     city: "",
+    state: "",
     pincode: "",
     instagram: "",
     orderNote: "",
-    whatsappUpdates: true,
+    whatsappUpdates: false,
+    billingSameAsShipping: true,
+    acceptedPolicies: false,
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [cart, setCart] = useState<any[]>([]);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [tracked, setTracked] = useState(false);
 
   useEffect(() => {
-    setCart(getCart());
-  }, []);
+    const loadedCart = getCart();
+    setCart(loadedCart);
+    setMounted(true);
+    if (loadedCart.length > 0 && !tracked) {
+      const initialTotal = loadedCart.reduce((acc, item) => acc + item.price * item.qty, 0);
+      trackBeginCheckout(loadedCart, initialTotal);
+      setTracked(true);
+    }
+  }, [tracked]);
 
   const total = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
 
@@ -57,28 +67,37 @@ export default function CheckoutPage() {
   const shipping = calculateShipping(enrichedItems, total);
   const grandTotal = total - discountAmount + shipping;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: type === 'checkbox' ? checked : value
     });
     // Clear error on change
-    if (errors[e.target.name]) {
+    if (errors[name]) {
       setErrors({
         ...errors,
-        [e.target.name]: ""
+        [name]: ""
       });
     }
   };
 
-  const validate = () => {
+  const validate = (form?: HTMLFormElement) => {
     const newErrors: Record<string, string> = {};
+    const acceptedPolicies = form
+      ? Boolean((new FormData(form).get("acceptedPolicies")))
+      : formData.acceptedPolicies;
+
     if (!formData.fullName.trim()) newErrors.fullName = "Full Name is required";
-    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = "Phone Number is required";
+    if (!/^[6-9]\d{9}$/.test(formData.phoneNumber.replace(/\D/g, ""))) newErrors.phoneNumber = "Valid Indian phone number is required";
     if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Valid Email is required";
     if (!formData.address.trim()) newErrors.address = "Address is required";
     if (!formData.city.trim()) newErrors.city = "City is required";
-    if (!formData.pincode.trim()) newErrors.pincode = "Pincode is required";
+    if (!formData.state.trim()) newErrors.state = "State is required";
+    if (!/^\d{6}$/.test(formData.pincode.trim())) newErrors.pincode = "Valid 6-digit PIN code is required";
+    if (!acceptedPolicies) newErrors.acceptedPolicies = "Please accept the store policies";
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -86,7 +105,12 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
+    if (isProcessing) return;
+
+    if (!validate(e.currentTarget as HTMLFormElement)) {
+      return;
+    }
+
       setIsProcessing(true);
 
       try {
@@ -123,7 +147,17 @@ export default function CheckoutPage() {
             productinfo: result.productInfo,
             firstname: result.firstName,
             email: result.email,
-            phone: formData.phoneNumber,
+            phone: result.phone,
+            udf1: result.udf?.udf1 || "",
+            udf2: result.udf?.udf2 || "",
+            udf3: result.udf?.udf3 || "",
+            udf4: result.udf?.udf4 || "",
+            udf5: result.udf?.udf5 || "",
+            udf6: result.udf?.udf6 || "",
+            udf7: result.udf?.udf7 || "",
+            udf8: result.udf?.udf8 || "",
+            udf9: result.udf?.udf9 || "",
+            udf10: result.udf?.udf10 || "",
             surl: result.surl,
             furl: result.furl,
             hash: result.hash
@@ -148,251 +182,331 @@ export default function CheckoutPage() {
         alert('An error occurred. Please try again.');
         setIsProcessing(false);
       }
-    }
   };
 
-  const handleContinue = () => {
-    clearCart();
-    router.push("/");
-  };
+  if (!mounted) {
+      return <div className="checkout-page" />;
+  }
 
-  // Prevent hydration mismatch on initial render
-  if (cart.length === 0 && typeof window === 'undefined') {
-      return <div className="bg-[#FAF7F2] min-h-screen pb-24 border-t border-transparent" />;
+  if (cart.length === 0) {
+    return (
+      <div className="checkout-page">
+        <header className="checkout-logo-header">
+          <Link href="/">
+            <Image src="/uploads/hero/logo.png" alt="Keshvi Crafts" width={80} height={80} />
+          </Link>
+        </header>
+        <div className="checkout-empty">
+          <h2>Your cart is empty</h2>
+          <p>
+            Choose a handmade gift or crochet piece first. We will keep checkout clear, secure, and ready when you return.
+          </p>
+          <Link href="/collections" className="checkout-submit-btn" style={{textDecoration: 'none'}}>
+            Browse Handmade Gifts
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-[#FAF7F2] min-h-screen pb-24">
-      {isSuccess && <OrderSuccessOverlay onContinue={handleContinue} items={cart} />}
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold text-[#2f2a26] font-serif mb-8 mt-4">Checkout</h1>
-        
-        <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr] items-start">
+    <div className="checkout-page">
+      {/* Centered Logo Header - Only branding */}
+      <header className="checkout-logo-header">
+        <Link href="/">
+          <Image src="/uploads/hero/logo.png" alt="Keshvi Crafts" width={80} height={80} />
+        </Link>
+      </header>
+
+      <div className="checkout-grid">
+        {/* Left Column: Form */}
+        <div className="checkout-form-card">
+          <Link href="/cart" className="checkout-back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Return to Cart
+          </Link>
+          
+          <h2 className="checkout-section-title">Shipping Details</h2>
+
+          <form onSubmit={handleSubmit} className="checkout-form-grid" noValidate>
             
-          {/* Left Column: Form */}
-          <div className="bg-white p-6 md:p-8 rounded-2xl border border-[#eadfcd] shadow-sm">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              
-              <h2 className="text-xl font-bold text-[#2f2a26] font-serif border-b border-[#eadfcd] pb-4">Shipping Details</h2>
+            <div className={`floating-field ${errors.email ? 'has-error' : ''}`}>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder=" "
+              />
+              <label htmlFor="email">Email Address *</label>
+              {errors.email && <div className="field-error">{errors.email}</div>}
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-[#2f2a26]">Full Name *</label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    placeholder="Jane Doe"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow ${errors.fullName ? 'border-red-500' : 'border-[#eadfcd]'}`}
-                  />
-                  {errors.fullName && <p className="text-red-500 text-xs">{errors.fullName}</p>}
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-[#2f2a26]">Phone Number *</label>
-                  <input
-                    type="tel"
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    placeholder="+91 9876543210"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow ${errors.phoneNumber ? 'border-red-500' : 'border-[#eadfcd]'}`}
-                  />
-                  {errors.phoneNumber && <p className="text-red-500 text-xs">{errors.phoneNumber}</p>}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-[#2f2a26]">Email Address *</label>
+            <div className="checkout-form-row">
+              <div className={`floating-field ${errors.fullName ? 'has-error' : ''}`}>
                 <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  value={formData.fullName}
                   onChange={handleChange}
-                  placeholder="jane@example.com"
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow ${errors.email ? 'border-red-500' : 'border-[#eadfcd]'}`}
+                  placeholder=" "
                 />
-                {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
+                <label htmlFor="fullName">Full Name *</label>
+                {errors.fullName && <div className="field-error">{errors.fullName}</div>}
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-[#2f2a26]">WhatsApp Number</label>
+              <div className={`floating-field ${errors.phoneNumber ? 'has-error' : ''}`}>
                 <input
                   type="tel"
-                  name="whatsappNumber"
-                  value={formData.whatsappNumber}
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
                   onChange={handleChange}
-                  placeholder="Leave blank if same as phone number"
-                  className="w-full px-4 py-2 border border-[#eadfcd] rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow"
+                  placeholder=" "
                 />
-              </div>
-
-              <div className="flex items-start gap-3 bg-[#fdfaf6] p-4 rounded-xl border border-[#eadfcd]">
-                <input
-                  type="checkbox"
-                  id="whatsappUpdates"
-                  name="whatsappUpdates"
-                  checked={formData.whatsappUpdates}
-                  onChange={(e) => setFormData({ ...formData, whatsappUpdates: e.target.checked })}
-                  className="mt-1 w-4 h-4 text-[#C2410C] border-[#eadfcd] rounded focus:ring-[#C2410C] accent-[#C2410C] cursor-pointer"
-                />
-                <label htmlFor="whatsappUpdates" className="text-sm leading-relaxed text-[#4b5563] cursor-pointer">
-                  All the order related updates will be sent on whatsapp
-                </label>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-[#2f2a26]">Address *</label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  placeholder="123 Block A, Sector 4"
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow ${errors.address ? 'border-red-500' : 'border-[#eadfcd]'}`}
-                />
-                {errors.address && <p className="text-red-500 text-xs">{errors.address}</p>}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-[#2f2a26]">City *</label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="New Delhi"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow ${errors.city ? 'border-red-500' : 'border-[#eadfcd]'}`}
-                  />
-                  {errors.city && <p className="text-red-500 text-xs">{errors.city}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-[#2f2a26]">Pincode *</label>
-                  <input
-                    type="text"
-                    name="pincode"
-                    value={formData.pincode}
-                    onChange={handleChange}
-                    placeholder="110001"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow ${errors.pincode ? 'border-red-500' : 'border-[#eadfcd]'}`}
-                  />
-                  {errors.pincode && <p className="text-red-500 text-xs">{errors.pincode}</p>}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-[#2f2a26]">Instagram Username (Optional)</label>
-                <input
-                  type="text"
-                  name="instagram"
-                  value={formData.instagram}
-                  onChange={handleChange}
-                  placeholder="@yourusername"
-                  className="w-full px-4 py-2 border border-[#eadfcd] rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-[#2f2a26]">Order Note (Optional)</label>
-                <textarea
-                  name="orderNote"
-                  value={formData.orderNote}
-                  onChange={handleChange}
-                  placeholder="Any special requests or details..."
-                  rows={4}
-                  className="w-full px-4 py-2 border border-[#eadfcd] rounded-lg focus:ring-2 focus:ring-[#C2410C] focus:border-transparent outline-none transition-shadow resize-none"
-                ></textarea>
-              </div>
-
-              <div className="pt-4 border-t border-[#eadfcd]">
-                <button 
-                  type="submit" 
-                  disabled={isProcessing}
-                  className="w-full btn-primary py-3 px-6 rounded-lg text-lg font-medium text-center disabled:opacity-70"
-                >
-                  {isProcessing ? 'Processing...' : `Place Order (₹${grandTotal})`}
-                </button>
-              </div>
-              
-            </form>
-          </div>
-
-          {/* Right Column: Order Summary */}
-          <div className="space-y-6">
-            <div className="bg-white p-6 rounded-2xl border border-[#eadfcd] shadow-sm sticky top-24">
-              <h3 className="font-serif text-xl font-bold text-[#2f2a26] mb-4">Order Summary</h3>
-
-              {/* Items List */}
-              <div className="space-y-4 mb-6">
-                {cart.map((it) => (
-                  <div key={it.slug} className="flex gap-4">
-                    <div className="relative w-16 h-16 bg-[#f5f5f5] rounded-md border border-[#f0e6d6] flex-shrink-0 overflow-hidden">
-                      <Image 
-                        src={it.image || "/placeholder.png"} 
-                        fill 
-                        alt={it.title} 
-                        className="object-cover" 
-                      />
-                    </div>
-                    <div className="flex-1 text-sm flex flex-col justify-center">
-                      <span className="text-[#2f2a26] font-medium leading-snug block mb-1">{it.title}</span>
-                      <span className="text-[#6a6150]">Qty: {it.qty}</span>
-                    </div>
-                    <div className="text-sm font-medium text-[#2f2a26] flex items-center">
-                      ₹{it.price * it.qty}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Totals */}
-              <div className="space-y-3 text-sm text-[#4b5563] mb-4 border-t border-[#f3f4f6] pt-4">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span className="font-medium text-[#2f2a26]">₹{total}</span>
-                </div>
-                {discountAmount > 0 && (
-                  <div className="flex justify-between text-[#C2410C]">
-                    <span>Discount ({discountPercent}%)</span>
-                    <span>-₹{discountAmount}</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span>Shipping</span>
-                  <span className="text-[#0F766E]">{shipping === 0 ? "Free" : `₹${shipping}`}</span>
-                </div>
-              </div>
-
-              <div className="h-px bg-[#e5e7eb] my-4" />
-
-              <div className="flex justify-between items-end">
-                <span className="font-semibold text-lg text-[#2f2a26]">Total</span>
-                <span className="font-bold text-2xl text-[#C2410C]">₹{grandTotal}</span>
+                <label htmlFor="phoneNumber">Phone Number *</label>
+                {errors.phoneNumber && <div className="field-error">{errors.phoneNumber}</div>}
               </div>
             </div>
 
-            {/* Emotional Reinforcement Block from Cart */}
-            <div className="bg-[#fffbeb] p-5 rounded-xl border border-[#fef3c7]">
-              <h4 className="font-serif font-bold text-[#92400e] mb-2 flex items-center gap-2">
-                <span>💝</span> Why your order is special
+            <div className="floating-field">
+              <input
+                type="tel"
+                id="whatsappNumber"
+                name="whatsappNumber"
+                value={formData.whatsappNumber}
+                onChange={handleChange}
+                placeholder=" "
+              />
+              <label htmlFor="whatsappNumber">WhatsApp Number (Optional)</label>
+            </div>
+
+            <label className="checkout-checkbox">
+              <input
+                type="checkbox"
+                name="whatsappUpdates"
+                checked={formData.whatsappUpdates}
+                onChange={handleChange}
+              />
+              <span>Send order updates and tracking information via WhatsApp</span>
+            </label>
+
+            <div className="checkout-divider" />
+
+            <div className={`floating-field ${errors.address ? 'has-error' : ''}`}>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                placeholder=" "
+              />
+              <label htmlFor="address">Street Address *</label>
+              {errors.address && <div className="field-error">{errors.address}</div>}
+            </div>
+
+            <div className="checkout-form-row">
+              <div className={`floating-field ${errors.city ? 'has-error' : ''}`}>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  placeholder=" "
+                />
+                <label htmlFor="city">City *</label>
+                {errors.city && <div className="field-error">{errors.city}</div>}
+              </div>
+
+              <div className={`floating-field ${errors.state ? 'has-error' : ''}`}>
+                <input
+                  type="text"
+                  id="state"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleChange}
+                  placeholder=" "
+                />
+                <label htmlFor="state">State *</label>
+                {errors.state && <div className="field-error">{errors.state}</div>}
+              </div>
+            </div>
+
+            <div className="checkout-form-row">
+              <div className={`floating-field ${errors.pincode ? 'has-error' : ''}`}>
+                <input
+                  type="text"
+                  id="pincode"
+                  name="pincode"
+                  value={formData.pincode}
+                  onChange={handleChange}
+                  placeholder=" "
+                />
+                <label htmlFor="pincode">PIN Code *</label>
+                {errors.pincode && <div className="field-error">{errors.pincode}</div>}
+              </div>
+              
+              <div className="floating-field">
+                <input
+                  type="text"
+                  id="instagram"
+                  name="instagram"
+                  value={formData.instagram}
+                  onChange={handleChange}
+                  placeholder=" "
+                />
+                <label htmlFor="instagram">Instagram Username (Optional)</label>
+              </div>
+            </div>
+
+            <div className="floating-field">
+              <textarea
+                id="orderNote"
+                name="orderNote"
+                value={formData.orderNote}
+                onChange={handleChange}
+                placeholder=" "
+              />
+              <label htmlFor="orderNote">Order Notes (Optional)</label>
+            </div>
+
+            <label className="checkout-checkbox" style={{marginTop: '0.5rem'}}>
+              <input
+                type="checkbox"
+                name="billingSameAsShipping"
+                checked={formData.billingSameAsShipping}
+                onChange={handleChange}
+              />
+              <span>Billing address is same as shipping address</span>
+            </label>
+
+            <label className="checkout-checkbox" style={{marginTop: '0.5rem'}}>
+              <input
+                type="checkbox"
+                name="acceptedPolicies"
+                checked={formData.acceptedPolicies}
+                onChange={handleChange}
+                required
+              />
+              <span>
+                I agree to the <Link href="/terms" target="_blank">Terms</Link>, <Link href="/privacy" target="_blank">Privacy Policy</Link>, and <Link href="/returns" target="_blank">Returns Policy</Link>.
+              </span>
+            </label>
+            {errors.acceptedPolicies && <div className="field-error">{errors.acceptedPolicies}</div>}
+
+            <button 
+              type="submit" 
+              disabled={isProcessing || !formData.acceptedPolicies}
+              className="checkout-submit-btn"
+            >
+              {isProcessing ? (
+                <>
+                  <span className="checkout-spinner"></span>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  Proceed to Payment
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                </>
+              )}
+            </button>
+            <div className="checkout-secure-note">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              256-bit secure encryption
+            </div>
+            
+          </form>
+        </div>
+
+        {/* Right Column: Order Summary */}
+        <div className="checkout-summary">
+          <div className="checkout-summary-card">
+            <h3 className="checkout-summary-title">Order Summary</h3>
+
+            {/* Items List */}
+            <div className="checkout-summary-items">
+              {cart.map((it) => (
+                <div key={it.slug} className="checkout-summary-item">
+                  <div className="checkout-summary-item-image">
+                    <Image 
+                      src={it.image || "/placeholder.png"} 
+                      fill 
+                      alt={it.title} 
+                      sizes="52px"
+                    />
+                  </div>
+                  <div className="checkout-summary-item-info">
+                    <span className="checkout-summary-item-name">{it.title}</span>
+                    <span className="checkout-summary-item-qty">Qty: {it.qty}</span>
+                  </div>
+                  <div className="checkout-summary-item-price">
+                    ₹{it.price * it.qty}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Totals */}
+            <div className="checkout-summary-totals">
+              <div className="checkout-summary-row">
+                <span>Subtotal</span>
+                <span>₹{total}</span>
+              </div>
+              
+              {discountAmount > 0 && (
+                <div className="checkout-summary-row discount">
+                  <span>Discount ({discountPercent}%)</span>
+                  <span>-₹{discountAmount}</span>
+                </div>
+              )}
+              
+              <div className="checkout-summary-row shipping">
+                <span>Shipping</span>
+                <span>{shipping === 0 ? "Free" : `₹${shipping}`}</span>
+              </div>
+            </div>
+
+            <div className="checkout-summary-divider" />
+
+            <div className="checkout-summary-total">
+              <span className="checkout-summary-total-label">Total</span>
+              <span className="checkout-summary-total-value">₹{grandTotal}</span>
+            </div>
+            
+            <div className="checkout-emotional-block">
+              <h4>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                Why your order is special
               </h4>
-              <ul className="text-sm space-y-2 text-[#b45309]">
-                <li className="flex gap-2">
-                  <span className="mt-0.5">•</span>
+              <ul>
+                <li>
+                  <span style={{flexShrink:0}}>•</span>
                   <span><strong>Handmade for you:</strong> Not mass produced in a factory.</span>
                 </li>
-                <li className="flex gap-2">
-                  <span className="mt-0.5">•</span>
+                <li>
+                  <span style={{flexShrink:0}}>•</span>
                   <span><strong>Crafted with care:</strong> Every stitch is intentional.</span>
                 </li>
               </ul>
             </div>
+            
           </div>
-          
         </div>
+        
       </div>
     </div>
   );

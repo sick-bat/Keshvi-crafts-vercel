@@ -16,8 +16,9 @@ export async function generateStaticParams() {
     ];
 }
 
-export default function CategoryCollectionsPage({ params }: { params: { slug: string } }) {
-    const categoryName = SLUG_TO_CATEGORY[params.slug];
+export default async function CategoryCollectionsPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const categoryName = SLUG_TO_CATEGORY[slug];
     if (!categoryName) {
         notFound();
     }

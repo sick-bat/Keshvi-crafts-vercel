@@ -30,7 +30,7 @@ export default function WishlistPage() {
   if (!mounted) {
     return (
       <div className="container py-4">
-        <h1>Wishlist</h1>
+        <h1 className="font-serif text-3xl font-bold text-[#2f2a26]">Wishlist</h1>
         <p className="mt-3">Loading...</p>
       </div>
     );
@@ -38,10 +38,18 @@ export default function WishlistPage() {
 
   return (
     <div className="container py-4">
-      <h1>Wishlist</h1>
+      <h1 className="font-serif text-3xl font-bold text-[#2f2a26]">Wishlist</h1>
 
       {items.length === 0 ? (
-        <p className="mt-3">Nothing saved yet. <Link href="/" className="btn-outline">Browse products</Link></p>
+        <div className="mt-4 rounded-xl border border-[#eadfcd] bg-white p-8 text-center">
+          <h2 className="font-serif text-2xl font-semibold text-[#2f2a26]">Save handmade pieces you love</h2>
+          <p className="mx-auto mt-2 max-w-xl text-[#6a6150]">
+            Keep your favorite crochet gifts, decor, and accessories here while you decide.
+          </p>
+          <Link href="/collections" className="btn-primary mt-6 inline-flex px-8 py-3">
+            Explore Collections
+          </Link>
+        </div>
       ) : (
         <div className="plp-grid mt-4">
           {items.map((it) => {

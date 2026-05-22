@@ -2,62 +2,66 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy - Keshvi Crafts',
-  description: 'How we collect, use, and protect your personal information.',
+  description: 'How Keshvi Crafts collects, uses, stores, and protects customer information.',
 };
 
 export default function PrivacyPage() {
   return (
     <main className="container py-12 max-w-3xl mx-auto prose">
       <h1 className="font-serif text-3xl font-bold mb-6">Privacy Policy</h1>
-      <p className="text-stone-500 mb-8 italic">Last updated: {new Date().toLocaleDateString()}</p>
+      <p className="text-stone-500 mb-8 italic">Last updated: May 22, 2026</p>
 
       <h3>1. Information We Collect</h3>
       <p>
-        We collect only the information necessary to fulfill your order, such as your name, address, email, and phone number.
-        We do not store your payment details on our servers.
+        We collect the information needed to process and deliver your order: name, phone number, email address, shipping address, city, PIN code, order notes, cart contents, payment status, and transaction identifiers from PayU.
       </p>
 
-      <h3>2. How We Use Your Data</h3>
+      <h3>2. How We Use Your Information</h3>
       <p>
-        Your data is used solely for processing your order and communicating with you regarding your purchase.
-        We do not sell or share your personal information with third parties for marketing purposes.
+        We use your information to create orders, process payments, ship products, send order updates, respond to support requests, prevent fraud, maintain records, and improve our store experience.
       </p>
 
-      <h3>3. Cookies</h3>
+      <h3>3. Payments</h3>
       <p>
-        We use cookies and similar tracking technologies to track the activity on our website and store certain information. This helps us improve your browsing experience, analyze site traffic, and understand where our visitors are coming from. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent.
+        Payments are processed by PayU. We do not store card, UPI, CVV, or netbanking credentials. We store payment identifiers such as transaction ID, PayU payment ID, amount, and payment status for order verification and support.
       </p>
 
-      <h3>4. Third-Party Services (Instagram & WhatsApp)</h3>
+      <h3>4. Cookies, Analytics, and Local Storage</h3>
       <p>
-        As a small business, we frequently use third-party platforms like Instagram for marketing and WhatsApp for customer support and order coordination. When you interact with us on these platforms, your data is also governed by their respective Privacy Policies. We do not sell or share your personal information with these third parties beyond what is necessary to fulfill your order and provide support.
+        We use essential browser storage for cart, wishlist, checkout, and consent preferences. Analytics through Google Tag Manager is loaded only after you accept analytics cookies. You can decline analytics and continue shopping.
       </p>
 
-      <h3>5. Data Security</h3>
+      <h3>5. WhatsApp, Email, and Support</h3>
       <p>
-        We take the security of your personal information seriously. We implement reasonable administrative, technical, and physical security measures to protect your data against unauthorized access, loss, or alteration. However, please remember that no method of transmission over the Internet or method of electronic storage is 100% secure.
+        If you opt in to WhatsApp updates or contact us through WhatsApp, Instagram, or email, those platforms may process your data under their own privacy policies. We use these channels only for order support, delivery coordination, and customer communication.
       </p>
 
-      <h3>6. Data Controller</h3>
+      <h3>6. Data Sharing</h3>
       <p>
-        <strong>Keshvi Crafts</strong> is the data controller for your personal information.
-        <br />
-        Contact: <a href="mailto:KESHVICRAFTS@gmail.com" className="underline">KESHVICRAFTS@gmail.com</a>
+        We share information only with service providers necessary to run the store: PayU for payments, delivery partners for shipping, email providers for order emails, analytics providers when consented, and support platforms you choose to contact us on.
       </p>
 
-      <h3>7. Payment Processing</h3>
+      <h3>7. Data Retention</h3>
       <p>
-        Payments are processed via a secure third-party gateway (Razorpay/UPI). We do not store or have access to your credit/debit card information.
+        We retain order and payment records as needed for delivery, accounting, legal compliance, dispute handling, and customer support. We avoid storing full payment payloads where not required and redact sensitive gateway fields in logs where possible.
       </p>
 
-      <div className="mt-12 pt-8 border-t border-stone-200 text-sm">
-        <h3 className="font-bold text-stone-800 mb-2">Business Information</h3>
-        <p className="text-stone-600">
-          <strong>Keshvi Crafts</strong><br />
-          Email: KESHVICRAFTS@gmail.com<br />
-          Phone: +91 7507996961
-        </p>
-      </div>
+      <h3>8. Your Choices and Rights</h3>
+      <p>
+        You may contact us to request access, correction, or deletion of your personal information, subject to legal, accounting, fraud-prevention, and order-fulfillment requirements. You can also decline analytics cookies from the cookie banner.
+      </p>
+
+      <h3>9. Security</h3>
+      <p>
+        We use reasonable technical and organizational safeguards, including secure payment processing, server-side payment verification, and access-limited operational systems. No internet system is 100% secure, but we work to reduce unnecessary data exposure.
+      </p>
+
+      <h3>10. Contact</h3>
+      <p>
+        <strong>Keshvi Crafts</strong><br />
+        Email: <a href="mailto:KESHVICRAFTS@gmail.com" className="underline">KESHVICRAFTS@gmail.com</a><br />
+        Phone: +91 7507996961
+      </p>
     </main>
   );
 }

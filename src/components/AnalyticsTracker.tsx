@@ -28,31 +28,39 @@ export default function AnalyticsTracker() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pathname]); // Depend on pathname to reset on navigation
 
-    // Track Scroll Depth
+    // Track Scroll Depth with throttle
     useEffect(() => {
+        let ticking = false;
+
         const handleScroll = () => {
-            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const scrollTop = window.scrollY;
-            const scrollPercentage = (scrollTop / scrollHeight) * 100;
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+                    const scrollTop = window.scrollY;
+                    const scrollPercentage = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
 
-            if (!scrolled50 && scrollPercentage >= 50) {
-                setScrolled50(true);
-                pushToDataLayer({
-                    event: "scroll_depth",
-                    percent: "50%"
-                });
-            }
+                    if (!scrolled50 && scrollPercentage >= 50) {
+                        setScrolled50(true);
+                        pushToDataLayer({
+                            event: "scroll_depth",
+                            percent: "50%"
+                        });
+                    }
 
-            if (!scrolled90 && scrollPercentage >= 90) {
-                setScrolled90(true);
-                pushToDataLayer({
-                    event: "scroll_depth",
-                    percent: "90%"
+                    if (!scrolled90 && scrollPercentage >= 90) {
+                        setScrolled90(true);
+                        pushToDataLayer({
+                            event: "scroll_depth",
+                            percent: "90%"
+                        });
+                    }
+                    ticking = false;
                 });
+                ticking = true;
             }
         };
 
-        window.addEventListener("scroll", handleScroll);
+        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, [scrolled50, scrolled90]);
 

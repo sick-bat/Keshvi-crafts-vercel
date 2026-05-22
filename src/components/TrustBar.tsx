@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const trustMessages = [
   "Handmade with care",
@@ -10,6 +11,7 @@ const trustMessages = [
 ];
 
 export default function TrustBar() {
+  const pathname = usePathname();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -19,6 +21,9 @@ export default function TrustBar() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Hide on checkout pages (distraction-free checkout)
+  if (pathname?.startsWith("/checkout")) return null;
 
   return (
     <div className="trust-bar">

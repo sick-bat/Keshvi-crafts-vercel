@@ -1,16 +1,18 @@
 import "./globals.css";
 import "./utilities.css";
-import Script from "next/script";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "@/components/CartDrawer.css";
 import BootstrapNavbar from "@/components/BootstrapNavbar";
 import TrustBar from "@/components/TrustBar";
 import Footer from "@/components/Footer";
 import Toast from "@/components/Toast";
+import CartDrawer from "@/components/CartDrawer";
 import JsonLd from "@/components/JsonLd";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
-import { GoogleTagManager } from '@next/third-parties/google';
+import ConsentManager from "@/components/ConsentManager";
 
 export const metadata = {
-  metadataBase: new URL("https://keshvicrafts.in"),
+  metadataBase: new URL("https://www.keshvicrafts.in"),
   title: {
     default: "Keshvi Crafts | Handmade Crochet, Artisanal Home Decor & luxury Gifts",
     template: "%s | Keshvi Crafts",
@@ -20,10 +22,21 @@ export const metadata = {
   openGraph: {
     title: "Keshvi Crafts | Handmade Crochet & Artisanal Decor",
     description: "Premium handmade crochet items and sustainable gifts. Crafted with love in India.",
-    url: "https://keshvi-crafts-vercel.vercel.app", // Fallback or main URL
+    url: "https://www.keshvicrafts.in",
     siteName: "Keshvi Crafts",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "https://www.keshvicrafts.in/uploads/hero/Top_brown.png",
+        width: 1200,
+        height: 630,
+        alt: "Keshvi Crafts - Handmade Crochet",
+      }
+    ],
+  },
+  alternates: {
+    canonical: "https://www.keshvicrafts.in",
   },
   robots: {
     index: true,
@@ -34,15 +47,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        {/* Bootstrap CSS */}
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        />
-      </head>
+      <head />
       <body className="bg-cream text-dark">
-        <GoogleTagManager gtmId="GTM-MFVDFHT3" />
+        <ConsentManager />
         <AnalyticsTracker />
         <TrustBar />
         <BootstrapNavbar />
@@ -53,20 +60,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Footer />
 
         <Toast />
+        <CartDrawer />
 
-        {/* Bootstrap JS */}
-        <Script
-          src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-          strategy="afterInteractive"
-        />
         <JsonLd
           data={{
             "@context": "https://schema.org",
             "@type": "LocalBusiness",
             "name": "Keshvi Crafts",
-            "image": "https://keshvicrafts.in/logo.png", // Assuming a logo exists or general image
+            "image": "https://www.keshvicrafts.in/uploads/hero/logo.png",
             "description": "Handmade crochet and artisanal home decor, crafted with care in India.",
-            "url": "https://keshvicrafts.in",
+            "url": "https://www.keshvicrafts.in",
             "telephone": "+917507996961",
             "address": {
               "@type": "PostalAddress",

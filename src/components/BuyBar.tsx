@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { useRouter } from "next/navigation";
 import { addToCart } from "@/lib/bags";
 import { trackEvent } from "@/lib/analytics";
 
@@ -10,7 +9,6 @@ export default function BuyBar({
   slug: string; title: string; price: number; image?: string;
   checkoutUrl?: string; disabled?: boolean; productSlug: string;
 }) {
-  const router = useRouter();
 
   function handleAddToCart() {
     addToCart({ slug, title, price, image: image || "/placeholder.png" }, 1);
@@ -22,15 +20,8 @@ export default function BuyBar({
       value: price,
     });
 
-    // Show subtle feedback
-    const btn = document.querySelector(`[data-cart-btn="${slug}"]`) as HTMLElement;
-    if (btn) {
-      const originalText = btn.textContent;
-      btn.textContent = "Added!";
-      setTimeout(() => {
-        if (btn) btn.textContent = originalText;
-      }, 1000);
-    }
+    // Open the Cart Drawer
+    window.dispatchEvent(new CustomEvent("cart:drawer-open"));
   }
 
   function buyNow() {
@@ -43,9 +34,8 @@ export default function BuyBar({
       value: price,
     });
 
-    setTimeout(() => {
-      router.push("/cart"); // Redirect to Cart
-    }, 100);
+    // Open the Cart Drawer for review before checkout
+    window.dispatchEvent(new CustomEvent("cart:drawer-open"));
   }
 
   return (

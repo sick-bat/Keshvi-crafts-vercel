@@ -1,23 +1,24 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import "./HeroSection.css";
 
 export default function HeroSection() {
   return (
-    <main className="hero">
+    <div className="hero">
       <section className="hero-grid">
         <div className="copy">
           <h1>
-            Comfort
+            Handmade
             <br />
-            Crafted
+            Crochet Gifts
             <br />
-            with Care
+            Crafted to Order
           </h1>
-          <p className="sub">Handmade crochet gifts & home decor, made to order across India</p>
+          <p className="sub">
+            Premium keyrings, flowers, bags, decor, and custom crochet pieces made with care in India.
+          </p>
           <Link href="/collections" className="cta">
-            Browse Collections
+            Shop Handmade Gifts
           </Link>
         </div>
 
@@ -27,6 +28,6 @@ export default function HeroSection() {
           aria-label="Model wearing handmade crochet top"
         ></div>
       </section>
-    </main>
+    </div>
   );
 }

@@ -1,0 +1,518 @@
+/* ====== Distraction-Free Checkout ====== */
+
+/* Page wrapper */
+.checkout-page {
+  min-height: 100vh;
+  background: #f5f1eb;
+  padding-bottom: 4rem;
+}
+
+/* Centered logo header */
+.checkout-logo-header {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 1rem 1rem;
+  border-bottom: 1px solid #eadfcd;
+  background: #ffffff;
+  margin-bottom: 2rem;
+}
+
+.checkout-logo-header img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+/* Two-column grid */
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 2.5rem;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+}
+
+/* Form card */
+.checkout-form-card {
+  background: #ffffff;
+  border-radius: 1.25rem;
+  border: 1px solid #eadfcd;
+  padding: 2rem 2rem 2.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+@media (max-width: 480px) {
+  .checkout-form-card {
+    padding: 1.25rem 1.15rem 1.75rem;
+    border-radius: 1rem;
+  }
+}
+
+.checkout-section-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2f2a26;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eadfcd;
+}
+
+/* Form layout */
+.checkout-form-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.checkout-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+@media (max-width: 480px) {
+  .checkout-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ====== Floating Label Input ====== */
+.floating-field {
+  position: relative;
+}
+
+.floating-field input,
+.floating-field textarea,
+.floating-field select {
+  width: 100%;
+  padding: 1.1rem 1rem 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #2f2a26;
+  background: #fdfaf6;
+  border: 1.5px solid #e2d9c8;
+  border-radius: 10px;
+  outline: none;
+  transition: all 300ms ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.floating-field textarea {
+  resize: none;
+  min-height: 80px;
+  padding-top: 1.4rem;
+}
+
+.floating-field select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236a6150' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+.floating-field label {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #9a917f;
+  pointer-events: none;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: left top;
+  background: transparent;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+/* Textarea label positioning */
+.floating-field textarea + label {
+  top: 1.1rem;
+  transform: none;
+}
+
+/* Float the label when focused or has value */
+.floating-field input:focus + label,
+.floating-field input:not(:placeholder-shown) + label,
+.floating-field textarea:focus + label,
+.floating-field textarea:not(:placeholder-shown) + label,
+.floating-field select:focus + label,
+.floating-field select:not([value=""]) + label,
+.floating-field select.has-value + label {
+  top: 0.45rem;
+  transform: translateY(0) scale(0.78);
+  color: #a0401b;
+  font-weight: 600;
+}
+
+/* Focus ring */
+.floating-field input:focus,
+.floating-field textarea:focus,
+.floating-field select:focus {
+  border-color: #a0401b;
+  box-shadow: 0 0 0 3px rgba(160, 64, 27, 0.1);
+  background: #ffffff;
+}
+
+/* Error state */
+.floating-field.has-error input,
+.floating-field.has-error textarea,
+.floating-field.has-error select {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.floating-field.has-error label {
+  color: #ef4444 !important;
+}
+
+.field-error {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 0.3rem;
+  font-weight: 500;
+  padding-left: 0.25rem;
+}
+
+/* Checkbox group */
+.checkout-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.15rem;
+  background: #fdfaf6;
+  border-radius: 10px;
+  border: 1px solid #eadfcd;
+  cursor: pointer;
+  transition: border-color 200ms ease;
+}
+
+.checkout-checkbox:hover {
+  border-color: #d4c5a9;
+}
+
+.checkout-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  accent-color: #a0401b;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.checkout-checkbox span {
+  font-size: 0.88rem;
+  color: #4b5563;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* Divider */
+.checkout-divider {
+  height: 1px;
+  background: #eadfcd;
+  margin: 0.5rem 0;
+}
+
+/* Submit button */
+.checkout-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 1rem 2rem;
+  margin-top: 0.5rem;
+  background: #a0401b;
+  color: #faf9f7;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 200ms ease;
+  letter-spacing: 0.3px;
+}
+
+.checkout-submit-btn:hover:not(:disabled) {
+  background: #8b3517;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(160, 64, 27, 0.25);
+}
+
+.checkout-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.checkout-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.checkout-submit-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ====== Order Summary Sidebar ====== */
+.checkout-summary {
+  position: sticky;
+  top: 1.5rem;
+}
+
+.checkout-summary-card {
+  background: #faf7f2;
+  border-radius: 1.25rem;
+  border: 1px solid #eadfcd;
+  padding: 1.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+@media (max-width: 480px) {
+  .checkout-summary-card {
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+}
+
+.checkout-summary-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #2f2a26;
+  margin: 0 0 1.25rem 0;
+}
+
+/* Summary items */
+.checkout-summary-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #e8dece;
+}
+
+.checkout-summary-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.checkout-summary-item-image {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f0ebe3;
+  border: 1px solid #e8dece;
+  flex-shrink: 0;
+}
+
+.checkout-summary-item-image img {
+  object-fit: cover;
+}
+
+.checkout-summary-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.checkout-summary-item-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2f2a26;
+  line-height: 1.3;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.checkout-summary-item-qty {
+  font-size: 0.75rem;
+  color: #6a6150;
+}
+
+.checkout-summary-item-price {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #2f2a26;
+  flex-shrink: 0;
+}
+
+/* Summary totals */
+.checkout-summary-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.checkout-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: #6a6150;
+}
+
+.checkout-summary-row span:last-child {
+  font-weight: 600;
+  color: #2f2a26;
+}
+
+.checkout-summary-row.discount {
+  color: #a0401b;
+}
+
+.checkout-summary-row.discount span:last-child {
+  color: #a0401b;
+}
+
+.checkout-summary-row.shipping span:last-child {
+  color: #0F766E;
+  font-weight: 600;
+}
+
+.checkout-summary-divider {
+  height: 1px;
+  background: #e2d9c8;
+  margin: 0.5rem 0;
+}
+
+.checkout-summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.checkout-summary-total-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2f2a26;
+}
+
+.checkout-summary-total-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #a0401b;
+}
+
+/* Emotional block */
+.checkout-emotional-block {
+  background: #fffbeb;
+  padding: 1.25rem;
+  border-radius: 0.85rem;
+  border: 1px solid #fef3c7;
+  margin-top: 1rem;
+}
+
+.checkout-emotional-block h4 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.checkout-emotional-block li {
+  font-size: 0.82rem;
+  color: #b45309;
+  display: flex;
+  gap: 0.4rem;
+  line-height: 1.5;
+}
+
+.checkout-emotional-block ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* Processing spinner */
+@keyframes checkout-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.checkout-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: checkout-spin 0.7s linear infinite;
+}
+
+/* Secure note */
+.checkout-secure-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.75rem;
+  font-weight: 500;
+}
+
+/* Back to cart link */
+.checkout-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #6a6150;
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  transition: color 200ms ease;
+  font-weight: 500;
+}
+
+.checkout-back-link:hover {
+  color: #a0401b;
+}
+
+/* Empty cart state */
+.checkout-empty {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.checkout-empty h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2f2a26;
+  margin: 0 0 0.5rem;
+}
+
+.checkout-empty p {
+  font-size: 0.95rem;
+  color: #6a6150;
+  margin: 0 0 1.5rem;
+}
