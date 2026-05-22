@@ -267,6 +267,18 @@
   height: 18px;
 }
 
+.checkout-payment-error {
+  padding: 0.85rem 1rem;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: center;
+}
+
 /* ====== Order Summary Sidebar ====== */
 .checkout-summary {
   position: sticky;

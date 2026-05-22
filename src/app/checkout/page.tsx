@@ -31,6 +31,7 @@ export default function CheckoutPage() {
   const [cart, setCart] = useState<any[]>([]);
   const [mounted, setMounted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
   const [tracked, setTracked] = useState(false);
 
   useEffect(() => {
@@ -106,23 +107,44 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isProcessing) return;
+    setPaymentError("");
 
     if (!validate(e.currentTarget as HTMLFormElement)) {
       return;
     }
 
       setIsProcessing(true);
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 20_000);
 
       try {
         const response = await fetch('/api/payu/hash', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ formData, cart, grandTotal })
+          body: JSON.stringify({ formData, cart, grandTotal }),
+          signal: controller.signal,
         });
+        window.clearTimeout(timeout);
 
-        const result = await response.json();
+        const result = await response.json().catch(() => null);
 
-        if (result.success) {
+        if (!response.ok || !result) {
+          const message = result?.error || "Unable to start payment. Please try again.";
+          throw new Error(message);
+        }
+
+        if (
+          result.success &&
+          result.actionUrl &&
+          result.key &&
+          result.txnid &&
+          result.amount &&
+          result.productInfo &&
+          result.firstName &&
+          result.email &&
+          result.phone &&
+          result.hash
+        ) {
           const orderData = {
             id: result.txnid,
             date: new Date().toISOString(),
@@ -139,6 +161,8 @@ export default function CheckoutPage() {
           const form = document.createElement("form");
           form.setAttribute("method", "post");
           form.setAttribute("action", result.actionUrl);
+          form.setAttribute("target", "_self");
+          form.style.display = "none";
 
           const payuFields = {
             key: result.key,
@@ -172,14 +196,25 @@ export default function CheckoutPage() {
           }
 
           document.body.appendChild(form);
-          form.submit();
+          HTMLFormElement.prototype.submit.call(form);
+
+          window.setTimeout(() => {
+            setPaymentError("Payment gateway did not open. Please refresh and try again.");
+            setIsProcessing(false);
+          }, 12_000);
         } else {
-          alert('Failed to initiate payment. Please try again.');
-          setIsProcessing(false);
+          throw new Error(result.error || 'Failed to initiate payment. Please try again.');
         }
       } catch (error) {
         console.error(error);
-        alert('An error occurred. Please try again.');
+        window.clearTimeout(timeout);
+        setPaymentError(
+          error instanceof DOMException && error.name === "AbortError"
+            ? "Payment setup is taking too long. Please refresh and try again."
+            : error instanceof Error
+              ? error.message
+              : "An error occurred. Please try again."
+        );
         setIsProcessing(false);
       }
   };
@@ -420,6 +455,11 @@ export default function CheckoutPage() {
                 </>
               )}
             </button>
+            {paymentError && (
+              <div className="checkout-payment-error" role="alert">
+                {paymentError}
+              </div>
+            )}
             <div className="checkout-secure-note">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>

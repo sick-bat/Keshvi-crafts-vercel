@@ -7,6 +7,16 @@ const scriptSrc = [
   "https://www.googletagmanager.com",
 ].filter(Boolean).join(' ');
 
+const payuSources = [
+  "https://secure.payu.in",
+  "https://secure.payu.in/",
+  "https://secure.payu.in/_payment",
+  "https://test.payu.in",
+  "https://test.payu.in/",
+  "https://test.payu.in/_payment",
+  "https://*.payu.in",
+].join(' ');
+
 const securityHeaders = [
   {
     key: 'Strict-Transport-Security',
@@ -40,8 +50,8 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       scriptSrc,
       "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com",
-      "frame-src https://secure.payu.in https://test.payu.in https://www.googletagmanager.com",
-      "form-action 'self' https://secure.payu.in https://test.payu.in",
+      `frame-src ${payuSources} https://www.googletagmanager.com`,
+      `form-action 'self' ${payuSources}`,
       "upgrade-insecure-requests",
     ].join('; '),
   },
