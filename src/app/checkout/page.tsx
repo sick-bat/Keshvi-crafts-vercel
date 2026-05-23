@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { getCart } from "@/lib/bags";
@@ -10,48 +10,19 @@ import type { Product } from "@/types";
 import "./checkout.css";
 import { trackBeginCheckout } from "@/lib/analytics";
 
-declare global {
-  interface Window {
-    google?: {
-      maps?: {
-        places?: {
-          Autocomplete: new (
-            input: HTMLInputElement,
-            options?: {
-              componentRestrictions?: { country: string | string[] };
-              fields?: string[];
-              types?: string[];
-            }
-          ) => {
-            addListener: (eventName: string, handler: () => void) => void;
-            getPlace: () => {
-              formatted_address?: string;
-              address_components?: Array<{
-                long_name: string;
-                short_name: string;
-                types: string[];
-              }>;
-            };
-          };
-        };
-      };
-    };
-    initCheckoutPlacesAutocomplete?: () => void;
-  }
-}
+type PostalPincodeResponse = Array<{
+  Status: "Success" | "Error";
+  Message?: string;
+  PostOffice?: Array<{
+    District?: string;
+    DeliveryStatus?: string;
+    State?: string;
+  }>;
+}>;
 
-const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-const googleMapsScriptId = "google-maps-places-script";
-
-const getAddressPart = (
-  components: Array<{ long_name: string; short_name: string; types: string[] }> | undefined,
-  type: string,
-  name: "long_name" | "short_name" = "long_name"
-) => components?.find((component) => component.types.includes(type))?.[name] || "";
+type PincodeLookupStatus = "idle" | "loading" | "found" | "not_found" | "error";
 
 export default function CheckoutPage() {
-  const addressInputRef = useRef<HTMLInputElement | null>(null);
-  const placesInitializedRef = useRef(false);
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
@@ -75,9 +46,7 @@ export default function CheckoutPage() {
   const [paymentError, setPaymentError] = useState("");
   const [checkoutNotice, setCheckoutNotice] = useState("");
   const [tracked, setTracked] = useState(false);
-  const [placesStatus, setPlacesStatus] = useState<"idle" | "ready" | "unavailable">(
-    googleMapsApiKey ? "idle" : "unavailable"
-  );
+  const [pincodeLookupStatus, setPincodeLookupStatus] = useState<PincodeLookupStatus>("idle");
 
   useEffect(() => {
     const loadedCart = getCart();
@@ -102,79 +71,50 @@ export default function CheckoutPage() {
   }, [tracked]);
 
   useEffect(() => {
-    if (!googleMapsApiKey || !addressInputRef.current) return;
-
-    const initializeAutocomplete = () => {
-      if (
-        placesInitializedRef.current ||
-        !addressInputRef.current ||
-        !window.google?.maps?.places?.Autocomplete
-      ) return;
-
-      placesInitializedRef.current = true;
-
-      const autocomplete = new window.google.maps.places.Autocomplete(addressInputRef.current, {
-        componentRestrictions: { country: "in" },
-        fields: ["address_components", "formatted_address"],
-        types: ["address"],
-      });
-
-      autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        const components = place.address_components;
-        const premise = getAddressPart(components, "premise");
-        const subpremise = getAddressPart(components, "subpremise");
-        const streetNumber = getAddressPart(components, "street_number");
-        const route = getAddressPart(components, "route");
-        const neighborhood = getAddressPart(components, "neighborhood");
-        const sublocality =
-          getAddressPart(components, "sublocality_level_1") ||
-          getAddressPart(components, "sublocality");
-        const locality =
-          getAddressPart(components, "locality") ||
-          getAddressPart(components, "administrative_area_level_3");
-        const state = getAddressPart(components, "administrative_area_level_1");
-        const pincode = getAddressPart(components, "postal_code", "short_name");
-        const streetLine = [subpremise, premise, streetNumber, route].filter(Boolean).join(" ");
-        const streetAddress = [streetLine, neighborhood, sublocality].filter(Boolean).join(", ");
-
-        setFormData((current) => ({
-          ...current,
-          address: streetAddress || place.formatted_address || current.address,
-          city: locality || current.city,
-          state: state || current.state,
-          pincode: pincode || current.pincode,
-        }));
-        setErrors((current) => {
-          const next = { ...current };
-          for (const key of ["address", "city", "state", "pincode"]) {
-            if (next[key]) delete next[key];
-          }
-          return next;
-        });
-      });
-
-      setPlacesStatus("ready");
-    };
-
-    if (window.google?.maps?.places?.Autocomplete) {
-      initializeAutocomplete();
+    const pincode = formData.pincode.trim();
+    if (!/^\d{6}$/.test(pincode)) {
+      setPincodeLookupStatus("idle");
       return;
     }
 
-    window.initCheckoutPlacesAutocomplete = initializeAutocomplete;
+    const controller = new AbortController();
+    setPincodeLookupStatus("loading");
 
-    const existingScript = document.getElementById(googleMapsScriptId);
-    if (existingScript) return;
+    fetch(`https://api.postalpincode.in/pincode/${pincode}`, {
+      signal: controller.signal,
+    })
+      .then((response) => response.json() as Promise<PostalPincodeResponse>)
+      .then((result) => {
+        const postOffices = result[0]?.PostOffice || [];
+        const postOffice =
+          postOffices.find((office) => office.DeliveryStatus === "Delivery") ||
+          postOffices[0];
+        if (result[0]?.Status !== "Success" || !postOffice?.District || !postOffice?.State) {
+          setPincodeLookupStatus("not_found");
+          return;
+        }
 
-    const script = document.createElement("script");
-    script.id = googleMapsScriptId;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsApiKey)}&libraries=places&callback=initCheckoutPlacesAutocomplete`;
-    script.async = true;
-    script.defer = true;
-    script.onerror = () => setPlacesStatus("unavailable");
-    document.head.appendChild(script);
-  }, []);
+        setFormData((current) => ({
+          ...current,
+          city: postOffice.District || current.city,
+          state: postOffice.State || current.state,
+        }));
+        setErrors((current) => {
+          const next = { ...current };
+          delete next.city;
+          delete next.state;
+          delete next.pincode;
+          return next;
+        });
+        setPincodeLookupStatus("found");
+      })
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setPincodeLookupStatus("error");
+      });
+
+    return () => controller.abort();
+  }, [formData.pincode]);
 
   const total = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
   const findCartProduct = (item: any) => {
@@ -209,10 +149,11 @@ export default function CheckoutPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
+    const nextValue = name === "pincode" ? value.replace(/\D/g, "").slice(0, 6) : value;
 
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : nextValue
     });
     // Clear error on change
     if (errors[name]) {
@@ -236,6 +177,7 @@ export default function CheckoutPage() {
     if (!formData.city.trim()) newErrors.city = "City is required";
     if (!formData.state.trim()) newErrors.state = "State is required";
     if (!/^\d{6}$/.test(formData.pincode.trim())) newErrors.pincode = "Valid 6-digit PIN code is required";
+    else if (pincodeLookupStatus === "not_found") newErrors.pincode = "PIN code was not found";
     if (!acceptedPolicies) newErrors.acceptedPolicies = "Please accept the store policies";
     
     setErrors(newErrors);
@@ -506,7 +448,6 @@ export default function CheckoutPage() {
                 type="text"
                 id="address"
                 name="address"
-                ref={addressInputRef}
                 value={formData.address}
                 onChange={handleChange}
                 placeholder=" "
@@ -514,9 +455,6 @@ export default function CheckoutPage() {
               />
               <label htmlFor="address">Street Address *</label>
               {errors.address && <div className="field-error">{errors.address}</div>}
-              {placesStatus === "ready" && (
-                <div className="field-helper">Start typing and choose your address to autofill city, state, and PIN.</div>
-              )}
             </div>
 
             <div className="checkout-form-row">
@@ -556,9 +494,16 @@ export default function CheckoutPage() {
                   value={formData.pincode}
                   onChange={handleChange}
                   placeholder=" "
+                  inputMode="numeric"
+                  maxLength={6}
+                  pattern="\d{6}"
+                  autoComplete="postal-code"
                 />
                 <label htmlFor="pincode">PIN Code *</label>
                 {errors.pincode && <div className="field-error">{errors.pincode}</div>}
+                {pincodeLookupStatus === "loading" && <div className="field-helper">Checking PIN code...</div>}
+                {pincodeLookupStatus === "found" && <div className="field-helper">City and state filled from PIN code.</div>}
+                {pincodeLookupStatus === "error" && <div className="field-helper">Could not check PIN code. You can still enter city and state manually.</div>}
               </div>
               
               <div className="floating-field">
