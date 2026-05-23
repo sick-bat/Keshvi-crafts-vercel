@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { getCart } from "@/lib/bags";
@@ -10,7 +10,48 @@ import type { Product } from "@/types";
 import "./checkout.css";
 import { trackBeginCheckout } from "@/lib/analytics";
 
+declare global {
+  interface Window {
+    google?: {
+      maps?: {
+        places?: {
+          Autocomplete: new (
+            input: HTMLInputElement,
+            options?: {
+              componentRestrictions?: { country: string | string[] };
+              fields?: string[];
+              types?: string[];
+            }
+          ) => {
+            addListener: (eventName: string, handler: () => void) => void;
+            getPlace: () => {
+              formatted_address?: string;
+              address_components?: Array<{
+                long_name: string;
+                short_name: string;
+                types: string[];
+              }>;
+            };
+          };
+        };
+      };
+    };
+    initCheckoutPlacesAutocomplete?: () => void;
+  }
+}
+
+const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+const googleMapsScriptId = "google-maps-places-script";
+
+const getAddressPart = (
+  components: Array<{ long_name: string; short_name: string; types: string[] }> | undefined,
+  type: string,
+  name: "long_name" | "short_name" = "long_name"
+) => components?.find((component) => component.types.includes(type))?.[name] || "";
+
 export default function CheckoutPage() {
+  const addressInputRef = useRef<HTMLInputElement | null>(null);
+  const placesInitializedRef = useRef(false);
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
@@ -32,12 +73,27 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState("");
+  const [checkoutNotice, setCheckoutNotice] = useState("");
   const [tracked, setTracked] = useState(false);
+  const [placesStatus, setPlacesStatus] = useState<"idle" | "ready" | "unavailable">(
+    googleMapsApiKey ? "idle" : "unavailable"
+  );
 
   useEffect(() => {
     const loadedCart = getCart();
     setCart(loadedCart);
     setMounted(true);
+    const error = new URLSearchParams(window.location.search).get("error");
+    const errorMessages: Record<string, string> = {
+      server_error: "We could not confirm the payment response. If any amount was deducted, please contact us with your order number before trying again.",
+      hash_mismatch: "We could not safely verify the payment response. Please retry checkout or contact us if money was deducted.",
+      amount_mismatch: "The payment amount did not match the order total, so we stopped the confirmation for your safety.",
+      order_not_found: "We could not find this order. Please retry checkout or contact us if payment was deducted.",
+      payment_failed: "Payment was not completed. Your cart is still here if you would like to try again.",
+      invalid_payment_return: "This payment return link is not valid. Please start checkout again from your cart.",
+    };
+    if (error) setCheckoutNotice(errorMessages[error] || "Something interrupted checkout. Please review your details and try again.");
+
     if (loadedCart.length > 0 && !tracked) {
       const initialTotal = loadedCart.reduce((acc, item) => acc + item.price * item.qty, 0);
       trackBeginCheckout(loadedCart, initialTotal);
@@ -45,17 +101,99 @@ export default function CheckoutPage() {
     }
   }, [tracked]);
 
+  useEffect(() => {
+    if (!googleMapsApiKey || !addressInputRef.current) return;
+
+    const initializeAutocomplete = () => {
+      if (
+        placesInitializedRef.current ||
+        !addressInputRef.current ||
+        !window.google?.maps?.places?.Autocomplete
+      ) return;
+
+      placesInitializedRef.current = true;
+
+      const autocomplete = new window.google.maps.places.Autocomplete(addressInputRef.current, {
+        componentRestrictions: { country: "in" },
+        fields: ["address_components", "formatted_address"],
+        types: ["address"],
+      });
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        const components = place.address_components;
+        const premise = getAddressPart(components, "premise");
+        const subpremise = getAddressPart(components, "subpremise");
+        const streetNumber = getAddressPart(components, "street_number");
+        const route = getAddressPart(components, "route");
+        const neighborhood = getAddressPart(components, "neighborhood");
+        const sublocality =
+          getAddressPart(components, "sublocality_level_1") ||
+          getAddressPart(components, "sublocality");
+        const locality =
+          getAddressPart(components, "locality") ||
+          getAddressPart(components, "administrative_area_level_3");
+        const state = getAddressPart(components, "administrative_area_level_1");
+        const pincode = getAddressPart(components, "postal_code", "short_name");
+        const streetLine = [subpremise, premise, streetNumber, route].filter(Boolean).join(" ");
+        const streetAddress = [streetLine, neighborhood, sublocality].filter(Boolean).join(", ");
+
+        setFormData((current) => ({
+          ...current,
+          address: streetAddress || place.formatted_address || current.address,
+          city: locality || current.city,
+          state: state || current.state,
+          pincode: pincode || current.pincode,
+        }));
+        setErrors((current) => {
+          const next = { ...current };
+          for (const key of ["address", "city", "state", "pincode"]) {
+            if (next[key]) delete next[key];
+          }
+          return next;
+        });
+      });
+
+      setPlacesStatus("ready");
+    };
+
+    if (window.google?.maps?.places?.Autocomplete) {
+      initializeAutocomplete();
+      return;
+    }
+
+    window.initCheckoutPlacesAutocomplete = initializeAutocomplete;
+
+    const existingScript = document.getElementById(googleMapsScriptId);
+    if (existingScript) return;
+
+    const script = document.createElement("script");
+    script.id = googleMapsScriptId;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsApiKey)}&libraries=places&callback=initCheckoutPlacesAutocomplete`;
+    script.async = true;
+    script.defer = true;
+    script.onerror = () => setPlacesStatus("unavailable");
+    document.head.appendChild(script);
+  }, []);
+
   const total = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
+  const findCartProduct = (item: any) => {
+    return (products as Product[]).find((x) =>
+      x.slug === item.slug ||
+      x.slug === item.productSlug ||
+      String(item.slug || '').startsWith(`${x.slug}-`)
+    );
+  };
 
   // Enrich items with shipping info for calculation
   const enrichedItems = cart.map(it => {
-    const p = (products as Product[]).find(x => x.slug === it.slug || x.slug === (it as any).productSlug);
+    const p = findCartProduct(it);
     return { ...it, shippingCharge: p?.shippingCharge };
   });
 
   // Calculate Discountable Subtotal
   const discountableSubtotal = enrichedItems.reduce((s, it) => {
-    const p = (products as Product[]).find(x => x.slug === it.slug || x.slug === (it as any).productSlug);
+    const p = findCartProduct(it);
     if (p?.type === "custom-order") return s;
     return s + it.price * it.qty;
   }, 0);
@@ -253,6 +391,12 @@ export default function CheckoutPage() {
         </Link>
       </header>
 
+      <div className="checkout-intro">
+        <span className="checkout-intro-kicker">Secure handmade checkout</span>
+        <h1>Complete your Keshvi order</h1>
+        <p>Review your handmade pieces, add delivery details, and continue to PayU’s secure payment page.</p>
+      </div>
+
       <div className="checkout-grid">
         {/* Left Column: Form */}
         <div className="checkout-form-card">
@@ -262,8 +406,33 @@ export default function CheckoutPage() {
             </svg>
             Return to Cart
           </Link>
+
+          {checkoutNotice && (
+            <div className="checkout-alert" role="alert">
+              <div className="checkout-alert-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 8v5" />
+                  <path d="M12 16h.01" />
+                </svg>
+              </div>
+              <div>
+                <strong>Payment needs another try</strong>
+                <span>{checkoutNotice}</span>
+              </div>
+            </div>
+          )}
           
-          <h2 className="checkout-section-title">Shipping Details</h2>
+          <div className="checkout-section-heading">
+            <span>Step 1 of 2</span>
+            <h2>Shipping Details</h2>
+          </div>
+
+          <div className="checkout-trust-row" aria-label="Checkout trust highlights">
+            <span>Encrypted payment</span>
+            <span>Handmade in India</span>
+            <span>Order updates</span>
+          </div>
 
           <form onSubmit={handleSubmit} className="checkout-form-grid" noValidate>
             
@@ -337,12 +506,17 @@ export default function CheckoutPage() {
                 type="text"
                 id="address"
                 name="address"
+                ref={addressInputRef}
                 value={formData.address}
                 onChange={handleChange}
                 placeholder=" "
+                autoComplete="street-address"
               />
               <label htmlFor="address">Street Address *</label>
               {errors.address && <div className="field-error">{errors.address}</div>}
+              {placesStatus === "ready" && (
+                <div className="field-helper">Start typing and choose your address to autofill city, state, and PIN.</div>
+              )}
             </div>
 
             <div className="checkout-form-row">
@@ -542,6 +716,14 @@ export default function CheckoutPage() {
                   <span><strong>Crafted with care:</strong> Every stitch is intentional.</span>
                 </li>
               </ul>
+            </div>
+
+            <div className="checkout-summary-assurance">
+              <div>
+                <strong>Need help?</strong>
+                <span>Message us before paying if you want a color or gifting note confirmed.</span>
+              </div>
+              <Link href="/contact">Contact</Link>
             </div>
             
           </div>

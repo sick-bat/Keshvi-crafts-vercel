@@ -3,6 +3,7 @@
 
 export type ItemSnapshot = {
   slug: string;
+  productSlug?: string;
   title: string;
   price: number;
   image: string; // first image
@@ -34,12 +35,13 @@ function write<T>(key: string, value: T) {
   }
 }
 
-function snap(p: { slug: string; title: string; price: number; images?: string[] }): ItemSnapshot {
+function snap(p: { slug: string; productSlug?: string; title: string; price: number; images?: string[]; image?: string }): ItemSnapshot {
   return {
     slug: p.slug,
+    productSlug: p.productSlug,
     title: p.title,
     price: Number(p.price),
-    image: p.images?.[0] || "/placeholder.png",
+    image: p.images?.[0] || p.image || "/placeholder.png",
   };
 }
 

@@ -84,6 +84,21 @@ function validateCheckoutPayload(body: any) {
   return { formData: cleanForm, cart: body.cart };
 }
 
+function resolveCartProduct(cartItem: any) {
+  const rawSlug = String(cartItem.slug || '').trim();
+  const rawProductSlug = String(cartItem.productSlug || '').trim();
+  const product = products.find((p: any) => p.slug === rawProductSlug || p.slug === rawSlug);
+  if (product) return { product, variant: null };
+
+  const variantProduct = products.find((p: any) => {
+    return Array.isArray(p.variants) && p.variants.some((variant: any) => `${p.slug}-${variant.slug}` === rawSlug);
+  }) as any;
+
+  if (!variantProduct) return { product: null, variant: null };
+  const variant = variantProduct.variants.find((v: any) => `${variantProduct.slug}-${v.slug}` === rawSlug) || null;
+  return { product: variantProduct, variant };
+}
+
 export async function POST(req: Request) {
   try {
     if (!checkRateLimit(req)) {
@@ -102,11 +117,11 @@ export async function POST(req: Request) {
     
     // Enrich items securely from server data
     const enrichedItems = cart.map((cartItem: any) => {
-      const product = products.find((p: any) => p.slug === (cartItem.slug || cartItem.productSlug));
+      const { product, variant } = resolveCartProduct(cartItem);
       if (!product) {
         throw new Error(`Product not found: ${cartItem.slug}`);
       }
-      const price = product.price;
+      const price = Number(variant?.price ?? product.price);
       const qty = Number(cartItem.qty);
       if (!Number.isInteger(qty) || qty < 1 || qty > MAX_QTY_PER_LINE) {
         throw new Error(`Invalid quantity for product: ${product.slug}`);
@@ -121,6 +136,8 @@ export async function POST(req: Request) {
       
       return {
         ...cartItem,
+        productSlug: product.slug,
+        title: cartItem.title || (variant ? `${product.title} - ${variant.name}` : product.title),
         price,
         shippingCharge: product.shippingCharge,
         qty
@@ -156,7 +173,7 @@ export async function POST(req: Request) {
         merchantTransactionId,
         items: {
           create: enrichedItems.map((item: any) => ({
-            productId: item.slug || item.productSlug,
+            productId: item.productSlug || item.slug,
             productTitle: item.title,
             quantity: item.qty,
             priceAtPurchasePaise: Math.round(item.price * 100),

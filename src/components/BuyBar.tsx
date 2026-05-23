@@ -11,7 +11,7 @@ export default function BuyBar({
 }) {
 
   function handleAddToCart() {
-    addToCart({ slug, title, price, image: image || "/placeholder.png" }, 1);
+    addToCart({ slug, productSlug, title, price, image: image || "/placeholder.png" }, 1);
 
     trackEvent({
       action: "add_to_cart",
@@ -25,7 +25,7 @@ export default function BuyBar({
   }
 
   function buyNow() {
-    addToCart({ slug, title, price, image: image || "/placeholder.png" }, 1);
+    addToCart({ slug, productSlug, title, price, image: image || "/placeholder.png" }, 1);
 
     trackEvent({
       action: "begin_checkout",
