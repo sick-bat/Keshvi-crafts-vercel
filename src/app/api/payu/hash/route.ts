@@ -169,7 +169,6 @@ export async function POST(req: Request) {
         orderNote: formData.orderNote || null,
         totalAmountPaise,
         paymentMethod: 'PAYU',
-        status: 'PENDING',
         paymentStatus: 'PENDING',
         orderStatus: 'PENDING',
         merchantTransactionId,

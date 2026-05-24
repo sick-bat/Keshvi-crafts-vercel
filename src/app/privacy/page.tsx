@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+﻿import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy - Keshvi Crafts',
@@ -60,8 +60,9 @@ export default function PrivacyPage() {
       <p>
         <strong>Keshvi Crafts</strong><br />
         Email: <a href="mailto:KESHVICRAFTS@gmail.com" className="underline">KESHVICRAFTS@gmail.com</a><br />
-        Phone: +91 7507996961
+        Phone: +91 7310045515
       </p>
     </main>
   );
 }
+

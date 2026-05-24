@@ -19,7 +19,6 @@ model Order {
 
   totalAmountPaise      Int
   paymentMethod         String @default("PAYU")
-  status                String @default("PENDING") // PENDING, PAID, FAILED
   paymentStatus         String @default("PENDING") // PENDING, PAID, FAILED, REFUNDED
   orderStatus           String @default("PENDING") // PENDING, CONFIRMED, PACKED, SHIPPED, DELIVERED, CANCELLED
 
@@ -35,6 +34,7 @@ model Order {
   updatedAt             DateTime @updatedAt
   
   items                 OrderItem[]
+  invoice               Invoice?
   timelineEvents        OrderTimelineEvent[]
 
   @@index([paymentStatus])
@@ -66,6 +66,21 @@ model PaymentEvent {
 
   @@index([txnId])
   @@index([mihpayid])
+}
+
+model Invoice {
+  id              String    @id @default(cuid())
+  orderId         String    @unique
+  invoiceNumber   String    @unique
+  downloadTokenHash String
+  emailLinkedAt   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceNumber])
+  @@index([createdAt])
 }
 
 model OrderTimelineEvent {

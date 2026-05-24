@@ -70,7 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             "image": "https://www.keshvicrafts.in/uploads/hero/logo.png",
             "description": "Handmade crochet and artisanal home decor, crafted with care in India.",
             "url": "https://www.keshvicrafts.in",
-            "telephone": "+917507996961",
+            "telephone": "+917310045515",
             "address": {
               "@type": "PostalAddress",
               "addressCountry": "IN"

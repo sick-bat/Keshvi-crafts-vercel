@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+﻿import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Shipping Policy - Keshvi Crafts',
@@ -23,7 +23,7 @@ export default function ShippingPage() {
 
       <h3>3. Shipping Charges</h3>
       <p>
-        We offer free shipping on eligible orders above ₹650. For orders below ₹650, shipping is calculated at checkout based on product shipping rules.
+        We offer free shipping on eligible orders above â‚¹650. For orders below â‚¹650, shipping is calculated at checkout based on product shipping rules.
       </p>
 
       <h3>4. Delivery Partners</h3>
@@ -44,8 +44,9 @@ export default function ShippingPage() {
       <h3>7. Contact</h3>
       <p>
         Email: <a href="mailto:KESHVICRAFTS@gmail.com" className="underline">KESHVICRAFTS@gmail.com</a><br />
-        Phone: +91 7507996961
+        Phone: +91 7310045515
       </p>
     </main>
   );
 }
+

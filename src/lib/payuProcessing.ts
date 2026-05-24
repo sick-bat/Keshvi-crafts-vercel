@@ -96,7 +96,6 @@ export async function processPayuResult(data: PayuPayload, source: PayuSource) {
   const updateData: {
     paymentStatus?: string;
     orderStatus?: string;
-    status?: string;
     payuTransactionId?: string;
     payuStatus: string;
   } = {
@@ -107,13 +106,11 @@ export async function processPayuResult(data: PayuPayload, source: PayuSource) {
 
   if (nextPaymentStatus === "PAID") {
     updateData.paymentStatus = "PAID";
-    updateData.status = "PAID";
     if (order.orderStatus === "PENDING") {
       updateData.orderStatus = "CONFIRMED";
     }
   } else if (order.paymentStatus !== "PAID") {
     updateData.paymentStatus = nextPaymentStatus;
-    updateData.status = nextPaymentStatus;
   }
 
   const updatedOrder = await prisma.order.update({

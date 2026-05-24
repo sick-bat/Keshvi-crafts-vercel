@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+﻿import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Returns & Exchange Policy - Keshvi Crafts',
@@ -39,8 +39,9 @@ export default function ReturnsPage() {
       <h3>6. Contact</h3>
       <p>
         Email: <a href="mailto:KESHVICRAFTS@gmail.com" className="underline">KESHVICRAFTS@gmail.com</a><br />
-        Phone: +91 7507996961
+        Phone: +91 7310045515
       </p>
     </main>
   );
 }
+
