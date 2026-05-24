@@ -3,6 +3,8 @@ import { formatDeliveryRange } from "@/lib/deliveryEstimate";
 import { ensureInvoiceDownloadLink } from "@/lib/invoice";
 import { Prisma } from "@prisma/client";
 
+const EMAIL_PROCESSING_TIMEOUT_MS = 5 * 60 * 1000;
+
 type OrderForEmail = {
   id: string;
   merchantTransactionId: string | null;
@@ -126,8 +128,14 @@ export async function sendOrderConfirmationEmail(orderId: string) {
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       const existing = await prisma.paymentEvent.findUnique({ where: { id: emailEventId } });
-      if (existing?.status === "sent" || existing?.status === "processing") {
+      if (existing?.status === "sent") {
         return { sent: false, reason: "already_sent" };
+      }
+      if (
+        existing?.status === "processing" &&
+        Date.now() - existing.processedAt.getTime() < EMAIL_PROCESSING_TIMEOUT_MS
+      ) {
+        return { sent: false, reason: "already_processing" };
       }
       await prisma.paymentEvent.update({
         where: { id: emailEventId },
@@ -172,7 +180,12 @@ export async function sendOrderConfirmationEmail(orderId: string) {
     return { sent: false, reason: "missing_email" };
   }
 
-  const invoiceLink = await ensureInvoiceDownloadLink(orderId);
+  let invoiceLink: Awaited<ReturnType<typeof ensureInvoiceDownloadLink>> = null;
+  try {
+    invoiceLink = await ensureInvoiceDownloadLink(orderId);
+  } catch (invoiceError) {
+    console.error("Invoice link creation failed for order:", orderId, invoiceError);
+  }
   const email = buildOrderEmail(order, invoiceLink?.url);
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
