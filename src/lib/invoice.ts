@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import PDFDocument from "pdfkit";
+import PDFDocument from "pdfkit/js/pdfkit.standalone.js";
 import prisma from "@/lib/prisma";
 
 type InvoiceOrder = {
