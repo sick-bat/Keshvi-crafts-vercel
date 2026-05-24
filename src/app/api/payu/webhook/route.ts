@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
 import crypto from 'crypto';
-import { serializeRedactedPaymentPayload } from '@/lib/paymentPayload';
-import { sendOrderConfirmationEmail } from '@/lib/orderEmail';
+import { processPayuResult } from '@/lib/payuProcessing';
 
 export async function POST(req: Request) {
   try {
@@ -34,70 +32,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Hash mismatch' }, { status: 400 });
     }
 
-    // Idempotency: Check if already processed as a webhook
-    const existingEvent = await prisma.paymentEvent.findFirst({
-      where: {
-        txnId: txnid,
-        source: 'webhook',
-        status: status,
+    try {
+      await processPayuResult(data, 'webhook');
+    } catch (processingError) {
+      const message = processingError instanceof Error ? processingError.message : '';
+      if (message === 'ORDER_NOT_FOUND') {
+        console.error(`Order not found for txnid: ${txnid}`);
+        return NextResponse.json({ error: 'Order not found' }, { status: 404 });
       }
-    });
-
-    if (existingEvent) {
-      console.log(`Webhook already processed for txnid: ${txnid} with status: ${status}`);
-      return NextResponse.json({ success: true, message: 'Already processed' }, { status: 200 });
-    }
-
-    // Log the Webhook Event
-    await prisma.paymentEvent.create({
-      data: {
-        eventType: 'payment',
-        txnId: txnid,
-        mihpayid: mihpayid || null,
-        status: status,
-        amount: amount,
-        source: 'webhook',
-        rawPayload: serializeRedactedPaymentPayload(data),
+      if (message === 'AMOUNT_MISMATCH') {
+        console.error(`Amount mismatch for txnid: ${txnid}`);
+        return NextResponse.json({ error: 'Amount mismatch' }, { status: 400 });
       }
-    });
-
-    // Amount & TxnId Verification against Order
-    const order = await prisma.order.findUnique({
-      where: { merchantTransactionId: txnid }
-    });
-
-    if (!order) {
-      console.error(`Order not found for txnid: ${txnid}`);
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
-    }
-
-    // Verify amount (PayU sends amount as string e.g., "100.00", database stores paise e.g., 10000)
-    const payloadAmountPaise = Math.round(parseFloat(amount) * 100);
-    if (payloadAmountPaise !== order.totalAmountPaise) {
-      console.error(`Amount mismatch for txnid: ${txnid}. DB: ${order.totalAmountPaise}, PayU: ${payloadAmountPaise}`);
-      return NextResponse.json({ error: 'Amount mismatch' }, { status: 400 });
-    }
-
-    // Safely update Order Status
-    const orderStatus = status === 'success' ? 'PAID' : 'FAILED';
-    const updatedOrder = await prisma.order.update({
-      where: { merchantTransactionId: txnid },
-      data: {
-        status: orderStatus,
-        payuTransactionId: mihpayid,
-        payuStatus: status,
-      },
-    });
-
-    if (orderStatus === 'PAID') {
-      try {
-        const emailResult = await sendOrderConfirmationEmail(updatedOrder.id);
-        if (!emailResult.sent && emailResult.reason !== 'already_sent') {
-          console.warn('Order confirmation email was not sent for txnid:', txnid, emailResult.reason);
-        }
-      } catch (emailError) {
-        console.error('Order confirmation email failed for txnid:', txnid, emailError);
-      }
+      throw processingError;
     }
 
     // PayU expects a 200 OK to stop retrying

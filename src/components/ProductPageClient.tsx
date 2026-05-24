@@ -11,6 +11,14 @@ import { trackEvent, trackViewItem } from "@/lib/analytics";
 import { toggleWishlist } from "@/lib/bags";
 import { useEffect } from "react";
 import JsonLd from "@/components/JsonLd";
+import {
+  CARE_INSTRUCTIONS,
+  GENERIC_MATERIALS,
+  getDispatchText,
+  getProductOneLiner,
+  getShippingText,
+  getWhatsAppUrl,
+} from "@/lib/productContent";
 
 export default function ProductPageClient({
   product,
@@ -51,6 +59,36 @@ export default function ProductPageClient({
   const inStock = typeof currentStock === "number" ? currentStock > 0 : true;
   const currentSlug = selectedVariant ? `${product.slug}-${selectedVariant.slug}` : product.slug;
   const currentTitle = selectedVariant ? `${product.title} - ${selectedVariant.name}` : product.title;
+  const productDescription = product.type === "custom-order"
+    ? product.description.replace("Enquire on Instagram", "Enquire on WhatsApp or Instagram")
+    : product.description;
+  const dispatchText = getDispatchText(product, selectedVariant);
+  const whatsappUrl = getWhatsAppUrl(product);
+  const defaultFaqs = [
+    {
+      q: "Is this product handmade?",
+      a: "Yes. Each Keshvi Crafts piece is handmade with careful stitch work and finishing."
+    },
+    {
+      q: "When will this dispatch?",
+      a: `${dispatchText}. We start preparing your order after confirmation.`
+    },
+    {
+      q: "What are the shipping charges?",
+      a: getShippingText()
+    },
+    {
+      q: "How should I care for it?",
+      a: CARE_INSTRUCTIONS
+    }
+  ];
+  const sourceFaqs = product.seoContent?.faqs?.length ? product.seoContent.faqs : defaultFaqs;
+  const faqs = sourceFaqs.map((faq) => ({
+    ...faq,
+    a: faq.q.toLowerCase().includes("deliver") || faq.q.toLowerCase().includes("dispatch")
+      ? `${dispatchText}. We ensure safe packaging so it arrives perfectly intact.`
+      : faq.a.replace("Instagram", "WhatsApp or Instagram"),
+  }));
 
   return (
     <>
@@ -86,6 +124,19 @@ export default function ProductPageClient({
         <div>
           {/* Badge */}
           <div className="flex flex-wrap gap-2 mb-3">
+            {!product.badges?.includes("Made to Order") && (
+              <span className="product-badge" style={{
+                display: "inline-block",
+                padding: "0.3rem 0.8rem",
+                background: "#BCA37F",
+                color: "#fff",
+                borderRadius: "6px",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+              }}>
+                Made to Order
+              </span>
+            )}
             {product.badges && product.badges.length > 0 ? (
               product.badges.map(b => (
                 <span key={b} className="product-badge" style={{
@@ -134,7 +185,11 @@ export default function ProductPageClient({
 
           {/* Emotional Description */}
           <p style={{ fontSize: "1.1rem", lineHeight: 1.7, marginBottom: "1.5rem", color: "var(--text)" }}>
-            {product.description}
+            {productDescription}
+          </p>
+
+          <p className="meta" style={{ fontSize: "0.95rem", lineHeight: 1.6, marginBottom: "1.5rem" }}>
+            {getProductOneLiner(product)}
           </p>
 
           {/* Made to Order Notice */}
@@ -149,13 +204,11 @@ export default function ProductPageClient({
               {product.type === "custom-order" ? "Custom Made for You" : "Made to Order"}
             </strong>
             <span className="meta" style={{ fontSize: "0.9rem" }}>
-              {product.deliveryTime || "Dispatch in 3–5 business days."} {product.type === "custom-order" ? product.returnPolicy || "Non-refundable." : "Each piece is crafted especially for you."}
+              {dispatchText}. {product.type === "custom-order" ? product.returnPolicy || "Non-refundable." : "Each piece is crafted especially for you."}
             </span>
-            {product.shippingCharge !== undefined && (
-              <div className="mt-2 text-sm text-stone-600 font-medium">
-                Shipping: {product.shippingCharge === 0 ? "Free" : `₹${product.shippingCharge}`}
-              </div>
-            )}
+            <div className="mt-2 text-sm text-stone-600 font-medium">
+              {getShippingText()}
+            </div>
           </div>
 
           {/* Variant Selector */}
@@ -176,11 +229,29 @@ export default function ProductPageClient({
                 <button
                   onClick={() => {
                     const messageText = `Hi Keshvi Crafts! I want to enquire about: ${product.title}. Please share availability and delivery time.`;
-                    // Copy to clipboard as backup
                     navigator.clipboard.writeText(messageText);
+                    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
 
-                    // Open Instagram DM Deep Link
-                    const encodedMsg = encodeURIComponent(messageText);
+                    if (typeof window !== 'undefined' && (window as any).showToast) {
+                      (window as any).showToast("Opening WhatsApp... Message copied too!");
+                    }
+                    trackEvent({
+                      action: "click_whatsapp_enquiry",
+                      category: "Ecommerce",
+                      label: product.title,
+                      location: "pdp_primary",
+                      slug: product.slug
+                    });
+                  }}
+                  className="btn-primary w-full text-lg"
+                >
+                  Enquire on WhatsApp
+                </button>
+
+                <button
+                  onClick={() => {
+                    const messageText = `Hi Keshvi Crafts! I want to enquire about: ${product.title}. Please share availability and delivery time.`;
+                    navigator.clipboard.writeText(messageText);
                     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                     const url = isMobile
                       ? "https://ig.me/m/keshvi_crafts"
@@ -199,9 +270,9 @@ export default function ProductPageClient({
                       slug: product.slug
                     });
                   }}
-                  className="btn-primary w-full text-lg"
+                  className="btn-secondary w-full text-sm"
                 >
-                  📸 Enquire on Instagram
+                  Message on Instagram
                 </button>
 
                 <button
@@ -219,23 +290,42 @@ export default function ProductPageClient({
                   id="copy-btn"
                   className="btn-secondary w-full text-sm"
                 >
-                  📋 Copy Enquiry Message
+                  Copy Enquiry Message
                 </button>
 
                 <p className="text-xs text-center text-stone-500 mt-2">
-                  Since this is a custom piece, we take orders personally on Instagram to ensure perfect customization.
+                  Since this is a custom piece, we confirm details personally on WhatsApp or Instagram before crafting.
                 </p>
               </div>
             ) : (
-              <BuyBar
-                slug={currentSlug}
-                title={currentTitle}
-                price={currentPrice}
-                image={currentImages[0]}
-                checkoutUrl={product.checkoutUrl}
-                disabled={!inStock}
-                productSlug={product.slug}
-              />
+              <div className="flex flex-col gap-3">
+                <BuyBar
+                  slug={currentSlug}
+                  title={currentTitle}
+                  price={currentPrice}
+                  image={currentImages[0]}
+                  checkoutUrl={product.checkoutUrl}
+                  disabled={!inStock}
+                  productSlug={product.slug}
+                />
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary product-whatsapp-link w-full text-sm"
+                  onClick={() => {
+                    trackEvent({
+                      action: "click_whatsapp_enquiry",
+                      category: "Ecommerce",
+                      label: product.title,
+                      location: "pdp_secondary",
+                      slug: product.slug
+                    });
+                  }}
+                >
+                  Enquire on WhatsApp
+                </a>
+              </div>
             )}
 
           </div>
@@ -249,20 +339,21 @@ export default function ProductPageClient({
             textAlign: "center"
           }}>
             <span className="meta">
-              {product.type === "custom-order" ? "Secure payment via UPI/Bank Transfer." : "Secure payments via PayU. We never store card or UPI details."}
+              Secure payments via PayU. {getShippingText()}
             </span>
           </div>
+        </div>
+      </div>
 
+      <section className="product-longform">
           {/* Product Details */}
           <div style={{ marginTop: "2rem", paddingTop: "2rem", borderTop: "1px solid var(--border)" }}>
             <h3 style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "1rem" }}>Product Details</h3>
             <dl style={{ display: "grid", gap: "0.8rem" }}>
-              {product.materials && product.materials.length > 0 && (
-                <>
-                  <dt style={{ fontWeight: 600, color: "var(--muted)" }}>Material:</dt>
-                  <dd style={{ margin: 0 }}>{product.materials.join(", ")}</dd>
-                </>
-              )}
+              <dt style={{ fontWeight: 600, color: "var(--muted)" }}>Materials Used:</dt>
+              <dd style={{ margin: 0 }}>
+                {product.materials && product.materials.length > 0 ? product.materials.join(", ") : GENERIC_MATERIALS}
+              </dd>
               {(selectedVariant?.dimensions || product.dimensions) && (
                 <>
                   <dt style={{ fontWeight: 600, color: "var(--muted)" }}>Size / Dimensions:</dt>
@@ -277,7 +368,7 @@ export default function ProductPageClient({
               )}
               <dt style={{ fontWeight: 600, color: "var(--muted)" }}>Care Instructions:</dt>
               <dd style={{ margin: 0 }}>
-                Hand wash gently with mild detergent. Lay flat to dry. Avoid direct sunlight to preserve colors.
+                {CARE_INSTRUCTIONS}
               </dd>
             </dl>
           </div>
@@ -315,13 +406,13 @@ export default function ProductPageClient({
                 </>
               )}
 
-              {product.seoContent.faqs && product.seoContent.faqs.length > 0 && (
+              {faqs.length > 0 && (
                 <>
                   <JsonLd
                     data={{
                       "@context": "https://schema.org",
                       "@type": "FAQPage",
-                      "mainEntity": product.seoContent.faqs.map((faq) => ({
+                      "mainEntity": faqs.map((faq) => ({
                         "@type": "Question",
                         "name": faq.q,
                         "acceptedAnswer": {
@@ -333,7 +424,7 @@ export default function ProductPageClient({
                   />
                   <h3 style={{ fontSize: "1.3rem", fontWeight: 600, marginBottom: "1rem", color: "var(--brand)" }}>Frequently Asked Questions</h3>
                   <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                    {product.seoContent.faqs.map((faq, i) => (
+                    {faqs.map((faq, i) => (
                       <div key={i}>
                         <h4 style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "0.4rem" }}>{faq.q}</h4>
                         <p style={{ margin: 0 }}>{faq.a}</p>
@@ -344,8 +435,35 @@ export default function ProductPageClient({
               )}
             </div>
           )}
-        </div>
-      </div>
+
+          {!product.seoContent && faqs.length > 0 && (
+            <div className="product-seo-content" style={{ marginTop: "2rem", paddingTop: "2rem", borderTop: "1px solid var(--border)", lineHeight: 1.8 }}>
+              <JsonLd
+                data={{
+                  "@context": "https://schema.org",
+                  "@type": "FAQPage",
+                  "mainEntity": faqs.map((faq) => ({
+                    "@type": "Question",
+                    "name": faq.q,
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": faq.a
+                    }
+                  }))
+                }}
+              />
+              <h3 style={{ fontSize: "1.3rem", fontWeight: 600, marginBottom: "1rem", color: "var(--brand)" }}>Frequently Asked Questions</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                {faqs.map((faq, i) => (
+                  <div key={i}>
+                    <h4 style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "0.4rem" }}>{faq.q}</h4>
+                    <p style={{ margin: 0 }}>{faq.a}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+      </section>
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (

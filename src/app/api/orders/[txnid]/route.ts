@@ -19,17 +19,21 @@ export async function GET(_req: Request, { params }: { params: Promise<{ txnid: 
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
-  if (order.status !== "PAID") {
+  if (order.paymentStatus !== "PAID") {
     return NextResponse.json({
       id: order.merchantTransactionId,
-      status: order.status,
+      status: order.orderStatus,
+      paymentStatus: order.paymentStatus,
+      orderStatus: order.orderStatus,
       paid: false,
     });
   }
 
   return NextResponse.json({
     id: order.merchantTransactionId,
-    status: order.status,
+    status: order.orderStatus,
+    paymentStatus: order.paymentStatus,
+    orderStatus: order.orderStatus,
     paid: true,
     fullName: order.fullName,
     email: order.email,

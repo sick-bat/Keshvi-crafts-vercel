@@ -128,14 +128,35 @@ export async function POST(req: Request) {
         }
       });
 
-      // Update Order Refund Status
-      await prisma.order.update({
+      // Update refund/payment state without changing fulfillment status.
+      const updatedOrder = await prisma.order.update({
         where: { id: order.id },
         data: {
+          paymentStatus: status === 'success' ? 'REFUNDED' : order.paymentStatus,
           refundStatus: status === 'success' ? 'SUCCESS' : 'FAILED',
           refundAmount: parseAmountPaise(amount),
         },
       });
+
+      if (order.paymentStatus !== updatedOrder.paymentStatus) {
+        await prisma.orderTimelineEvent.create({
+          data: {
+            orderId: order.id,
+            eventType: 'PAYMENT_STATUS_CHANGED',
+            fromValue: order.paymentStatus,
+            toValue: updatedOrder.paymentStatus,
+            actorType: 'PAYU',
+            actorId: mihpayid || merchantTxnId,
+            note: 'Refund webhook updated payment status',
+            metadata: {
+              source: 'webhook',
+              action,
+              refundStatus: status,
+              amount: amount?.toString(),
+            },
+          },
+        });
+      }
 
       return NextResponse.json({ success: true }, { status: 200 });
     }
@@ -172,6 +193,23 @@ export async function POST(req: Request) {
         where: { id: order.id },
         data: {
           disputeStatus: 'OPEN',
+        },
+      });
+
+      await prisma.orderTimelineEvent.create({
+        data: {
+          orderId: order.id,
+          eventType: 'DISPUTE_OPENED',
+          fromValue: order.disputeStatus,
+          toValue: 'OPEN',
+          actorType: 'PAYU',
+          actorId: txnId,
+          metadata: {
+            source: 'webhook',
+            action,
+            status,
+            amount: amount?.toString(),
+          },
         },
       });
 

@@ -20,6 +20,8 @@ model Order {
   totalAmountPaise      Int
   paymentMethod         String @default("PAYU")
   status                String @default("PENDING") // PENDING, PAID, FAILED
+  paymentStatus         String @default("PENDING") // PENDING, PAID, FAILED, REFUNDED
+  orderStatus           String @default("PENDING") // PENDING, CONFIRMED, PACKED, SHIPPED, DELIVERED, CANCELLED
 
   merchantTransactionId String? @unique 
   payuTransactionId     String? @unique 
@@ -33,6 +35,11 @@ model Order {
   updatedAt             DateTime @updatedAt
   
   items                 OrderItem[]
+  timelineEvents        OrderTimelineEvent[]
+
+  @@index([paymentStatus])
+  @@index([orderStatus])
+  @@index([createdAt])
 }
 
 model OrderItem {
@@ -59,4 +66,23 @@ model PaymentEvent {
 
   @@index([txnId])
   @@index([mihpayid])
+}
+
+model OrderTimelineEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  eventType String
+  fromValue String?
+  toValue   String?
+  actorType String
+  actorId   String?
+  note      String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([eventType])
+  @@index([createdAt])
 }

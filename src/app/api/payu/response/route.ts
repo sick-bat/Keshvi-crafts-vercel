@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
 import crypto from 'crypto';
-import { serializeRedactedPaymentPayload } from '@/lib/paymentPayload';
-import { sendOrderConfirmationEmail } from '@/lib/orderEmail';
+import { processPayuResult } from '@/lib/payuProcessing';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,62 +51,19 @@ export async function POST(req: Request) {
       return NextResponse.redirect(`${baseUrl}/checkout?error=hash_mismatch`, 303);
     }
 
-    const order = await prisma.order.findUnique({
-      where: { merchantTransactionId: txnid },
-    });
-
-    if (!order) {
-      console.error('PayU response order not found for txnid:', txnid || 'missing');
-      const baseUrl = getBaseUrl();
-      return NextResponse.redirect(`${baseUrl}/checkout?error=order_not_found`, 303);
-    }
-
-    const payloadAmountPaise = Math.round(Number.parseFloat(amount) * 100);
-    if (!Number.isFinite(payloadAmountPaise) || payloadAmountPaise !== order.totalAmountPaise) {
-      console.error('PayU response amount mismatch for txnid:', txnid || 'missing');
-      const baseUrl = getBaseUrl();
-      return NextResponse.redirect(`${baseUrl}/checkout?error=amount_mismatch`, 303);
-    }
-
-    // Log to PaymentEvent (Idempotent tracking)
     try {
-      await prisma.paymentEvent.create({
-        data: {
-          eventType: 'payment',
-          txnId: txnid,
-          mihpayid: mihpayid || null,
-          status: status,
-          amount: amount,
-          source: 'redirect',
-          rawPayload: serializeRedactedPaymentPayload(data),
-        }
-      });
-    } catch (e) {
-      // If event creation fails (e.g. DB error), log it but don't block the UI redirect
-      console.error('Failed to log PaymentEvent from redirect:', e);
-    }
-
-    const orderStatus = status === 'success' ? 'PAID' : 'FAILED';
-    const payuTransactionId = mihpayid; // PayU's internal ID
-
-    const updatedOrder = await prisma.order.update({
-      where: { merchantTransactionId: txnid },
-      data: {
-        status: orderStatus,
-        payuTransactionId,
-        payuStatus: status,
-      },
-    });
-
-    if (orderStatus === 'PAID') {
-      try {
-        const emailResult = await sendOrderConfirmationEmail(updatedOrder.id);
-        if (!emailResult.sent && emailResult.reason !== 'already_sent') {
-          console.warn('Order confirmation email was not sent for txnid:', txnid, emailResult.reason);
-        }
-      } catch (emailError) {
-        console.error('Order confirmation email failed for txnid:', txnid, emailError);
+      await processPayuResult(data, 'redirect');
+    } catch (processingError) {
+      const message = processingError instanceof Error ? processingError.message : '';
+      console.error('PayU response processing failed for txnid:', txnid || 'missing', processingError);
+      const baseUrl = getBaseUrl();
+      if (message === 'ORDER_NOT_FOUND') {
+        return NextResponse.redirect(`${baseUrl}/checkout?error=order_not_found`, 303);
       }
+      if (message === 'AMOUNT_MISMATCH') {
+        return NextResponse.redirect(`${baseUrl}/checkout?error=amount_mismatch`, 303);
+      }
+      return NextResponse.redirect(`${baseUrl}/checkout?error=server_error`, 303);
     }
 
     const baseUrl = getBaseUrl();

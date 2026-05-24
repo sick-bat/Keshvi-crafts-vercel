@@ -179,6 +179,17 @@
   margin-bottom: 16px;
 }
 
+.product-trust {
+  margin: -6px 0 16px;
+  color: #9a7654;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
 .product-footer {
   display: flex;
   align-items: center;
@@ -187,6 +198,7 @@
 }
 
 .product-price {
+  min-width: 0;
   flex-shrink: 0;
   font-family: var(--font-body);
   font-size: 1.8rem;
@@ -215,6 +227,7 @@
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.01em;
+  white-space: nowrap;
   cursor: pointer;
   box-shadow: var(--shadow-button);
   transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, color 0.2s ease;
@@ -236,6 +249,28 @@
   border: 1px solid var(--line);
   color: var(--text-main);
   box-shadow: 0 4px 12px rgba(41, 28, 20, 0.05);
+}
+
+.custom-order-footer {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.custom-order-footer .product-price {
+  width: 100%;
+  font-size: 1.65rem;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.custom-order-footer .cart-area {
+  width: 100%;
+}
+
+.custom-order-footer .add-btn {
+  width: 100%;
+  min-width: 0;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -277,6 +312,7 @@
   }
   
   .product-note { font-size: 0.82rem; line-height: 1.35; margin-bottom: 12px; }
+  .product-trust { font-size: 0.64rem; margin-bottom: 12px; }
   
   /* Layout Fix: Row layout, balanced gap, smaller height */
   .product-footer {
@@ -284,6 +320,12 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+  }
+
+  .custom-order-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
   
   /* Compact Price */

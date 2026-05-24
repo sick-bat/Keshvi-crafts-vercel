@@ -157,7 +157,7 @@ export async function POST(req: Request) {
     // Convert total to paise (integer) to avoid floating point errors
     const totalAmountPaise = Math.round(computedGrandTotal * 100);
 
-    // 3. Save Order to Database (PENDING status)
+    // 3. Save Order to Database (payment pending, fulfillment pending)
     await prisma.order.create({
       data: {
         fullName: formData.fullName,
@@ -170,6 +170,8 @@ export async function POST(req: Request) {
         totalAmountPaise,
         paymentMethod: 'PAYU',
         status: 'PENDING',
+        paymentStatus: 'PENDING',
+        orderStatus: 'PENDING',
         merchantTransactionId,
         items: {
           create: enrichedItems.map((item: any) => ({
@@ -178,6 +180,20 @@ export async function POST(req: Request) {
             quantity: item.qty,
             priceAtPurchasePaise: Math.round(item.price * 100),
           })),
+        },
+        timelineEvents: {
+          create: {
+            eventType: 'ORDER_CREATED',
+            fromValue: null,
+            toValue: 'PENDING/PENDING',
+            actorType: 'SYSTEM',
+            note: 'Checkout order created before PayU payment completion',
+            metadata: {
+              paymentStatus: 'PENDING',
+              orderStatus: 'PENDING',
+              merchantTransactionId,
+            },
+          },
         },
       },
     });

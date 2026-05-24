@@ -5,6 +5,13 @@ import { usePathname } from "next/navigation";
 
 export default function Footer() {
   const pathname = usePathname();
+  const trustItems = [
+    "Secure payments via PayU",
+    "Standard shipping across India",
+    "Free shipping above ₹650",
+    "Made to order products",
+    "WhatsApp support available",
+  ];
 
   // Hide on checkout pages (distraction-free checkout)
   if (pathname?.startsWith("/checkout")) return null;
@@ -21,6 +28,11 @@ export default function Footer() {
               Each item is made to order, ensuring quality and thoughtfulness in every stitch.
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              <ul className="footer-trust-list">
+                {trustItems.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
               <div>
                 <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(250, 249, 247, 0.5)", display: "block", marginBottom: "0.25rem" }}>
                   Founder
@@ -71,7 +83,7 @@ export default function Footer() {
             <ul className="footer-links">
               <li><Link href="/contact">Contact Page</Link></li>
               <li>
-                <a href="https://wa.me/+917507996961" target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.me/917310045515" target="_blank" rel="noopener noreferrer">
                   WhatsApp Support
                 </a>
               </li>
@@ -97,7 +109,7 @@ export default function Footer() {
             © {new Date().getFullYear()} Keshvi Crafts. All rights reserved.
           </p>
           <p className="footer-text" style={{ fontSize: "0.85rem", marginTop: "0.5rem" }}>
-            Handmade with ❤️ in India
+            Handmade with care in India
           </p>
         </div>
       </div>

@@ -9,6 +9,7 @@ import { toggleWishlist } from "@/lib/bags";
 import { useAddToCart } from "@/hooks/useAddToCart";
 import { useRouter } from "next/navigation";
 import { trackEvent } from "@/lib/analytics";
+import { getCardTrustText, getProductOneLiner, getWhatsAppUrl } from "@/lib/productContent";
 import styles from "./ProductCard.module.css";
 
 export default function ProductCard({ p }: { p: Product }) {
@@ -51,11 +52,9 @@ export default function ProductCard({ p }: { p: Product }) {
 
     if (isCustomOrder) {
       // Enquire action
-      const message = encodeURIComponent(`Hi! I'm interested in ${p.title}`);
-      const url = p.cta?.url || `https://ig.me/m/keshvi_crafts`;
-      window.open(url, "_blank", "noopener,noreferrer");
+      window.open(getWhatsAppUrl(p), "_blank", "noopener,noreferrer");
       trackEvent({
-        action: "click_instagram_enquiry",
+        action: "click_whatsapp_enquiry",
         category: "Card",
         label: p.title,
         location: "card",
@@ -167,10 +166,14 @@ export default function ProductCard({ p }: { p: Product }) {
         </h3>
         
         <p className={styles['product-note']}>
-          {isCustomOrder ? 'Non-refundable (custom made)' : 'Handmade with care'}
+          {getProductOneLiner(p)}
         </p>
 
-        <div className={styles['product-footer']}>
+        <p className={styles['product-trust']}>
+          {getCardTrustText(p)}
+        </p>
+
+        <div className={`${styles['product-footer']} ${isCustomOrder ? styles['custom-order-footer'] : ''}`}>
           <p className={styles['product-price']}>{priceDisplay}</p>
 
           <div className={styles['cart-area']}>
