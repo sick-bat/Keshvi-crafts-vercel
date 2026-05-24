@@ -39,6 +39,13 @@ function asCleanString(value: unknown, maxLength: number) {
   return typeof value === 'string' ? value.trim().slice(0, maxLength) : '';
 }
 
+function normalizeIndianPhone(value: string) {
+  let digits = value.replace(/\D/g, '');
+  if (digits.length === 11 && digits.startsWith('0')) digits = digits.slice(1);
+  if (digits.length === 12 && digits.startsWith('91')) digits = digits.slice(2);
+  return digits;
+}
+
 function getRequiredEnv(name: string) {
   const value = process.env[name]?.trim();
   if (!value) throw new Error(`Missing required env: ${name}`);
@@ -59,7 +66,7 @@ function validateCheckoutPayload(body: any) {
   const formData = body.formData || {};
   const cleanForm = {
     fullName: asCleanString(formData.fullName, 120),
-    phoneNumber: asCleanString(formData.phoneNumber, 20),
+    phoneNumber: normalizeIndianPhone(asCleanString(formData.phoneNumber, 20)),
     email: asCleanString(formData.email, 160).toLowerCase(),
     address: asCleanString(formData.address, 300),
     city: asCleanString(formData.city, 80),
@@ -68,7 +75,7 @@ function validateCheckoutPayload(body: any) {
   };
 
   if (!cleanForm.fullName) throw new Error('Full name is required');
-  if (!/^[6-9]\d{9}$/.test(cleanForm.phoneNumber.replace(/\D/g, ''))) {
+  if (!/^[6-9]\d{9}$/.test(cleanForm.phoneNumber)) {
     throw new Error('Valid Indian phone number is required');
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanForm.email)) {
@@ -241,7 +248,7 @@ export async function POST(req: Request) {
       productInfo,
       firstName,
       email,
-      phone: formData.phoneNumber.replace(/\D/g, ''),
+      phone: formData.phoneNumber,
       udf,
       key,
       surl: `${baseUrl}/api/payu/response`,

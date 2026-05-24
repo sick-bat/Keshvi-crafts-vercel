@@ -22,6 +22,52 @@ type PostalPincodeResponse = Array<{
 
 type PincodeLookupStatus = "idle" | "loading" | "found" | "not_found" | "error";
 
+const INDIAN_STATES_AND_UTS = [
+  "Andaman and Nicobar Islands",
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chandigarh",
+  "Chhattisgarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jammu and Kashmir",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Ladakh",
+  "Lakshadweep",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Puducherry",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+];
+
+function normalizeIndianPhone(value: string) {
+  let digits = value.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
+  if (digits.length === 12 && digits.startsWith("91")) digits = digits.slice(2);
+  return digits;
+}
+
 export default function CheckoutPage() {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -170,8 +216,10 @@ export default function CheckoutPage() {
       ? Boolean((new FormData(form).get("acceptedPolicies")))
       : formData.acceptedPolicies;
 
+    const normalizedPhone = normalizeIndianPhone(formData.phoneNumber);
+
     if (!formData.fullName.trim()) newErrors.fullName = "Full Name is required";
-    if (!/^[6-9]\d{9}$/.test(formData.phoneNumber.replace(/\D/g, ""))) newErrors.phoneNumber = "Valid Indian phone number is required";
+    if (!/^[6-9]\d{9}$/.test(normalizedPhone)) newErrors.phoneNumber = "Valid Indian phone number is required";
     if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Valid Email is required";
     if (!formData.address.trim()) newErrors.address = "Address is required";
     if (!formData.city.trim()) newErrors.city = "City is required";
@@ -198,10 +246,16 @@ export default function CheckoutPage() {
       const timeout = window.setTimeout(() => controller.abort(), 20_000);
 
       try {
+        const normalizedFormData = {
+          ...formData,
+          phoneNumber: normalizeIndianPhone(formData.phoneNumber),
+          whatsappNumber: formData.whatsappNumber ? normalizeIndianPhone(formData.whatsappNumber) : "",
+        };
+
         const response = await fetch('/api/payu/hash', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ formData, cart, grandTotal }),
+          body: JSON.stringify({ formData: normalizedFormData, cart, grandTotal }),
           signal: controller.signal,
         });
         window.clearTimeout(timeout);
@@ -379,14 +433,15 @@ export default function CheckoutPage() {
           <form onSubmit={handleSubmit} className="checkout-form-grid" noValidate>
             
             <div className={`floating-field ${errors.email ? 'has-error' : ''}`}>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder=" "
-              />
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder=" "
+                  autoComplete="email"
+                />
               <label htmlFor="email">Email Address *</label>
               {errors.email && <div className="field-error">{errors.email}</div>}
             </div>
@@ -400,6 +455,7 @@ export default function CheckoutPage() {
                   value={formData.fullName}
                   onChange={handleChange}
                   placeholder=" "
+                  autoComplete="name"
                 />
                 <label htmlFor="fullName">Full Name *</label>
                 {errors.fullName && <div className="field-error">{errors.fullName}</div>}
@@ -413,6 +469,7 @@ export default function CheckoutPage() {
                   value={formData.phoneNumber}
                   onChange={handleChange}
                   placeholder=" "
+                  autoComplete="tel"
                 />
                 <label htmlFor="phoneNumber">Phone Number *</label>
                 {errors.phoneNumber && <div className="field-error">{errors.phoneNumber}</div>}
@@ -427,6 +484,7 @@ export default function CheckoutPage() {
                 value={formData.whatsappNumber}
                 onChange={handleChange}
                 placeholder=" "
+                autoComplete="tel"
               />
               <label htmlFor="whatsappNumber">WhatsApp Number (Optional)</label>
             </div>
@@ -466,20 +524,27 @@ export default function CheckoutPage() {
                   value={formData.city}
                   onChange={handleChange}
                   placeholder=" "
+                  autoComplete="address-level2"
                 />
                 <label htmlFor="city">City *</label>
                 {errors.city && <div className="field-error">{errors.city}</div>}
               </div>
 
               <div className={`floating-field ${errors.state ? 'has-error' : ''}`}>
-                <input
-                  type="text"
+                <select
                   id="state"
                   name="state"
                   value={formData.state}
                   onChange={handleChange}
-                  placeholder=" "
-                />
+                  autoComplete="address-level1"
+                >
+                  <option value="">Select state</option>
+                  {INDIAN_STATES_AND_UTS.map((state) => (
+                    <option key={state} value={state}>
+                      {state}
+                    </option>
+                  ))}
+                </select>
                 <label htmlFor="state">State *</label>
                 {errors.state && <div className="field-error">{errors.state}</div>}
               </div>

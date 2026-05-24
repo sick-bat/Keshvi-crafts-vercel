@@ -232,6 +232,7 @@
 }
 
 /* Float the label when focused or has value */
+.floating-field select + label,
 .floating-field input:focus + label,
 .floating-field input:not(:placeholder-shown) + label,
 .floating-field textarea:focus + label,

@@ -49,7 +49,7 @@ const securityHeaders = [
       "font-src 'self' data:",
       "style-src 'self' 'unsafe-inline'",
       scriptSrc,
-      "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com",
+      "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://api.postalpincode.in",
       `frame-src ${payuSources} https://www.googletagmanager.com`,
       `form-action 'self' ${payuSources}`,
       "upgrade-insecure-requests",
