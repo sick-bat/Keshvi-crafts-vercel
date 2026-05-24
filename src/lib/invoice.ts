@@ -126,8 +126,10 @@ function addKeyValue(doc: PDFKit.PDFDocument, key: string, value: string, x: num
   doc.fillColor("#3b2a22").fontSize(10).font("Helvetica").text(value || "-", x, y + 13, { width });
 }
 
-function publicPngDataUri(...segments: string[]) {
-  const assetPath = path.join(process.cwd(), "public", ...segments);
+const INVOICE_LOGO_PATH = path.join(process.cwd(), "public", "uploads", "hero", "logo.png");
+const INVOICE_SIGNATURE_PATH = path.join(process.cwd(), "public", "uploads", "invoice", "signature.png");
+
+function publicPngDataUri(assetPath: string) {
   if (!fs.existsSync(assetPath)) return null;
   const base64 = fs.readFileSync(assetPath).toString("base64");
   return `data:image/png;base64,${base64}`;
@@ -149,7 +151,7 @@ export async function renderInvoicePdf(invoice: {
   });
 
   doc.rect(0, 0, doc.page.width, doc.page.height).fill("#fff8f1");
-  const logoImage = publicPngDataUri("uploads", "hero", "logo.png");
+  const logoImage = publicPngDataUri(INVOICE_LOGO_PATH);
   if (logoImage) {
     doc.image(logoImage, 40, 30, { width: 76 });
   }
@@ -229,7 +231,7 @@ export async function renderInvoicePdf(invoice: {
   );
 
   doc.fillColor("#7a6255").fontSize(9).text("With gratitude,", 402, 650, { width: 145, align: "right" });
-  const signatureImage = publicPngDataUri("uploads", "invoice", "signature.png");
+  const signatureImage = publicPngDataUri(INVOICE_SIGNATURE_PATH);
   if (signatureImage) {
     doc.image(signatureImage, 385, 665, { width: 160 });
   }
