@@ -101,7 +101,7 @@ function SuccessContent() {
             orderId,
             (order.totalAmountPaise || 0) / 100,
             (order.items || []).map((item) => ({
-              slug: item.productTitle,
+              slug: (item as any).slug || (item as any).productSlug || item.productTitle.toLowerCase().replace(/[^\w-]+/g, "-"),
               title: item.productTitle,
               price: item.priceAtPurchasePaise / 100,
               qty: item.quantity,

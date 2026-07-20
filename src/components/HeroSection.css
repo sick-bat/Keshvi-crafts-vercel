@@ -1,18 +1,18 @@
 :root {
-  --bg: #f5efe6;
-  --ink: #2f2a26;
-  --muted: #6a6150;
-  --cta: hwb(39 13% 64%);
-  --cta-ink: #ffffff;
-  --ring: rgba(91, 70, 32, 0.15);
+  --bg: #F7F1E8;
+  --ink: #241713;
+  --muted: #6F5142;
+  --cta: #241713;
+  --cta-ink: #F4D7A1;
+  --ring: rgba(36, 23, 19, 0.14);
   --nav-h: 60px;
 }
 
 .hero {
   max-width: 1280px;
   margin-inline: auto;
-  padding: clamp(1.2rem, 3vw, 2.2rem) clamp(1rem, 3.2vw, 2.2rem) 2.2rem;
-  min-height: calc(100svh - var(--nav-h));
+  padding: clamp(1.2rem, 3vw, 2.2rem) clamp(1rem, 3.2vw, 2.2rem) clamp(2.2rem, 5vw, 4rem);
+  min-height: min(820px, calc(94svh - var(--nav-h)));
   display: grid;
   align-items: center;
 }
@@ -20,7 +20,7 @@
 .hero-grid {
   display: grid;
   align-items: center;
-  gap: clamp(1.6rem, 3vw, 2.6rem);
+  gap: clamp(2rem, 4vw, 4rem);
   grid-template-columns: 0.9fr 1.1fr;
 }
 
@@ -33,21 +33,23 @@
 
 .copy h1 {
   font-family: "Cormorant Garamond", serif;
-  line-height: 1.28;
-  letter-spacing: 0.2px;
-  font-size: clamp(2.6rem, 6vw, 4.4rem);
-  margin: 0 0 0.6rem;
+  line-height: 1.12;
+  letter-spacing: 0;
+  font-size: clamp(2.5rem, 5.4vw, 4.15rem);
+  margin: 0 0 0.8rem;
 }
 
 .copy .sub {
   color: var(--muted);
-  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
-  margin: 0.25rem 0 1.1rem;
+  font-size: clamp(1rem, 1.8vw, 1.16rem);
+  line-height: 1.65;
+  margin: 0.25rem 0 1.25rem;
+  max-width: 28rem;
 }
 
 @media (max-width: 700px) {
   .copy .sub {
-    color: #f5efe6;
+    color: #FFF6EA;
     /* Light color for dark overlay */
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   }
@@ -55,13 +57,13 @@
 
 .cta {
   display: inline-block;
-  background: linear-gradient(180deg, #6a4a1f, #4a3212);
-  color: #ffffff;
+  background: linear-gradient(180deg, #3A2016, #241713);
+  color: #F4D7A1;
   font-weight: 700;
   padding: 0.9rem 1.4rem;
   border-radius: 0.6rem;
-  border: 1px solid #3c2e14;
-  box-shadow: 0 6px 16px rgba(91, 70, 32, 0.25);
+  border: 1px solid #1B100D;
+  box-shadow: 0 6px 16px rgba(36, 23, 19, 0.28);
   text-decoration: none;
   transition: transform 0.15s ease, box-shadow 0.15s ease,
     background 0.15s ease;
@@ -69,8 +71,36 @@
 
 .cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(91, 70, 32, 0.35);
-  background: linear-gradient(180deg, #7a5322, #3a250d);
+  box-shadow: 0 10px 24px rgba(36, 23, 19, 0.36);
+  background: linear-gradient(180deg, #4A2618, #1F120E);
+}
+
+.hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  margin-top: 1.1rem;
+  color: rgba(36, 23, 19, 0.72);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.hero-trust span {
+  position: relative;
+}
+
+.hero-trust span + span::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -0.58rem;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: #B8893B;
 }
 
 .photo {
@@ -78,6 +108,8 @@
   aspect-ratio: 3/4;
   width: min(520px, 95%);
   justify-self: end;
+  border-radius: 2px;
+  box-shadow: 0 28px 70px rgba(36, 23, 19, 0.12);
 }
 
 @media (max-width: 700px) {
@@ -85,13 +117,12 @@
     position: relative;
     /* Clean background fallback + image */
     background: url("/uploads/hero/Top_brown.png") top center/cover no-repeat;
-    min-height: 85svh;
-    /* Slightly reduced to show some content below fold */
+    min-height: 88svh;
     padding: 0;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    color: #f5efe6;
+    color: #FFF6EA;
     overflow: hidden;
   }
 
@@ -102,9 +133,9 @@
     inset: 0;
     background: linear-gradient(to bottom,
         rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0) 40%,
-        rgba(0, 0, 0, 0.4) 60%,
-        rgba(0, 0, 0, 0.8) 100%);
+        rgba(0, 0, 0, 0) 34%,
+        rgba(36, 23, 19, 0.34) 58%,
+        rgba(20, 12, 9, 0.82) 100%);
     z-index: 1;
   }
 
@@ -117,11 +148,11 @@
   }
 
   .hero h1 {
-    color: #ffffff;
+    color: #FFFDF8;
   }
 
   .copy {
-    padding: 2rem 1.5rem 3.5rem;
+    padding: 2rem 1.35rem 3rem;
     /* More bottom padding for mobile thumb reach */
     padding-top: 0;
     max-width: 100%;
@@ -134,8 +165,36 @@
   }
 
   .copy h1 {
-    font-size: 3.2rem;
-    line-height: 1.1;
+    font-size: clamp(2.45rem, 10.8vw, 2.9rem);
+    line-height: 1.08;
+    max-width: 22rem;
+  }
+
+  .copy .sub {
+    max-width: 21rem;
+    font-size: 0.96rem;
+    line-height: 1.55;
+    margin-bottom: 1rem;
+  }
+
+  .cta {
+    padding: 0.78rem 1.05rem;
+    border-radius: 0.45rem;
+    font-size: 0.92rem;
+  }
+
+  .hero-trust {
+    max-width: 20rem;
+    gap: 0.34rem 0.78rem;
+    margin-top: 0.9rem;
+    color: rgba(255, 246, 234, 0.76);
+    font-size: 0.58rem;
+    letter-spacing: 0.09em;
+  }
+
+  .hero-trust span + span::before {
+    left: -0.43rem;
+    background: rgba(244, 215, 161, 0.86);
   }
 
   .photo {

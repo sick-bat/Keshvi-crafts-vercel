@@ -95,7 +95,7 @@ export default function Home() {
       {/* Hero Section */}
       <HeroSection />
 
-      <div className="container py-40 mt-10">
+      <div className="container pt-10 pb-12 md:py-20">
 
         {/* Valentine's Collection (Campaign) */}
         {valentineProducts.length > 0 && (
@@ -120,7 +120,7 @@ export default function Home() {
         {popularPicks.length > 0 && (
           <section className="mb-16">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-semibold" style={{ fontFamily: "Cormorant Garamond, serif" }}>
+              <h2 className="text-[2rem] md:text-4xl font-semibold text-[#241713]" style={{ fontFamily: "Cormorant Garamond, serif" }}>
                 Popular Handmade Picks
               </h2>
             </div>
@@ -134,7 +134,7 @@ export default function Home() {
 
         {/* About / Why Handmade Section */}
         <section className="mb-12 text-center max-w-3xl mx-auto">
-          <h2 className="text-3xl font-semibold mb-4" style={{ fontFamily: "Cormorant Garamond, serif" }}>
+          <h2 className="text-[2rem] md:text-4xl font-semibold mb-4 text-[#241713]" style={{ fontFamily: "Cormorant Garamond, serif" }}>
             Why Handmade?
           </h2>
           <p className="text-lg leading-relaxed" style={{ color: "var(--muted)" }}>
@@ -144,26 +144,26 @@ export default function Home() {
           </p>
           <div className="mt-8 text-left max-w-2xl mx-auto space-y-6">
             <div className="flex gap-4 items-start">
-              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#fae8d4] text-[#C2410C] flex items-center justify-center font-bold">1</span>
+              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#F1E6D8] text-[#7A3E1D] flex items-center justify-center font-bold">1</span>
               <div>
-                <strong className="block text-[#2f2a26] text-lg mb-1">Made to order, not mass produced</strong>
-                <p className="text-[#6a6150] leading-relaxed">Each item is started only after you place an order, reducing waste and ensuring it&apos;s made just for you.</p>
+                <strong className="block text-[#241713] text-lg mb-1">Made to order, not mass produced</strong>
+                <p className="text-[#6F5142] leading-relaxed">Each item is started only after you place an order, reducing waste and ensuring it&apos;s made just for you.</p>
               </div>
             </div>
 
             <div className="flex gap-4 items-start">
-              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#fae8d4] text-[#C2410C] flex items-center justify-center font-bold">2</span>
+              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#F1E6D8] text-[#7A3E1D] flex items-center justify-center font-bold">2</span>
               <div>
-                <strong className="block text-[#2f2a26] text-lg mb-1">Crafted with care & attention</strong>
-                <p className="text-[#6a6150] leading-relaxed">Our artisans spend hours perfecting every stitch, ensuring quality that machines simply can&apos;t match.</p>
+                <strong className="block text-[#241713] text-lg mb-1">Crafted with care & attention</strong>
+                <p className="text-[#6F5142] leading-relaxed">Our artisans spend hours perfecting every stitch, ensuring quality that machines simply can&apos;t match.</p>
               </div>
             </div>
 
             <div className="flex gap-4 items-start">
-              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#fae8d4] text-[#C2410C] flex items-center justify-center font-bold">3</span>
+              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#F1E6D8] text-[#7A3E1D] flex items-center justify-center font-bold">3</span>
               <div>
-                <strong className="block text-[#2f2a26] text-lg mb-1">Truly unique to you</strong>
-                <p className="text-[#6a6150] leading-relaxed">No two handmade pieces are exactly alike. Your item carries individuality, warmth, and soul.</p>
+                <strong className="block text-[#241713] text-lg mb-1">Truly unique to you</strong>
+                <p className="text-[#6F5142] leading-relaxed">No two handmade pieces are exactly alike. Your item carries individuality, warmth, and soul.</p>
               </div>
             </div>
           </div>
@@ -173,7 +173,7 @@ export default function Home() {
         {bestSellers.length > 0 && (
           <section className="mb-12">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-semibold" style={{ fontFamily: "Cormorant Garamond, serif" }}>
+              <h2 className="text-[2rem] md:text-4xl font-semibold text-[#241713]" style={{ fontFamily: "Cormorant Garamond, serif" }}>
                 Best Sellers
               </h2>
               <Link href="/collections" className="meta hover:underline">
@@ -191,7 +191,7 @@ export default function Home() {
         {/* Shop by Collection Section */}
         {displayCats.length > 0 && (
           <section className="mb-12">
-            <h2 className="text-3xl font-semibold mb-6" style={{ fontFamily: "Cormorant Garamond, serif" }}>
+            <h2 className="text-[2rem] md:text-4xl font-semibold mb-6 text-[#241713]" style={{ fontFamily: "Cormorant Garamond, serif" }}>
               Shop by Collection
             </h2>
             <div className="flex flex-wrap gap-3 mb-8">

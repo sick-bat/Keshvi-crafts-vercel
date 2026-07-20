@@ -38,6 +38,15 @@ export const metadata = {
   alternates: {
     canonical: "https://www.keshvicrafts.in",
   },
+  icons: {
+    icon: [
+      { url: "/uploads/favicon_io/favicon.ico", sizes: "any" },
+      { url: "/uploads/favicon_io/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/uploads/favicon_io/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+    ],
+    apple: [{ url: "/uploads/favicon_io/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  manifest: "/uploads/favicon_io/site.webmanifest",
   robots: {
     index: true,
     follow: true,
@@ -49,6 +58,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head />
       <body className="bg-cream text-dark">
+        {/* Google Tag Manager (noscript) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-MFVDFHT3"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
         <ConsentManager />
         <AnalyticsTracker />
         <TrustBar />

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { addToCart } from "@/lib/bags";
-import { trackEvent } from "@/lib/analytics";
+import { trackAddToCart, trackBeginCheckout } from "@/lib/analytics";
 
 export default function BuyBar({
   slug, title, price, image, checkoutUrl, disabled = false, productSlug
@@ -11,28 +11,20 @@ export default function BuyBar({
 }) {
 
   function handleAddToCart() {
-    addToCart({ slug, productSlug, title, price, image: image || "/placeholder.png" }, 1);
+    const item = { slug, productSlug, title, price, image: image || "/placeholder.png" };
+    addToCart(item, 1);
 
-    trackEvent({
-      action: "add_to_cart",
-      category: "Ecommerce",
-      label: title,
-      value: price,
-    });
+    trackAddToCart(item, 1);
 
     // Open the Cart Drawer
     window.dispatchEvent(new CustomEvent("cart:drawer-open"));
   }
 
   function buyNow() {
-    addToCart({ slug, productSlug, title, price, image: image || "/placeholder.png" }, 1);
+    const item = { slug, productSlug, title, price, image: image || "/placeholder.png" };
+    addToCart(item, 1);
 
-    trackEvent({
-      action: "begin_checkout",
-      category: "Ecommerce",
-      label: title,
-      value: price,
-    });
+    trackBeginCheckout([item], price);
 
     // Open the Cart Drawer for review before checkout
     window.dispatchEvent(new CustomEvent("cart:drawer-open"));

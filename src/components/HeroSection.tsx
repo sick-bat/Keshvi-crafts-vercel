@@ -8,11 +8,9 @@ export default function HeroSection() {
       <section className="hero-grid">
         <div className="copy">
           <h1>
-            Handmade
+            Handmade Crochet
             <br />
-            Crochet Gifts
-            <br />
-            Crafted to Order
+            Gifts, Made to Order
           </h1>
           <p className="sub">
             Premium keyrings, flowers, bags, decor, and custom crochet pieces made with care in India.
@@ -20,6 +18,11 @@ export default function HeroSection() {
           <Link href="/collections" className="cta">
             Shop Handmade Gifts
           </Link>
+          <div className="hero-trust" aria-label="Keshvi Crafts promises">
+            <span>Made to order</span>
+            <span>Handcrafted in India</span>
+            <span>Ships in 3 business days</span>
+          </div>
         </div>
 
         <div

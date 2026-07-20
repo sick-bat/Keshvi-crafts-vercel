@@ -1,7 +1,7 @@
 :root {
   --nav-h: 60px;
-  --cream: #f5efe6;
-  --text: #2f2a26;
+  --cream: #F7F1E8;
+  --text: #241713;
 }
 
 .keshvi-nav {
@@ -9,9 +9,9 @@
   top: 0;
   z-index: 20;
   height: var(--nav-h);
-  backdrop-filter: saturate(180%) blur(6px);
-  background: linear-gradient(180deg, rgba(245, 239, 230, 0.95), rgba(245, 239, 230, 0.78));
-  border-bottom: 1px solid #eadfcd;
+  backdrop-filter: saturate(160%) blur(10px);
+  background: rgba(247, 241, 232, 0.9);
+  border-bottom: 1px solid #E8DCCB;
   /* Allow logo overlap */
   overflow: visible;
 }
@@ -39,8 +39,8 @@
 
 /* Logo direct image */
 .logo-img {
-  width: 90px;
-  height: 90px;
+  width: 82px;
+  height: 82px;
   object-fit: contain;
   /* Ensure it stays on top */
   position: relative;
@@ -58,7 +58,7 @@
 .nav-icons {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1.1rem;
 }
 
 .nav-item {
@@ -76,17 +76,17 @@
 }
 
 .nav-item:hover {
-  background: rgba(47, 42, 38, 0.05);
+  background: rgba(36, 23, 19, 0.05);
   color: var(--text);
 }
 
 .nav-item.active {
   color: var(--text);
-  background: rgba(47, 42, 38, 0.08);
+  background: rgba(36, 23, 19, 0.08);
 }
 
 .nav-icon {
-  opacity: 0.85;
+  opacity: 0.76;
   transition: opacity 0.2s ease;
   flex-shrink: 0;
 }
@@ -116,8 +116,8 @@
   position: absolute !important;
   top: -8px !important;
   right: -10px !important;
-  background: #C2410C !important;
-  color: #fff !important;
+  background: #7A3E1D !important;
+  color: #FFFDF8 !important;
   font-size: 10px !important;
   font-weight: 700 !important;
   padding: 2px 5px !important;
@@ -127,7 +127,7 @@
   height: 18px !important;
   text-align: center !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
-  border: 2px solid #FAF7F2 !important;
+  border: 2px solid #F7F1E8 !important;
   z-index: 10 !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -201,8 +201,8 @@
 
   /* Icon alignment */
   .nav-item .nav-icon {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
   }
 
   .nav-icons {
@@ -219,16 +219,14 @@
 
   /* Mobile Logo large but smaller than desktop */
   .logo-img {
-    width: 65px;
-    height: 65px !important;
+    width: 60px;
+    height: 60px !important;
     /* Force override inline styles if needed */
     margin-top: 8px !important;
     margin-bottom: 4px !important;
   }
 
-  .nav-icons {
-    gap: 1rem;
-  }
+  .nav-icons { gap: 0.85rem; }
 
   .cart {
     width: 24px;

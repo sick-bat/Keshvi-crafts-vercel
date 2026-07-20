@@ -53,7 +53,7 @@ export default function BootstrapNavbar() {
               width={32}
               height={32}
               className="nav-icon"
-              style={{ width: 32, height: 32 }}
+              style={{ width: 28, height: 28 }}
             />
             <span className="nav-label">Home</span>
           </Link>
@@ -65,7 +65,7 @@ export default function BootstrapNavbar() {
               width={32}
               height={32}
               className="nav-icon"
-              style={{ width: 32, height: 32 }}
+              style={{ width: 28, height: 28 }}
             />
             <span className="nav-label">Collections</span>
           </Link>
@@ -77,7 +77,7 @@ export default function BootstrapNavbar() {
               width={32}
               height={32}
               className="nav-icon"
-              style={{ width: 32, height: 32 }}
+              style={{ width: 28, height: 28 }}
             />
             <span className="nav-label">Wishlist</span>
           </Link>
@@ -96,7 +96,7 @@ export default function BootstrapNavbar() {
                 width={32}
                 height={32}
                 className="nav-icon"
-                style={{ width: 32, height: 32 }}
+                style={{ width: 28, height: 28 }}
               />
               <CartBadge />
             </div>
